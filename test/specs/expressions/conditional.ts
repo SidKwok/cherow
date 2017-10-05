@@ -27,98 +27,100 @@ describe('Espressions - Conditional', () => {
             "start": 0,
             "end": 21,
             "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 0
-                },
-                "end": {
-                    "line": 1,
-                    "column": 21
-                }
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 21
+              }
             },
-            "body": [{
+            "body": [
+              {
                 "type": "ExpressionStatement",
                 "start": 0,
                 "end": 21,
                 "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 0
-                    },
-                    "end": {
-                        "line": 1,
-                        "column": 21
-                    }
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 21
+                  }
                 },
                 "expression": {
-                    "type": "ConditionalExpression",
+                  "type": "ConditionalExpression",
+                  "start": 1,
+                  "end": 20,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 20
+                    }
+                  },
+                  "test": {
+                    "type": "Literal",
                     "start": 1,
+                    "end": 5,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 1
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 5
+                      }
+                    },
+                    "value": true,
+                    "raw": "true"
+                  },
+                  "consequent": {
+                    "type": "Literal",
+                    "start": 8,
+                    "end": 13,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 13
+                      }
+                    },
+                    "value": false,
+                    "raw": "false"
+                  },
+                  "alternate": {
+                    "type": "Literal",
+                    "start": 16,
                     "end": 20,
                     "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 1
-                        },
-                        "end": {
-                            "line": 1,
-                            "column": 20
-                        }
+                      "start": {
+                        "line": 1,
+                        "column": 16
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 20
+                      }
                     },
-                    "test": {
-                        "type": "Literal",
-                        "start": 1,
-                        "end": 5,
-                        "loc": {
-                            "start": {
-                                "line": 1,
-                                "column": 1
-                            },
-                            "end": {
-                                "line": 1,
-                                "column": 5
-                            }
-                        },
-                        "value": true,
-                        "raw": "true"
-                    },
-                    "consequent": {
-                        "type": "Literal",
-                        "start": 8,
-                        "end": 13,
-                        "loc": {
-                            "start": {
-                                "line": 1,
-                                "column": 8
-                            },
-                            "end": {
-                                "line": 1,
-                                "column": 13
-                            }
-                        },
-                        "value": false,
-                        "raw": "false"
-                    },
-                    "alternate": {
-                        "type": "Literal",
-                        "start": 16,
-                        "end": 20,
-                        "loc": {
-                            "start": {
-                                "line": 1,
-                                "column": 16
-                            },
-                            "end": {
-                                "line": 1,
-                                "column": 20
-                            }
-                        },
-                        "value": true,
-                        "raw": "true"
-                    }
+                    "value": true,
+                    "raw": "true"
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse with in keyword', () => {

@@ -102,7 +102,7 @@ export const enum Token {
     BitwiseAnd         = 68 | BinaryOperator  | 5 << PrecStart, // &
     BitwiseOr          = 69 | BinaryOperator  | 3 << PrecStart, // |
     BitwiseXor         = 70 | BinaryOperator  | 4 << PrecStart, // ^
-    Pipeline           = 71 | BinaryOperator  | 1 << PrecStart, // |>
+    Pipeline           = 71 | BinaryOperator  | 2 << PrecStart, // |>
 
     /* Variable declaration kinds */
     VarKeyword   = 72 | VarDeclStart | Reserved,

@@ -94,6 +94,7 @@ export function isValidDestructuringAssignmentTarget(expr: Expression | Pattern)
         case 'AssignmentExpression':
         case 'NewExpression':
             return true;
+            
         default:
             return false;
     }

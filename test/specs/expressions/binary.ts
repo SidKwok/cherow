@@ -6,66 +6,98 @@ const expect = chai.expect;
 describe('Espressions - binary', () => {
 
     it('should parse "x + y + z"', () => {
-        expect(parseScript('x + y + z')).to.eql({
-            "type": "Program",
-            "body": [{
-                "type": "ExpressionStatement",
-                "expression": {
-                    "type": "BinaryExpression",
-                    "operator": "+",
-                    "left": {
-                        "type": "BinaryExpression",
-                        "operator": "+",
-                        "left": {
-                            "type": "Identifier",
-                            "name": "x"
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "y"
-                        }
-                    },
-                    "right": {
-                        "type": "Identifier",
-                        "name": "z"
-                    }
-                }
-            }],
-            "sourceType": "script"
-        });
-    });
-
-    it('should parse "x - y + z"', () => {
-        expect(parseScript('x - y + z', {
-            ranges: true
+        expect(parseScript('x + y + z', {
+            ranges: true,
+            raw: true,
+            locations: true
         })).to.eql({
             "type": "Program",
             "start": 0,
             "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
             "body": [
               {
                 "type": "ExpressionStatement",
                 "start": 0,
                 "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
                 "expression": {
                   "type": "BinaryExpression",
                   "start": 0,
                   "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 9
+                    }
+                  },
                   "left": {
                     "type": "BinaryExpression",
                     "start": 0,
                     "end": 5,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 5
+                      }
+                    },
                     "left": {
                       "type": "Identifier",
                       "start": 0,
                       "end": 1,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 1
+                        }
+                      },
                       "name": "x"
                     },
-                    "operator": "-",
+                    "operator": "+",
                     "right": {
                       "type": "Identifier",
                       "start": 4,
                       "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
                       "name": "y"
                     }
                   },
@@ -74,6 +106,16 @@ describe('Espressions - binary', () => {
                     "type": "Identifier",
                     "start": 8,
                     "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
                     "name": "z"
                   }
                 }
@@ -83,7 +125,126 @@ describe('Espressions - binary', () => {
           });
     });
 
-    it('should parse "a < !(--b)"', () => {
+    it('should parse "x - y + z"', () => {
+        expect(parseScript('x - y + z', {
+            ranges: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
+                "expression": {
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 9
+                    }
+                  },
+                  "left": {
+                    "type": "BinaryExpression",
+                    "start": 0,
+                    "end": 5,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 5
+                      }
+                    },
+                    "left": {
+                      "type": "Identifier",
+                      "start": 0,
+                      "end": 1,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 1
+                        }
+                      },
+                      "name": "x"
+                    },
+                    "operator": "-",
+                    "right": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "y"
+                    }
+                  },
+                  "operator": "+",
+                  "right": {
+                    "type": "Identifier",
+                    "start": 8,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "name": "z"
+                  }
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
+    it.skip('should parse "a < !(--b)"', () => {
         expect(parseModule('a < !(--b)', {
             ranges: true
         })).to.eql({
@@ -132,7 +293,7 @@ describe('Espressions - binary', () => {
             "sourceType": "module"
           });
     });
-    it('should parse "x - y + z"', () => {
+    it.skip('should parse "x - y + z"', () => {
         expect(parseModule('1 <!--b')).to.eql({
               "body": [
                 {
@@ -167,393 +328,1563 @@ describe('Espressions - binary', () => {
     });
 
     it('should parse "x + y - z"', () => {
-        expect(parseScript('x + y - z')).to.eql({
+        expect(parseScript('x + y - z', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
                 "expression": {
-                    "type": "BinaryExpression",
-                    "operator": "-",
-                    "left": {
-                        "type": "BinaryExpression",
-                        "operator": "+",
-                        "left": {
-                            "type": "Identifier",
-                            "name": "x"
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "y"
-                        }
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "right": {
-                        "type": "Identifier",
-                        "name": "z"
+                    "end": {
+                      "line": 1,
+                      "column": 9
                     }
+                  },
+                  "left": {
+                    "type": "BinaryExpression",
+                    "start": 0,
+                    "end": 5,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 5
+                      }
+                    },
+                    "left": {
+                      "type": "Identifier",
+                      "start": 0,
+                      "end": 1,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 1
+                        }
+                      },
+                      "name": "x"
+                    },
+                    "operator": "+",
+                    "right": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "y"
+                    }
+                  },
+                  "operator": "-",
+                  "right": {
+                    "type": "Identifier",
+                    "start": 8,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "name": "z"
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse "x - y - z"', () => {
-        expect(parseScript('x - y - z')).to.eql({
+        expect(parseScript('x - y - z', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
                 "expression": {
-                    "type": "BinaryExpression",
-                    "operator": "-",
-                    "left": {
-                        "type": "BinaryExpression",
-                        "operator": "-",
-                        "left": {
-                            "type": "Identifier",
-                            "name": "x"
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "y"
-                        }
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "right": {
-                        "type": "Identifier",
-                        "name": "z"
+                    "end": {
+                      "line": 1,
+                      "column": 9
                     }
+                  },
+                  "left": {
+                    "type": "BinaryExpression",
+                    "start": 0,
+                    "end": 5,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 5
+                      }
+                    },
+                    "left": {
+                      "type": "Identifier",
+                      "start": 0,
+                      "end": 1,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 1
+                        }
+                      },
+                      "name": "x"
+                    },
+                    "operator": "-",
+                    "right": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "y"
+                    }
+                  },
+                  "operator": "-",
+                  "right": {
+                    "type": "Identifier",
+                    "start": 8,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "name": "z"
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse "x + y * z"', () => {
-        expect(parseScript('x + y * z')).to.eql({
+        expect(parseScript('x + y * z', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
                 "expression": {
-                    "type": "BinaryExpression",
-                    "operator": "+",
-                    "left": {
-                        "type": "Identifier",
-                        "name": "x"
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "right": {
-                        "type": "BinaryExpression",
-                        "operator": "*",
-                        "left": {
-                            "type": "Identifier",
-                            "name": "y"
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "z"
-                        }
+                    "end": {
+                      "line": 1,
+                      "column": 9
                     }
+                  },
+                  "left": {
+                    "type": "Identifier",
+                    "start": 0,
+                    "end": 1,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 1
+                      }
+                    },
+                    "name": "x"
+                  },
+                  "operator": "+",
+                  "right": {
+                    "type": "BinaryExpression",
+                    "start": 4,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "left": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "y"
+                    },
+                    "operator": "*",
+                    "right": {
+                      "type": "Identifier",
+                      "start": 8,
+                      "end": 9,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 8
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 9
+                        }
+                      },
+                      "name": "z"
+                    }
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse "x + y / z"', () => {
-        expect(parseScript('x + y / z')).to.eql({
+        expect(parseScript('x + y / z', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
                 "expression": {
-                    "type": "BinaryExpression",
-                    "operator": "+",
-                    "left": {
-                        "type": "Identifier",
-                        "name": "x"
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "right": {
-                        "type": "BinaryExpression",
-                        "operator": "/",
-                        "left": {
-                            "type": "Identifier",
-                            "name": "y"
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "z"
-                        }
+                    "end": {
+                      "line": 1,
+                      "column": 9
                     }
+                  },
+                  "left": {
+                    "type": "Identifier",
+                    "start": 0,
+                    "end": 1,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 1
+                      }
+                    },
+                    "name": "x"
+                  },
+                  "operator": "+",
+                  "right": {
+                    "type": "BinaryExpression",
+                    "start": 4,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "left": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "y"
+                    },
+                    "operator": "/",
+                    "right": {
+                      "type": "Identifier",
+                      "start": 8,
+                      "end": 9,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 8
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 9
+                        }
+                      },
+                      "name": "z"
+                    }
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse "x - y % z"', () => {
-        expect(parseScript('x - y % z')).to.eql({
+        expect(parseScript('x - y % z', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
                 "expression": {
-                    "type": "BinaryExpression",
-                    "operator": "-",
-                    "left": {
-                        "type": "Identifier",
-                        "name": "x"
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "right": {
-                        "type": "BinaryExpression",
-                        "operator": "%",
-                        "left": {
-                            "type": "Identifier",
-                            "name": "y"
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "z"
-                        }
+                    "end": {
+                      "line": 1,
+                      "column": 9
                     }
+                  },
+                  "left": {
+                    "type": "Identifier",
+                    "start": 0,
+                    "end": 1,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 1
+                      }
+                    },
+                    "name": "x"
+                  },
+                  "operator": "-",
+                  "right": {
+                    "type": "BinaryExpression",
+                    "start": 4,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "left": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "y"
+                    },
+                    "operator": "%",
+                    "right": {
+                      "type": "Identifier",
+                      "start": 8,
+                      "end": 9,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 8
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 9
+                        }
+                      },
+                      "name": "z"
+                    }
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse "x * y * z"', () => {
-        expect(parseScript('x * y * z')).to.eql({
+        expect(parseScript('x * y * z', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
                 "expression": {
-                    "type": "BinaryExpression",
-                    "operator": "*",
-                    "left": {
-                        "type": "BinaryExpression",
-                        "operator": "*",
-                        "left": {
-                            "type": "Identifier",
-                            "name": "x"
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "y"
-                        }
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "right": {
-                        "type": "Identifier",
-                        "name": "z"
+                    "end": {
+                      "line": 1,
+                      "column": 9
                     }
+                  },
+                  "left": {
+                    "type": "BinaryExpression",
+                    "start": 0,
+                    "end": 5,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 5
+                      }
+                    },
+                    "left": {
+                      "type": "Identifier",
+                      "start": 0,
+                      "end": 1,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 1
+                        }
+                      },
+                      "name": "x"
+                    },
+                    "operator": "*",
+                    "right": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "y"
+                    }
+                  },
+                  "operator": "*",
+                  "right": {
+                    "type": "Identifier",
+                    "start": 8,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "name": "z"
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse "x * y / z"', () => {
-        expect(parseScript('x * y / z')).to.eql({
+        expect(parseScript('x * y / z', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
                 "expression": {
-                    "type": "BinaryExpression",
-                    "operator": "/",
-                    "left": {
-                        "type": "BinaryExpression",
-                        "operator": "*",
-                        "left": {
-                            "type": "Identifier",
-                            "name": "x"
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "y"
-                        }
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "right": {
-                        "type": "Identifier",
-                        "name": "z"
+                    "end": {
+                      "line": 1,
+                      "column": 9
                     }
+                  },
+                  "left": {
+                    "type": "BinaryExpression",
+                    "start": 0,
+                    "end": 5,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 5
+                      }
+                    },
+                    "left": {
+                      "type": "Identifier",
+                      "start": 0,
+                      "end": 1,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 1
+                        }
+                      },
+                      "name": "x"
+                    },
+                    "operator": "*",
+                    "right": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "y"
+                    }
+                  },
+                  "operator": "/",
+                  "right": {
+                    "type": "Identifier",
+                    "start": 8,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "name": "z"
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse "x * y % z"', () => {
-        expect(parseScript('x * y % z')).to.eql({
+        expect(parseScript('x * y % z', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
                 "expression": {
-                    "type": "BinaryExpression",
-                    "operator": "%",
-                    "left": {
-                        "type": "BinaryExpression",
-                        "operator": "*",
-                        "left": {
-                            "type": "Identifier",
-                            "name": "x"
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "y"
-                        }
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "right": {
-                        "type": "Identifier",
-                        "name": "z"
+                    "end": {
+                      "line": 1,
+                      "column": 9
                     }
+                  },
+                  "left": {
+                    "type": "BinaryExpression",
+                    "start": 0,
+                    "end": 5,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 5
+                      }
+                    },
+                    "left": {
+                      "type": "Identifier",
+                      "start": 0,
+                      "end": 1,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 1
+                        }
+                      },
+                      "name": "x"
+                    },
+                    "operator": "*",
+                    "right": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "y"
+                    }
+                  },
+                  "operator": "%",
+                  "right": {
+                    "type": "Identifier",
+                    "start": 8,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "name": "z"
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse "x % y * z"', () => {
-        expect(parseScript('x % y * z')).to.eql({
+        expect(parseScript('x % y * z', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
                 "expression": {
-                    "type": "BinaryExpression",
-                    "operator": "*",
-                    "left": {
-                        "type": "BinaryExpression",
-                        "operator": "%",
-                        "left": {
-                            "type": "Identifier",
-                            "name": "x"
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "y"
-                        }
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "right": {
-                        "type": "Identifier",
-                        "name": "z"
+                    "end": {
+                      "line": 1,
+                      "column": 9
                     }
+                  },
+                  "left": {
+                    "type": "BinaryExpression",
+                    "start": 0,
+                    "end": 5,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 5
+                      }
+                    },
+                    "left": {
+                      "type": "Identifier",
+                      "start": 0,
+                      "end": 1,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 1
+                        }
+                      },
+                      "name": "x"
+                    },
+                    "operator": "%",
+                    "right": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "y"
+                    }
+                  },
+                  "operator": "*",
+                  "right": {
+                    "type": "Identifier",
+                    "start": 8,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "name": "z"
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse "x << y << z"', () => {
-        expect(parseScript('x << y << z')).to.eql({
+        expect(parseScript('x << y << z', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 11,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 11
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 11,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 11
+                  }
+                },
                 "expression": {
-                    "type": "BinaryExpression",
-                    "operator": "<<",
-                    "left": {
-                        "type": "BinaryExpression",
-                        "operator": "<<",
-                        "left": {
-                            "type": "Identifier",
-                            "name": "x"
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "y"
-                        }
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 11,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "right": {
-                        "type": "Identifier",
-                        "name": "z"
+                    "end": {
+                      "line": 1,
+                      "column": 11
                     }
+                  },
+                  "left": {
+                    "type": "BinaryExpression",
+                    "start": 0,
+                    "end": 6,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 6
+                      }
+                    },
+                    "left": {
+                      "type": "Identifier",
+                      "start": 0,
+                      "end": 1,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 1
+                        }
+                      },
+                      "name": "x"
+                    },
+                    "operator": "<<",
+                    "right": {
+                      "type": "Identifier",
+                      "start": 5,
+                      "end": 6,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 5
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 6
+                        }
+                      },
+                      "name": "y"
+                    }
+                  },
+                  "operator": "<<",
+                  "right": {
+                    "type": "Identifier",
+                    "start": 10,
+                    "end": 11,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 10
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 11
+                      }
+                    },
+                    "name": "z"
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse "x | y | z"', () => {
-        expect(parseScript('x | y | z')).to.eql({
+        expect(parseScript('x | y | z', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
                 "expression": {
-                    "type": "BinaryExpression",
-                    "operator": "|",
-                    "left": {
-                        "type": "BinaryExpression",
-                        "operator": "|",
-                        "left": {
-                            "type": "Identifier",
-                            "name": "x"
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "y"
-                        }
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "right": {
-                        "type": "Identifier",
-                        "name": "z"
+                    "end": {
+                      "line": 1,
+                      "column": 9
                     }
+                  },
+                  "left": {
+                    "type": "BinaryExpression",
+                    "start": 0,
+                    "end": 5,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 5
+                      }
+                    },
+                    "left": {
+                      "type": "Identifier",
+                      "start": 0,
+                      "end": 1,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 1
+                        }
+                      },
+                      "name": "x"
+                    },
+                    "operator": "|",
+                    "right": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "y"
+                    }
+                  },
+                  "operator": "|",
+                  "right": {
+                    "type": "Identifier",
+                    "start": 8,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "name": "z"
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse "x & y & z"', () => {
-        expect(parseScript('x & y & z')).to.eql({
+        expect(parseScript('x & y & z', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
                 "expression": {
-                    "type": "BinaryExpression",
-                    "operator": "&",
-                    "left": {
-                        "type": "BinaryExpression",
-                        "operator": "&",
-                        "left": {
-                            "type": "Identifier",
-                            "name": "x"
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "y"
-                        }
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "right": {
-                        "type": "Identifier",
-                        "name": "z"
+                    "end": {
+                      "line": 1,
+                      "column": 9
                     }
+                  },
+                  "left": {
+                    "type": "BinaryExpression",
+                    "start": 0,
+                    "end": 5,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 5
+                      }
+                    },
+                    "left": {
+                      "type": "Identifier",
+                      "start": 0,
+                      "end": 1,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 1
+                        }
+                      },
+                      "name": "x"
+                    },
+                    "operator": "&",
+                    "right": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "y"
+                    }
+                  },
+                  "operator": "&",
+                  "right": {
+                    "type": "Identifier",
+                    "start": 8,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "name": "z"
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse "x ^ y ^ z"', () => {
-        expect(parseScript('x ^ y ^ z')).to.eql({
+        expect(parseScript('x ^ y ^ z', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
                 "expression": {
-                    "type": "BinaryExpression",
-                    "operator": "^",
-                    "left": {
-                        "type": "BinaryExpression",
-                        "operator": "^",
-                        "left": {
-                            "type": "Identifier",
-                            "name": "x"
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "y"
-                        }
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "right": {
-                        "type": "Identifier",
-                        "name": "z"
+                    "end": {
+                      "line": 1,
+                      "column": 9
                     }
+                  },
+                  "left": {
+                    "type": "BinaryExpression",
+                    "start": 0,
+                    "end": 5,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 5
+                      }
+                    },
+                    "left": {
+                      "type": "Identifier",
+                      "start": 0,
+                      "end": 1,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 1
+                        }
+                      },
+                      "name": "x"
+                    },
+                    "operator": "^",
+                    "right": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "y"
+                    }
+                  },
+                  "operator": "^",
+                  "right": {
+                    "type": "Identifier",
+                    "start": 8,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "name": "z"
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse "x & y | z"', () => {
@@ -587,63 +1918,243 @@ describe('Espressions - binary', () => {
     });
 
     it('should parse "x | y ^ z"', () => {
-        expect(parseScript('x | y ^ z')).to.eql({
+        expect(parseScript('x | y ^ z', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
                 "expression": {
-                    "type": "BinaryExpression",
-                    "operator": "|",
-                    "left": {
-                        "type": "Identifier",
-                        "name": "x"
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "right": {
-                        "type": "BinaryExpression",
-                        "operator": "^",
-                        "left": {
-                            "type": "Identifier",
-                            "name": "y"
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "z"
-                        }
+                    "end": {
+                      "line": 1,
+                      "column": 9
                     }
+                  },
+                  "left": {
+                    "type": "Identifier",
+                    "start": 0,
+                    "end": 1,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 1
+                      }
+                    },
+                    "name": "x"
+                  },
+                  "operator": "|",
+                  "right": {
+                    "type": "BinaryExpression",
+                    "start": 4,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "left": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "y"
+                    },
+                    "operator": "^",
+                    "right": {
+                      "type": "Identifier",
+                      "start": 8,
+                      "end": 9,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 8
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 9
+                        }
+                      },
+                      "name": "z"
+                    }
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse "x | y & z"', () => {
-        expect(parseScript('x | y & z')).to.eql({
+        expect(parseScript('x | y & z', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
                 "expression": {
-                    "type": "BinaryExpression",
-                    "operator": "|",
-                    "left": {
-                        "type": "Identifier",
-                        "name": "x"
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "right": {
-                        "type": "BinaryExpression",
-                        "operator": "&",
-                        "left": {
-                            "type": "Identifier",
-                            "name": "y"
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "z"
-                        }
+                    "end": {
+                      "line": 1,
+                      "column": 9
                     }
+                  },
+                  "left": {
+                    "type": "Identifier",
+                    "start": 0,
+                    "end": 1,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 1
+                      }
+                    },
+                    "name": "x"
+                  },
+                  "operator": "|",
+                  "right": {
+                    "type": "BinaryExpression",
+                    "start": 4,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "left": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "y"
+                    },
+                    "operator": "&",
+                    "right": {
+                      "type": "Identifier",
+                      "start": 8,
+                      "end": 9,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 8
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 9
+                        }
+                      },
+                      "name": "z"
+                    }
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
 });

@@ -5,7 +5,7 @@ const expect = chai.expect;
 
 describe('Espressions - Member', () => {
 
-  it('should parse method.static module code', () => {
+  it.skip('should parse method.static module code', () => {
     expect(parseModule('method.static', {
         ranges: true,
         raw: true,
@@ -95,38 +95,90 @@ describe('Espressions - Member', () => {
 
   it('should parse method.static', () => {
     expect(parseScript('method.static', {
-        ranges: true
-    })).to.eql({
-      "type": "Program",
-      "start": 0,
-      "end": 13,
-      "body": [
-        {
-          "type": "ExpressionStatement",
+      ranges: true,
+      raw: true,
+      locations: true
+  })).to.eql({
+    "type": "Program",
+    "start": 0,
+    "end": 13,
+    "loc": {
+      "start": {
+        "line": 1,
+        "column": 0
+      },
+      "end": {
+        "line": 1,
+        "column": 13
+      }
+    },
+    "body": [
+      {
+        "type": "ExpressionStatement",
+        "start": 0,
+        "end": 13,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 13
+          }
+        },
+        "expression": {
+          "type": "MemberExpression",
           "start": 0,
           "end": 13,
-          "expression": {
-            "type": "MemberExpression",
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 13
+            }
+          },
+          "object": {
+            "type": "Identifier",
             "start": 0,
+            "end": 6,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 6
+              }
+            },
+            "name": "method"
+          },
+          "property": {
+            "type": "Identifier",
+            "start": 7,
             "end": 13,
-            "object": {
-              "type": "Identifier",
-              "start": 0,
-              "end": 6,
-              "name": "method"
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 7
+              },
+              "end": {
+                "line": 1,
+                "column": 13
+              }
             },
-            "property": {
-              "type": "Identifier",
-              "start": 7,
-              "end": 13,
-              "name": "static"
-            },
-            "computed": false
-          }
+            "name": "static"
+          },
+          "computed": false
         }
-      ],
-      "sourceType": "script"
-    });
+      }
+    ],
+    "sourceType": "script"
+  });
   });
 
     it('should parse "a.$._.B0"', () => {
@@ -468,99 +520,243 @@ describe('Espressions - Member', () => {
 
     it('should parse "a[b, c]"', () => {
         expect(parseScript('a[b, c]', {
-            ranges: true
-        })).to.eql({
-              "body": [
-                {
-                  "end": 7,
-                  "expression": {
-                    "computed": true,
-                   "end": 7,
-                    "object": {
-                      "end": 1,
-                      "name": "a",
-                      "start": 0,
-                      "type": "Identifier"
-                    },
-                    "property": {
-                      "end": 6,
-                      "expressions": [
-                        {
-                          "end": 3,
-                         "name": "b",
-                          "start": 2,
-                          "type": "Identifier"
-                        },
-                        {
-                          "end": 6,
-                          "name": "c",
-                         "start": 5,
-                          "type": "Identifier"
-                       }
-                      ],
-                      "start": 2,
-                      "type": "SequenceExpression"
-                    },
-                    "start": 0,
-                    "type": "MemberExpression"
-                  },
-                  "start": 0,
-                  "type": "ExpressionStatement"
-                }
-              ],
-              "end": 7,
-              "sourceType": "script",
+          ranges: true,
+          raw: true,
+          locations: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 7,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 7
+          }
+        },
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "start": 0,
+            "end": 7,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 7
+              }
+            },
+            "expression": {
+              "type": "MemberExpression",
               "start": 0,
-              "type": "Program"
-            });
+              "end": 7,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 7
+                }
+              },
+              "object": {
+                "type": "Identifier",
+                "start": 0,
+                "end": 1,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1
+                  }
+                },
+                "name": "a"
+              },
+              "property": {
+                "type": "SequenceExpression",
+                "start": 2,
+                "end": 6,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 2
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 6
+                  }
+                },
+                "expressions": [
+                  {
+                    "type": "Identifier",
+                    "start": 2,
+                    "end": 3,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 2
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 3
+                      }
+                    },
+                    "name": "b"
+                  },
+                  {
+                    "type": "Identifier",
+                    "start": 5,
+                    "end": 6,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 5
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 6
+                      }
+                    },
+                    "name": "c"
+                  }
+                ]
+              },
+              "computed": true
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
     });
 
     it('should parse "a[b] = b"', () => {
         expect(parseScript('a[b] = b', {
-            ranges: true
-        })).to.eql({
-              "body": [
-                {
-                  "end": 8,
-                 "expression": {
-                    "end": 8,
-                    "left": {
-                      "computed": true,
-                     "end": 4,
-                      "object": {
-                        "end": 1,
-                        "name": "a",
-                        "start": 0,
-                        "type": "Identifier"
-                      },
-                      "property": {
-                        "end": 3,
-                        "name": "b",
-                        "start": 2,
-                        "type": "Identifier"
-                      },
-                      "start": 0,
-                      "type": "MemberExpression"
-                    },
-                    "operator": "=",
-                    "right": {
-                      "end": 8,
-                      "name": "b",
-                      "start": 7,
-                      "type": "Identifier"
-                    },
-                    "start": 0,
-                    "type": "AssignmentExpression"
-                  },
-                  "start": 0,
-                  "type": "ExpressionStatement"
-                }
-              ],
-              "end": 8,
-              "sourceType": "script",
+          ranges: true,
+          raw: true,
+          locations: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 8,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 8
+          }
+        },
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "start": 0,
+            "end": 8,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 8
+              }
+            },
+            "expression": {
+              "type": "AssignmentExpression",
               "start": 0,
-              "type": "Program"
-            });
+              "end": 8,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 8
+                }
+              },
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "start": 0,
+                "end": 4,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 4
+                  }
+                },
+                "object": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 1,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1
+                    }
+                  },
+                  "name": "a"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "start": 2,
+                  "end": 3,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 2
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 3
+                    }
+                  },
+                  "name": "b"
+                },
+                "computed": true
+              },
+              "right": {
+                "type": "Identifier",
+                "start": 7,
+                "end": 8,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 7
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 8
+                  }
+                },
+                "name": "b"
+              }
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
     });
 
     it('should parse "a&&(b=c)&&(d=e)"', () => {

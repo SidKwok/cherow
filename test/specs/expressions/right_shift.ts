@@ -1,7 +1,6 @@
 import { parseScript, parseModule } from '../../../src/cherow';
 import * as chai from 'chai';
-
-const expect = chai.expect; 
+const expect = chai.expect;
 
 describe('Espressions - Right shift', () => {
 
@@ -53,28 +52,28 @@ describe('Espressions - Right shift', () => {
     });
 
     it('should parse "2147483648.1 >> 0"', () => {
-    expect(parseScript('2147483648.1 >> 0', {
-        raw: true
-    })).to.eql({
-        "type": "Program",
-        "body": [{
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "BinaryExpression",
-                "operator": ">>",
-                "left": {
-                    "type": "Literal",
-                    "value": 2147483648.1,
-                    "raw": "2147483648.1"
-                },
-                "right": {
-                    "type": "Literal",
-                    "value": 0,
-                    "raw": "0"
+        expect(parseScript('2147483648.1 >> 0', {
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "body": [{
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "BinaryExpression",
+                    "operator": ">>",
+                    "left": {
+                        "type": "Literal",
+                        "value": 2147483648.1,
+                        "raw": "2147483648.1"
+                    },
+                    "right": {
+                        "type": "Literal",
+                        "value": 0,
+                        "raw": "0"
+                    }
                 }
-            }
-        }],
-        "sourceType": "script"
+            }],
+            "sourceType": "script"
+        });
     });
-    });
-    });
+});
