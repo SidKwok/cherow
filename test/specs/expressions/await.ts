@@ -5,6 +5,27 @@ const expect = chai.expect;
 
 describe('Espressions - Await', () => {
 
+  it('should fail on invalid identifier inside an async function', () => {
+    expect(() => {
+        parseScript(`async function foo(await) { }`)
+    }).to.throw();
+});
+
+it('should fail on invalid identifieri inside an async function with lineterminator', () => {
+    expect(() => {
+        parseScript(`async function wrap() {\nasync function await() { }\n}`)
+    }).to.not.throw();
+});
+
+it('should fail on await binding identifier nested', () => {
+    expect(() => {
+        parseScript(`async function foo() {
+            function await() {
+            }
+          }`)
+    }).to.not.throw();
+});
+
     it('should parse await as identifier', () => {
         expect(parseScript('await', {
             ranges: true,

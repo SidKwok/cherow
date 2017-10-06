@@ -1989,7 +1989,7 @@ export class Parser {
     }
 
     private parseYieldExpression(context: Context, pos: Location): ESTree.YieldExpression {
-
+        
         this.expect(context, Token.YieldKeyword);
 
         let argument: ESTree.Expression | null = null;
@@ -2736,7 +2736,7 @@ export class Parser {
 
         const savedFlags = this.flags;
         const savedScope = this.enterFunctionScope();
-        const params = this.parseParameterList(context & ~(Context.Statement | Context.OptionalIdentifier) | Context.inParameter);
+        const params = this.parseParameterList(context & ~(Context.Statement | context & Context.Declaration | Context.OptionalIdentifier) | Context.inParameter);
         const body = this.parseFunctionBody(context & ~(Context.Statement | Context.OptionalIdentifier));
 
         this.exitFunctionScope(savedScope);
@@ -2791,6 +2791,7 @@ export class Parser {
         context: Context,
     ): ESTree.AssignmentPattern | ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.RestElement {
         const pos = this.getLocations();
+        if (context & Context.Async && this.token === Token.AwaitKeyword) this.error(Errors.Unexpected);
         const left = this.token === Token.Ellipsis ? this.parseRestElement(context) : this.parseBindingPatternOrIdentifier(context, pos);
 
         // Initializer[In, Yield] :
@@ -2855,6 +2856,8 @@ export class Parser {
                     default:
                         return this.parseIdentifier(context);
                 }
+            case Token.LetKeyword:
+                if (!(context & Context.Module)) return this.parseIdentifier(context);
             case Token.YieldKeyword:
                 if (!(context & Context.Strict && context & Context.Yield)) return this.parseIdentifier(context);
             case Token.AwaitKeyword:
