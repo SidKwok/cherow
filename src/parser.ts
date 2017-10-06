@@ -1798,7 +1798,31 @@ export class Parser {
         return this.peekedToken === Token.Identifier || hasMask(this.peekedToken, Token.BindingPattern);
     }
 
-    private parseModuleItem(context: Context): any {}
+    private parseExportDeclaration(context: Context): any {}
+    private parseImportDeclaration(context: Context): any {}
+
+    private parseModuleItem(context: Context): any {
+        // ecma262/#prod-ModuleItem
+        // ModuleItem :
+        //    ImportDeclaration
+        //    ExportDeclaration
+        //    StatementListItem
+        switch (this.token) {
+
+            // 'export'
+            case Token.ExportKeyword:
+                return this.parseExportDeclaration(context);
+
+                // 'import'
+            case Token.ImportKeyword:
+                if (!(this.flags & Flags.OptionsNext && this.nextTokenIsLeftParenOrPeriod(context))) {
+                    return this.parseImportDeclaration(context);
+                }
+
+            default:
+                return this.parseStatementListItem(context);
+        }
+    }
 
     private parseStatementListItem(context: Context): any {
 
@@ -1814,8 +1838,8 @@ export class Parser {
                 if (this.isLexical(context)) return this.parseVariableStatement(context | Context.Let);
 
             case Token.ImportKeyword:
-                // We must be careful not to parse a dynamic import
-                // expression as an import declaration.
+                // We must be careful not to parse a 'import()'
+                // expression or 'import.meta' as an import declaration.
                 if (this.flags & Flags.OptionsNext && this.nextTokenIsLeftParenOrPeriod(context)) return this.parseStatement(context);
                 if (!(context & Context.Module)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
 
@@ -1937,7 +1961,7 @@ export class Parser {
         const id = this.parseBindingPatternOrIdentifier(context, pos);
         const t = this.token;
         let init = null;
-        if (t !== Token.InKeyword || t !== Token.OfKeyword && this.token === Token.Assign) {
+        if (!(t === Token.InKeyword || t === Token.OfKeyword) && this.parseOptional(context, Token.Assign)) {
             init = this.parseAssignmentExpression(context);
         }
 
@@ -1996,12 +2020,14 @@ export class Parser {
 
         const expr = this.parseBinaryExpression(context, 0, pos);
 
-        if (this.token === Token.Arrow) return this.parseArrowExpression(context, pos, [expr]);
+        if (this.token === Token.Arrow) {
+            return this.parseArrowExpression(context, pos, [expr]);
+        }
 
         if (hasMask(this.token, Token.AssignOperator)) {
             const operator = this.token;
 
-            if (this.token === Token.Assign) {
+            if (!(context & Context.inParameter) && this.token === Token.Assign) {
                 this.reinterpretAsPattern(context, expr);
             }
 
@@ -2690,7 +2716,7 @@ export class Parser {
 
         if (this.token !== Token.LeftParen && this.isIdentifier(context, this.token)) {
             const name = this.tokenValue;
-
+            if (context & Context.Strict && this.isEvalOrArguments(name)) this.error(Errors.UnexpectedStrictReserved);
             if (context & Context.Declaration) {
                 if (context & Context.Statement && !(context & Context.AnnexB)) {
                     if (!this.initBlockScope() && name in this.blockScope) {
@@ -3204,7 +3230,7 @@ export class Parser {
     private parseIdentifier(context: Context): ESTree.Identifier {
         const name = this.tokenValue;
         const pos = this.getLocations();
-
+        if (context & Context.Strict && this.isEvalOrArguments(name)) this.error(Errors.UnexpectedStrictReserved);
         this.nextToken(context);
 
         return this.finishNode(pos, {
@@ -3381,7 +3407,7 @@ export class Parser {
                     left: init,
                     right: expr
                 });
-            } else if (this.token === Token.Colon) {
+            } else if (this.token !== Token.Colon) {
                 shorthand = true;
                 value = init;
             } else {
