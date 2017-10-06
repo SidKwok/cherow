@@ -60,6 +60,32 @@ export const enum Flags {
     FloatOrExponent = Float | Exponent
 }
 
+export const enum AsyncState {
+    None,
+    Function,
+    Identifier
+}
+
+export const enum ObjectState {
+    None            = 0,
+    Yield           = 1 << 0,
+    Async           = 1 << 1,
+    Getter          = 1 << 2,
+    Setter          = 1 << 3,
+    Computed        = 1 << 4,
+    Shorthand       = 1 << 5,
+    Get             = 1 << 6,
+    Set             = 1 << 7,
+    Method          = 1 << 8,
+    HasConstructor  = 1 << 9,
+    Heritage        = 1 << 10,
+    Static          = 1 << 11,
+    Special         = 1 << 12,
+    Constructor     = 1 << 13,
+    Accessors = Get | Set,
+    Modifiers = Accessors | Method | Yield
+}
+
 // Regular expression scanning
 export const enum RegExpState {
     Empty = 0,

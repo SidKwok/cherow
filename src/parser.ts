@@ -1,37 +1,11 @@
 import { Chars } from './chars';
 import * as ESTree from './estree';
 import { hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isValidDestructuringAssignmentTarget, isDirective, getQualifiedJSXName, isValidSimpleAssignmentTarget } from './common';
-import { Flags, Context, RegExpState, RegExpFlag, ScopeMasks } from './masks';
+import { Flags, Context, RegExpState, RegExpFlag, ScopeMasks, ObjectState, AsyncState } from './masks';
 import { createError, Errors } from './errors';
 import { Token, tokenDesc, descKeyword } from './token';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, CollectComments, ErrorLocation, Location } from './interface';
-
-export const enum AsyncState {
-    None = 1,
-        Function,
-        Identifier
-}
-
-const enum ObjectState {
-    None = 0,
-        Yield = 1 << 0,
-        Async = 1 << 1,
-        Getter = 1 << 2,
-        Setter = 1 << 3,
-        Computed = 1 << 4,
-        Shorthand = 1 << 5,
-        Get = 1 << 6,
-        Set = 1 << 7,
-        Method = 1 << 8,
-        HasConstructor = 1 << 9,
-        Heritage = 1 << 10,
-        Static = 1 << 11,
-        Special = 1 << 12,
-        Constructor = 1 << 13,
-        Accessors = Get | Set,
-        Modifiers = Accessors | Method | Yield
-}
 
 export class Parser {
     private readonly source: string;
@@ -2254,28 +2228,18 @@ export class Parser {
     }
 
     private buildUnaryExpression(context: Context): ESTree.Expression {
-
         const pos = this.getLocations();
+        if (!hasMask(this.token, Token.UnaryOperator) || this.token === Token.AwaitKeyword) return this.parseUpdateExpression(context, pos);
 
-        switch (this.token) {
-            case Token.DeleteKeyword:
-            case Token.Add:
-            case Token.Subtract:
-            case Token.Complement:
-            case Token.Negate:
-            case Token.TypeofKeyword:
-            case Token.VoidKeyword:
-                const token = this.token;
-                this.nextToken(context);
-                return this.finishNode(pos, {
-                    type: 'UnaryExpression',
-                    operator: tokenDesc(token),
-                    argument: this.buildUnaryExpression(context),
-                    prefix: true
-                });
-            default:
-                return this.parseUpdateExpression(context, pos);
-        }
+        const operator = this.token;
+
+        this.nextToken(context);
+        return this.finishNode(pos, {
+            type: 'UnaryExpression',
+            operator: tokenDesc(operator),
+            argument: this.buildUnaryExpression(context),
+            prefix: true
+        });
     }
 
     private parseUpdateExpression(context: Context, pos: Location): any {
