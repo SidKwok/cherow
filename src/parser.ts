@@ -2311,16 +2311,12 @@ export class Parser {
 
         switch (this.token) {
 
-            // '.'
+            // Import.meta - Stage 3 proposal
             case Token.Period:
-                // if (!(context & Context.Module)) this.error(Errors.Unexpected);
+                if (!(context & Context.Module)) this.error(Errors.Unexpected);
                 this.expect(context, Token.Period);
                 if (this.tokenValue !== 'meta') this.error(Errors.Unexpected);
                 return this.parseMetaProperty(context, id, pos);
-
-                // '('
-            case Token.LeftParen:
-               // this.error(Errors.UnexpectedToken, tokenDesc(this.token));
 
             default:
                 return this.finishNode(pos, {
@@ -3013,7 +3009,7 @@ export class Parser {
         const savedScope = this.enterFunctionScope();
 
         const params = this.parseParameterList(context | Context.inParameter);
-        
+
         const body = this.parseFunctionBody(context);
         this.flags = savedFlag;
 
@@ -3244,6 +3240,8 @@ export class Parser {
                 return this.parseSuper(context);
             case Token.DoKeyword:
                 if (this.flags & Flags.OptionsV8) return this.parseDoExpression(context);
+            case Token.ThrowKeyword:
+                if (this.flags & Flags.OptionsNext) return this.parseThrowExpression(context);
             case Token.AsyncKeyword:
                 const state = this.matchAsyncFunction(context);
                 switch (state) {
@@ -3373,6 +3371,15 @@ export class Parser {
         }
 
         return expr;
+    }
+
+    private parseThrowExpression(context: Context) {
+        const pos = this.getLocations();
+        this.nextToken(context);
+        return this.finishNode(pos, {
+            type: 'ThrowExpression',
+            expressions: this.buildUnaryExpression(context)
+        });
     }
 
     private parseArrayExpression(context: Context) {
@@ -3648,7 +3655,7 @@ export class Parser {
 
         const name = this.tokenValue;
         const token = this.token;
-        
+
         if (!this.isIdentifier(context, token)) this.error(Errors.Unexpected);
 
         if (context & Context.Strict && this.isEvalOrArguments(name)) this.error(Errors.StrictLHSAssignment);
