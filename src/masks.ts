@@ -19,11 +19,11 @@ export const enum Context {
     Export                = 1 << 16,
     inParameter           = 1 << 17,
     ArrowParameterList    = 1 << 18,
-
+    IfClause              = 1 << 19,
     /* Variable declaration */
-    Const                  = 1 << 19,
-    Let                    = 1 << 20,
-    Var                    = 1 << 21,
+    Const                  = 1 << 20,
+    Let                    = 1 << 21,
+    Var                    = 1 << 22,
 
      // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
