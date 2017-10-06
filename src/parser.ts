@@ -1772,7 +1772,15 @@ export class Parser {
         return this.line === this.peekedState.line && this.peekedToken === Token.FunctionKeyword;
     }
 
-    private isIdentifier(context: Context, t: Token) {
+    private isIdentifier(context: Context, t: Token): boolean {
+        if (context & Context.Module) {
+            if ((t & Token.FutureReserved) === Token.FutureReserved) this.error(Errors.UnexpectedStrictReserved);
+            return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual;
+        }
+        if (context & Context.Strict) {
+            if ((t & Token.Reserved) === Token.Reserved) this.error(Errors.UnexpectedStrictReserved);
+            return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual;
+        }
         return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual || (t & Token.FutureReserved) === Token.FutureReserved;
     }
 
@@ -2941,7 +2949,7 @@ export class Parser {
 
     private parseArrowExpression(context: Context, pos: Location, params: any): ESTree.ArrowFunctionExpression {
 
-        if (this.flags & Flags.InFunctionBody) context &= ~Context.Yield; 
+        if (this.flags & Flags.InFunctionBody) context &= ~Context.Yield;
 
         if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
         this.expect(context, Token.Arrow);
@@ -3317,6 +3325,9 @@ export class Parser {
         if (context & Context.Async && token === Token.AwaitKeyword) {
             this.error(Errors.UnexpectedToken, tokenDesc(token));
         }
+
+        if (this.flags & Flags.HasUnicode && this.token === Token.YieldKeyword) this.error(Errors.InvalidEscapedReservedWord);
+
         this.addVarOrBlock(context, name);
 
         this.nextToken(context);

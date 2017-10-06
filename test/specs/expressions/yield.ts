@@ -117,7 +117,7 @@ describe('Espressions - Yield', () => {
       it('should fail on invalid yield generator struct function parameter', () => {
           expect(() => {
               parseScript('"use strict"; function *g() { var z = function(yield) {} }');
-          }).to.not.throw();
+          }).to.throw();
       });
   
       it('should fail on invalid yield generator variable declaration', () => {

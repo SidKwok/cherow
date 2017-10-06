@@ -5,7 +5,7 @@ const expect = chai.expect;
 
 describe('Expressions - Async function', () => {
 
-    it('should parse argument async function expression', () => {
+  it('should parse argument async function expression', () => {
       expect(parseScript(`f(async function(x) { await x })`, {
           ranges: true,
           raw: true,

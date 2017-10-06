@@ -1909,6 +1909,16 @@ Parser.prototype.nextTokenIsFuncKeywordOnSameLine = function nextTokenIsFuncKeyw
     return this.line === this.peekedState.line && this.peekedToken === 274520 /* FunctionKeyword */;
 };
 Parser.prototype.isIdentifier = function isIdentifier (context, t) {
+    if (context & 1 /* Module */) {
+        if ((t & 20480 /* FutureReserved */) === 20480 /* FutureReserved */)
+            { this.error(86 /* UnexpectedStrictReserved */); }
+        return t === 262145 /* Identifier */ || (t & 69632 /* Contextual */) === 69632 /* Contextual */;
+    }
+    if (context & 2 /* Strict */) {
+        if ((t & 12288 /* Reserved */) === 12288 /* Reserved */)
+            { this.error(86 /* UnexpectedStrictReserved */); }
+        return t === 262145 /* Identifier */ || (t & 69632 /* Contextual */) === 69632 /* Contextual */;
+    }
     return t === 262145 /* Identifier */ || (t & 69632 /* Contextual */) === 69632 /* Contextual */ || (t & 20480 /* FutureReserved */) === 20480 /* FutureReserved */;
 };
 Parser.prototype.isIdentifierOrKeyword = function isIdentifierOrKeyword (t) {
@@ -2938,6 +2948,8 @@ Parser.prototype.parseArrowFormalList = function parseArrowFormalList (context, 
     return params;
 };
 Parser.prototype.parseArrowExpression = function parseArrowExpression (context, pos, params) {
+    if (this.flags & 16 /* InFunctionBody */)
+        { context &= ~64 /* Yield */; }
     if (this.flags & 1 /* LineTerminator */)
         { this.error(73 /* LineBreakAfterAsync */); }
     this.expect(context, 10 /* Arrow */);
@@ -3267,6 +3279,8 @@ Parser.prototype.parseBindingIdentifier = function parseBindingIdentifier (conte
     if (context & 32 /* Async */ && token === 4526190 /* AwaitKeyword */) {
         this.error(1 /* UnexpectedToken */, tokenDesc(token));
     }
+    if (this.flags & 2 /* HasUnicode */ && this.token === 282731 /* YieldKeyword */)
+        { this.error(74 /* InvalidEscapedReservedWord */); }
     this.addVarOrBlock(context, name);
     this.nextToken(context);
     return this.finishNode(pos, {
