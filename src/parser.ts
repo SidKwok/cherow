@@ -2049,15 +2049,13 @@ export class Parser {
     private reinterpretAsPattern(context: Context, params: any) {
         switch (params.type) {
             case 'Identifier':
-            case 'MemberExpression':
-            case 'AssignmentPattern':
-            case 'ArrayPattern':
-            case 'MetaProperty':
-            case 'ObjectPattern':
+                if (context & Context.ArrowParameterList) this.addFunctionArg(params.name);
                 return;
 
             case 'ObjectExpression':
                 params.type = 'ObjectPattern';
+                // Fall through
+            case 'ObjectPattern':
                 // ObjectPattern and ObjectExpression are isomorphic
                 for (let i = 0; i < params.properties.length; i++) {
                     const property = params.properties[i];
@@ -2068,13 +2066,8 @@ export class Parser {
 
             case 'ArrayExpression':
                 params.type = 'ArrayPattern';
-                for (let i = 0; i < params.elements.length; ++i) {
-                    // skip holes in pattern
-                    if (params.elements[i] !== null) this.reinterpretAsPattern(context, params.elements[i]);
-                }
-                return;
-            case 'ArrayExpression':
-                params.type = 'ArrayPattern';
+                // Fall through
+            case 'ArrayPattern':
                 for (let i = 0; i < params.elements.length; ++i) {
                     // skip holes in pattern
                     if (params.elements[i] !== null) this.reinterpretAsPattern(context, params.elements[i]);
@@ -2083,16 +2076,23 @@ export class Parser {
 
             case 'AssignmentExpression':
                 params.type = 'AssignmentPattern';
-                if (params.operator !== '=') this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-
                 delete params.operator;
+                // Fall through
+            case 'AssignmentPattern':
                 this.reinterpretAsPattern(context, params.left);
                 return;
 
             case 'SpreadElement':
                 params.type = 'RestElement';
+                // Fall through
+            case 'RestElement':
                 this.reinterpretAsPattern(context, params.argument);
                 return;
+
+            case 'MemberExpression':
+            case 'MetaProperty':
+                if (!(context & Context.ArrowParameterList)) return;
+                // Fall through
 
             default:
                 this.error(Errors.UnexpectedToken, tokenDesc(this.token));
@@ -2868,73 +2868,10 @@ export class Parser {
     private parseArrowFormalList(context: Context, params: ESTree.Node[]): ESTree.Node[] {
 
         for (let idx = 0; idx < params.length; idx++) {
-            this.parseArrowFormalParameter(context, params[idx]);
+            this.reinterpretAsPattern(context | Context.ArrowParameterList, params[idx]);
         }
 
         return params;
-    }
-
-    private parseArrowFormalParameter(context: Context, params: any) {
-
-        switch (params.type) {
-
-            case 'Identifier':
-                this.addFunctionArg(params.name);
-                return;
-
-            case 'SpreadElement':
-                params.type = 'RestElement';
-                this.parseArrowFormalParameter(context, params.argument);
-                return;
-
-            case 'RestElement':
-                this.parseArrowFormalParameter(context, params.argument);
-                return;
-
-            case 'ArrayExpression':
-                params.type = 'ArrayPattern';
-                for (let i = 0; i < params.elements.length; ++i) {
-                    // skip holes in pattern
-                    if (params.elements[i] !== null) this.parseArrowFormalParameter(context, params.elements[i]);
-                }
-                return;
-
-            case 'AssignmentPattern':
-                this.parseArrowFormalParameter(context, params.left);
-                return;
-
-            case 'ArrayPattern':
-                for (let i = 0; i < params.elements.length; ++i) {
-                    // skip holes in pattern
-                    if (params.elements[i] !== null) this.parseArrowFormalParameter(context, params.elements[i]);
-                }
-                return;
-
-            case 'ObjectExpression':
-                params.type = 'ObjectPattern';
-                // ObjectPattern and ObjectExpression are isomorphic
-                for (let i = 0; i < params.properties.length; i++) {
-                    const property = params.properties[i];
-                    this.parseArrowFormalParameter(context, property.type === 'SpreadElement' ? property : property.value);
-                }
-                return;
-            case 'ObjectPattern':
-                // ObjectPattern and ObjectExpression are isomorphic
-                for (let i = 0; i < params.properties.length; i++) {
-                    const property = params.properties[i];
-                    this.parseArrowFormalParameter(context, property.type === 'RestElement' ? property : property.value);
-                }
-                return;
-
-            case 'AssignmentExpression':
-                params.type = 'AssignmentPattern';
-                delete params.operator;
-                this.parseArrowFormalParameter(context, params.left);
-                return;
-
-            default:
-                this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-        }
     }
 
     private parseArrowExpression(context: Context, pos: Location, params: any): ESTree.ArrowFunctionExpression {
