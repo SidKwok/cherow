@@ -63,7 +63,7 @@ export class Parser {
         this.tokenValue = undefined;
         this.tokenRaw = '';
         this.token = 0;
-        this.labelSet = {};
+        this.labelSet = undefined;
         this.errorLocation = undefined;
         this.tokenRegExp = undefined;
         this.functionScope = undefined;
@@ -1804,7 +1804,8 @@ export class Parser {
             this.expect(context, Token.Colon);
 
             const key = '@' + expr.name;
-            if (hasOwn.call(this.labelSet, key)) this.error(Errors.Redeclaration, expr.name);
+            if (this.labelSet === undefined) this.labelSet = {};
+            else if (hasOwn.call(this.labelSet, key)) this.error(Errors.Redeclaration, expr.name);
 
             this.labelSet[key] = true;
             let body: ESTree.Statement;
@@ -3139,7 +3140,7 @@ export class Parser {
         const pos = this.getLocations();
         this.expect(context, Token.LeftBrace);
         const previousLabelSet = this.labelSet;
-        this.labelSet = {};
+        this.labelSet = undefined;
         this.flags |= Flags.InFunctionBody;
         const body = this.parseStatementList(context, Token.RightBrace);
         this.expect(context, Token.RightBrace);
