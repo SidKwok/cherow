@@ -6994,7 +6994,7 @@ it('should parse "(...[]) => 0"', () => {
   })
 });
 
-it.skip('should parse "(a, ...[]) => 0"', () => {
+it('should parse "(a, ...[]) => 0"', () => {
   expect(parseScript(`(a, ...[]) => 0`, {})).to.eql({
       "type": "Program",
       "body": [{

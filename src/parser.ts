@@ -2095,7 +2095,7 @@ export class Parser {
                 // Fall through
 
             default:
-                this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                this.error(Errors.UnexpectedToken, params.type);
         }
     }
 
@@ -2599,7 +2599,6 @@ export class Parser {
                     name: tokenValue
                 });
             }
-            //      console.log(tokenDesc(token))
         } else if (this.parseOptional(context, Token.Multiply)) {
             context |= Context.Yield;
         } else {
@@ -2945,12 +2944,12 @@ export class Parser {
 
             while (this.parseOptional(context, Token.Comma)) {
                 if (this.parseOptional(context, Token.LeftParen)) {
-                    return this.parseArrowExpression(context, pos, [expressions]);
+                    return this.parseArrowExpression(context, pos, expressions);
                 } else if (this.token === Token.Ellipsis) {
                     expressions.push(this.parseRestElement(context | Context.NonSimpleParameter));
                     this.expect(context, Token.RightParen);
 
-                    return this.parseArrowExpression(context, pos, [expressions]);
+                    return this.parseArrowExpression(context, pos, expressions);
                 } else {
                     expressions.push(this.parseAssignmentExpression(context | Context.AllowCall));
                 }
