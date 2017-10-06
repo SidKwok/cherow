@@ -14,7 +14,7 @@ describe('Espressions - Await', () => {
 it('should fail on invalid identifieri inside an async function with lineterminator', () => {
     expect(() => {
         parseScript(`async function wrap() {\nasync function await() { }\n}`)
-    }).to.not.throw();
+    }).to.throw();
 });
 
 it('should fail on await binding identifier nested', () => {

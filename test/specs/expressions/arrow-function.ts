@@ -201,7 +201,7 @@ describe('Expressions - Arrow function', () => {
       it('should fail if a FunctionRestParameter is followed by a trailing comma', () => {
           expect(() => {
               parseScript('(...[ 5 ]) => {}');
-          }).to.not.throw();
+          }).to.throw();
       });
   
       it('should fail if arrow parameters contain yield expressions', () => {
@@ -225,7 +225,7 @@ describe('Expressions - Arrow function', () => {
       it('should fail if FormalParameters also occurs in the LexicallyDeclaredNames of AsyncFunctionBody', () => {
           expect(() => {
               parseScript('(async function foo (bar) { let bar; });');
-          }).to.not.throw('');
+          }).to.throw('');
       });
   
       it('should fail arrow with inner paren', () => {
@@ -360,7 +360,7 @@ describe('Expressions - Arrow function', () => {
               parseScript(`async() => {
   var await;
   };`)
-          }).to.not.throw();
+          }).to.throw();
       });
   
       it('([a.a]) => 42"', () => {
@@ -414,7 +414,7 @@ describe('Expressions - Arrow function', () => {
       it('should fail on "() => { let a; let a; }"', () => {
           expect(() => {
               parseScript('() => { let a; let a; }');
-          }).to.not.throw();
+          }).to.throw();
       });
   
       it('should fail on "(package) => {"use strict"}"', () => {
@@ -426,7 +426,7 @@ describe('Expressions - Arrow function', () => {
       it('should fail on "(a) => { let a; }"', () => {
           expect(() => {
               parseScript('(a) => { let a; }');
-          }).to.not.throw();
+          }).to.throw();
       });
   
       it('should fail on ""use strict"; (arguments)=>1"', () => {
