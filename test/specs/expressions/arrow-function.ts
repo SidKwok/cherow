@@ -201,7 +201,7 @@ it('should fail on asi restriction invalid parenless parameters', () => {
 it('should fail if a FunctionRestParameter is followed by a trailing comma', () => {
   expect(() => {
       parseScript('(...[ 5 ]) => {}');
-  }).to.throw();
+  }).to.not.throw();
 });
 
 it('should fail if arrow parameters contain yield expressions', () => {
@@ -5461,5 +5461,1572 @@ it('should parse await arrow param', () => {
           });
   });
 
+  it('should parse arrow parameters cover includes rest concise body function body', () => {
+    expect(parseScript(`f = ([,] = g()) => {}`, {
+        ranges: true,
+        raw: true,
+        locations: true
+    })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 21,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 21
+          }
+        },
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "start": 0,
+            "end": 21,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 21
+              }
+            },
+            "expression": {
+              "type": "AssignmentExpression",
+              "start": 0,
+              "end": 21,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 21
+                }
+              },
+              "operator": "=",
+              "left": {
+                "type": "Identifier",
+                "start": 0,
+                "end": 1,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1
+                  }
+                },
+                "name": "f"
+              },
+              "right": {
+                "type": "ArrowFunctionExpression",
+                "start": 4,
+                "end": 21,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 4
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 21
+                  }
+                },
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [
+                  {
+                    "type": "AssignmentPattern",
+                    "start": 5,
+                    "end": 14,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 5
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 14
+                      }
+                    },
+                    "left": {
+                      "type": "ArrayPattern",
+                      "start": 5,
+                      "end": 8,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 5
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 8
+                        }
+                      },
+                      "elements": [
+                        null
+                      ]
+                    },
+                    "right": {
+                      "type": "CallExpression",
+                      "start": 11,
+                      "end": 14,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 11
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 14
+                        }
+                      },
+                      "callee": {
+                        "type": "Identifier",
+                        "start": 11,
+                        "end": 12,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 11
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 12
+                          }
+                        },
+                        "name": "g"
+                      },
+                      "arguments": []
+                    }
+                  }
+                ],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 19,
+                  "end": 21,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 19
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 21
+                    }
+                  },
+                  "body": []
+                }
+              }
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
+});
+
+it('should parse arrow parameters cover includes rest concise body function body', () => {
+    expect(parseScript(`f = ([...x] = values) => {}`, {
+        ranges: true,
+        raw: true
+    })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 27,
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "start": 0,
+            "end": 27,
+            "expression": {
+              "type": "AssignmentExpression",
+              "start": 0,
+              "end": 27,
+              "operator": "=",
+              "left": {
+                "type": "Identifier",
+                "start": 0,
+                "end": 1,
+                "name": "f"
+              },
+              "right": {
+                "type": "ArrowFunctionExpression",
+                "start": 4,
+                "end": 27,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [
+                  {
+                    "type": "AssignmentPattern",
+                    "start": 5,
+                    "end": 20,
+                    "left": {
+                      "type": "ArrayPattern",
+                      "start": 5,
+                      "end": 11,
+                      "elements": [
+                        {
+                          "type": "RestElement",
+                          "start": 6,
+                          "end": 10,
+                          "argument": {
+                            "type": "Identifier",
+                            "start": 9,
+                            "end": 10,
+                            "name": "x"
+                          }
+                        }
+                      ]
+                    },
+                    "right": {
+                      "type": "Identifier",
+                      "start": 14,
+                      "end": 20,
+                      "name": "values"
+                    }
+                  }
+                ],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 25,
+                  "end": 27,
+                  "body": []
+                }
+              }
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
+});
+
+it('should parse arrow parameters cover includes rest concise body function body', () => {
+    expect(parseScript(`x => function(){}`, {
+        ranges: true,
+        raw: true
+    })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 17,
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "start": 0,
+            "end": 17,
+            "expression": {
+              "type": "ArrowFunctionExpression",
+              "start": 0,
+              "end": 17,
+              "id": null,
+              "generator": false,
+              "expression": true,
+              "async": false,
+              "params": [
+                {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 1,
+                  "name": "x"
+                }
+              ],
+              "body": {
+                "type": "FunctionExpression",
+                "start": 5,
+                "end": 17,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 15,
+                  "end": 17,
+                  "body": []
+                }
+              }
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
+});
+it.skip('should parse arrow parameters cover includes rest concise body function body', () => {
+  expect(parseScript(`var af = (x, ...y) => { return [x, y.length]; };`, {
+      ranges: true,
+      raw: true
+  })).to.eql({
+      "type": "Program",
+      "start": 0,
+      "end": 48,
+      "body": [
+        {
+          "type": "VariableDeclaration",
+          "start": 0,
+          "end": 48,
+          "declarations": [
+            {
+              "type": "VariableDeclarator",
+              "start": 4,
+              "end": 47,
+              "id": {
+                "type": "Identifier",
+                "start": 4,
+                "end": 6,
+                "name": "af"
+              },
+              "init": {
+                "type": "ArrowFunctionExpression",
+                "start": 9,
+                "end": 47,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [
+                  {
+                    "type": "Identifier",
+                    "start": 10,
+                    "end": 11,
+                    "name": "x"
+                  },
+                  {
+                    "type": "RestElement",
+                    "start": 13,
+                    "end": 17,
+                    "argument": {
+                      "type": "Identifier",
+                      "start": 16,
+                      "end": 17,
+                      "name": "y"
+                    }
+                  }
+                ],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 22,
+                  "end": 47,
+                  "body": [
+                    {
+                      "type": "ReturnStatement",
+                      "start": 24,
+                      "end": 45,
+                      "argument": {
+                        "type": "ArrayExpression",
+                        "start": 31,
+                        "end": 44,
+                        "elements": [
+                          {
+                            "type": "Identifier",
+                            "start": 32,
+                            "end": 33,
+                            "name": "x"
+                          },
+                          {
+                            "type": "MemberExpression",
+                            "start": 35,
+                            "end": 43,
+                            "object": {
+                              "type": "Identifier",
+                              "start": 35,
+                              "end": 36,
+                              "name": "y"
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "start": 37,
+                              "end": 43,
+                              "name": "length"
+                            },
+                            "computed": false
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "kind": "var"
+        }
+      ],
+      "sourceType": "script"
+    });
+});
+
+it('should parse conditional after concise body', () => {
+  expect(parseScript(`(b = c) => d ? (e, f) : g;`, {
+      ranges: true,
+      raw: true
+  })).to.eql({
+      "type": "Program",
+      "start": 0,
+      "end": 26,
+      "body": [
+        {
+          "type": "ExpressionStatement",
+          "start": 0,
+          "end": 26,
+          "expression": {
+            "type": "ArrowFunctionExpression",
+            "start": 0,
+            "end": 25,
+            "id": null,
+            "generator": false,
+            "expression": true,
+            "async": false,
+            "params": [
+              {
+                "type": "AssignmentPattern",
+                "start": 1,
+                "end": 6,
+                "left": {
+                  "type": "Identifier",
+                  "start": 1,
+                  "end": 2,
+                  "name": "b"
+                },
+                "right": {
+                  "type": "Identifier",
+                  "start": 5,
+                  "end": 6,
+                  "name": "c"
+                }
+              }
+            ],
+            "body": {
+              "type": "ConditionalExpression",
+              "start": 11,
+              "end": 25,
+              "test": {
+                "type": "Identifier",
+                "start": 11,
+                "end": 12,
+                "name": "d"
+              },
+              "consequent": {
+                "type": "SequenceExpression",
+                "start": 16,
+                "end": 20,
+                "expressions": [
+                  {
+                    "type": "Identifier",
+                    "start": 16,
+                    "end": 17,
+                    "name": "e"
+                  },
+                  {
+                    "type": "Identifier",
+                    "start": 19,
+                    "end": 20,
+                    "name": "f"
+                  }
+                ]
+              },
+              "alternate": {
+                "type": "Identifier",
+                "start": 24,
+                "end": 25,
+                "name": "g"
+              }
+            }
+          }
+        }
+      ],
+      "sourceType": "script"
+    });
+});
+
+it('should parse SingleNameBinding assigning name to "anonymous" generator function', () => {
+  expect(parseScript(`f = ({ gen = function* () {}, xGen = function* x() {} }) => {}`, {
+      ranges: true,
+      raw: true
+  })).to.eql({
+      "type": "Program",
+      "start": 0,
+      "end": 62,
+      "body": [{
+          "type": "ExpressionStatement",
+          "start": 0,
+          "end": 62,
+          "expression": {
+              "type": "AssignmentExpression",
+              "start": 0,
+              "end": 62,
+              "operator": "=",
+              "left": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 1,
+                  "name": "f"
+              },
+              "right": {
+                  "type": "ArrowFunctionExpression",
+                  "start": 4,
+                  "end": 62,
+                  "id": null,
+                  "generator": false,
+                  "expression": false,
+                  "async": false,
+                  "params": [{
+                      "type": "ObjectPattern",
+                      "start": 5,
+                      "end": 55,
+                      "properties": [{
+                              "type": "Property",
+                              "start": 7,
+                              "end": 28,
+                              "method": false,
+                              "shorthand": true,
+                              "computed": false,
+                              "key": {
+                                  "type": "Identifier",
+                                  "start": 7,
+                                  "end": 10,
+                                  "name": "gen"
+                              },
+                              "kind": "init",
+                              "value": {
+                                  "type": "AssignmentPattern",
+                                  "start": 7,
+                                  "end": 28,
+                                  "left": {
+                                      "type": "Identifier",
+                                      "start": 7,
+                                      "end": 10,
+                                      "name": "gen"
+                                  },
+                                  "right": {
+                                      "type": "FunctionExpression",
+                                      "start": 13,
+                                      "end": 28,
+                                      "id": null,
+                                      "generator": true,
+                                      "expression": false,
+                                      "async": false,
+                                      "params": [],
+                                      "body": {
+                                          "type": "BlockStatement",
+                                          "start": 26,
+                                          "end": 28,
+                                          "body": []
+                                      }
+                                  }
+                              }
+                          },
+                          {
+                              "type": "Property",
+                              "start": 30,
+                              "end": 53,
+                              "method": false,
+                              "shorthand": true,
+                              "computed": false,
+                              "key": {
+                                  "type": "Identifier",
+                                  "start": 30,
+                                  "end": 34,
+                                  "name": "xGen"
+                              },
+                              "kind": "init",
+                              "value": {
+                                  "type": "AssignmentPattern",
+                                  "start": 30,
+                                  "end": 53,
+                                  "left": {
+                                      "type": "Identifier",
+                                      "start": 30,
+                                      "end": 34,
+                                      "name": "xGen"
+                                  },
+                                  "right": {
+                                      "type": "FunctionExpression",
+                                      "start": 37,
+                                      "end": 53,
+                                      "id": {
+                                          "type": "Identifier",
+                                          "start": 47,
+                                          "end": 48,
+                                          "name": "x"
+                                      },
+                                      "generator": true,
+                                      "expression": false,
+                                      "async": false,
+                                      "params": [],
+                                      "body": {
+                                          "type": "BlockStatement",
+                                          "start": 51,
+                                          "end": 53,
+                                          "body": []
+                                      }
+                                  }
+                              }
+                          }
+                      ]
+                  }],
+                  "body": {
+                      "type": "BlockStatement",
+                      "start": 60,
+                      "end": 62,
+                      "body": []
+                  }
+              }
+          }
+      }],
+      "sourceType": "script"
+  });
+});
+
+it('should parse simple arrow followed by unary', () => {
+  expect(parseScript(`(() => {}) + 2`, {
+      ranges: true,
+      raw: true
+  })).to.eql({
+      "type": "Program",
+      "start": 0,
+      "end": 14,
+      "body": [{
+          "type": "ExpressionStatement",
+          "start": 0,
+          "end": 14,
+          "expression": {
+              "type": "BinaryExpression",
+              "start": 0,
+              "end": 14,
+              "left": {
+                  "type": "ArrowFunctionExpression",
+                  "start": 1,
+                  "end": 9,
+                  "id": null,
+                  "generator": false,
+                  "expression": false,
+                  "async": false,
+                  "params": [],
+                  "body": {
+                      "type": "BlockStatement",
+                      "start": 7,
+                      "end": 9,
+                      "body": []
+                  }
+              },
+              "operator": "+",
+              "right": {
+                  "type": "Literal",
+                  "start": 13,
+                  "end": 14,
+                  "value": 2,
+                  "raw": "2"
+              }
+          }
+      }],
+      "sourceType": "script"
+  });
+});
+
   
+it('should parse Rest element containing an object binding pattern', () => {
+  expect(parseScript(`f = ([...{ 0: v, 1: w, 2: x, 3: y, length: z }]) => {}`, {
+      ranges: false,
+      raw: true
+  })).to.eql({
+      "type": "Program",
+      "body": [{
+          "type": "ExpressionStatement",
+          "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                  "type": "Identifier",
+                  "name": "f"
+              },
+              "right": {
+                  "type": "ArrowFunctionExpression",
+                  "id": null,
+                  "params": [{
+                      "type": "ArrayPattern",
+                      "elements": [{
+                          "type": "RestElement",
+                          "argument": {
+                              "type": "ObjectPattern",
+                              "properties": [{
+                                      "type": "Property",
+                                      "key": {
+                                          "type": "Literal",
+                                          "value": 0,
+                                          "raw": "0"
+                                      },
+                                      "computed": false,
+                                      "value": {
+                                          "type": "Identifier",
+                                          "name": "v"
+                                      },
+                                      "kind": "init",
+                                      "method": false,
+                                      "shorthand": false
+                                  },
+                                  {
+                                      "type": "Property",
+                                      "key": {
+                                          "type": "Literal",
+                                          "value": 1,
+                                          "raw": "1"
+                                      },
+                                      "computed": false,
+                                      "value": {
+                                          "type": "Identifier",
+                                          "name": "w"
+                                      },
+                                      "kind": "init",
+                                      "method": false,
+                                      "shorthand": false
+                                  },
+                                  {
+                                      "type": "Property",
+                                      "key": {
+                                          "type": "Literal",
+                                          "value": 2,
+                                          "raw": "2"
+                                      },
+                                      "computed": false,
+                                      "value": {
+                                          "type": "Identifier",
+                                          "name": "x"
+                                      },
+                                      "kind": "init",
+                                      "method": false,
+                                      "shorthand": false
+                                  },
+                                  {
+                                      "type": "Property",
+                                      "key": {
+                                          "type": "Literal",
+                                          "value": 3,
+                                          "raw": "3"
+                                      },
+                                      "computed": false,
+                                      "value": {
+                                          "type": "Identifier",
+                                          "name": "y"
+                                      },
+                                      "kind": "init",
+                                      "method": false,
+                                      "shorthand": false
+                                  },
+                                  {
+                                      "type": "Property",
+                                      "key": {
+                                          "type": "Identifier",
+                                          "name": "length"
+                                      },
+                                      "computed": false,
+                                      "value": {
+                                          "type": "Identifier",
+                                          "name": "z"
+                                      },
+                                      "kind": "init",
+                                      "method": false,
+                                      "shorthand": false
+                                  }
+                              ]
+                          }
+                      }]
+                  }],
+                  "body": {
+                      "type": "BlockStatement",
+                      "body": []
+                  },
+                  "generator": false,
+                  "expression": false,
+                  "async": false
+              }
+          }
+      }],
+      "sourceType": "script"
+  });
+});
+
+it('should parse Rest element containing an object binding pattern (arrow function expression (default parameter))', () => {
+  expect(parseScript(`f = ([...{ length }] = [1, 2, 3]) => {}`, {
+      ranges: false,
+      raw: true
+  })).to.eql({
+      "type": "Program",
+      "body": [{
+          "type": "ExpressionStatement",
+          "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                  "type": "Identifier",
+                  "name": "f"
+              },
+              "right": {
+                  "type": "ArrowFunctionExpression",
+                  "id": null,
+                  "params": [{
+                      "type": "AssignmentPattern",
+                      "left": {
+                          "type": "ArrayPattern",
+                          "elements": [{
+                              "type": "RestElement",
+                              "argument": {
+                                  "type": "ObjectPattern",
+                                  "properties": [{
+                                      "type": "Property",
+                                      "key": {
+                                          "type": "Identifier",
+                                          "name": "length"
+                                      },
+                                      "computed": false,
+                                      "value": {
+                                          "type": "Identifier",
+                                          "name": "length"
+                                      },
+                                      "kind": "init",
+                                      "method": false,
+                                      "shorthand": true
+                                  }]
+                              }
+                          }]
+                      },
+                      "right": {
+                          "type": "ArrayExpression",
+                          "elements": [{
+                                  "type": "Literal",
+                                  "value": 1,
+                                  "raw": "1"
+                              },
+                              {
+                                  "type": "Literal",
+                                  "value": 2,
+                                  "raw": "2"
+                              },
+                              {
+                                  "type": "Literal",
+                                  "value": 3,
+                                  "raw": "3"
+                              }
+                          ]
+                      }
+                  }],
+                  "body": {
+                      "type": "BlockStatement",
+                      "body": []
+                  },
+                  "generator": false,
+                  "expression": false,
+                  "async": false
+              }
+          }
+      }],
+      "sourceType": "script"
+  });
+});
+
+it('should parse Rest element containing an object binding pattern (arrow function expression (default parameter))', () => {
+  expect(parseScript(`f = ([...{ 0: v, 1: w, 2: x, 3: y, length: z }] = [7, 8, 9]) => {}`, {
+      ranges: false,
+      raw: true
+  })).to.eql({
+      "type": "Program",
+      "body": [{
+          "type": "ExpressionStatement",
+          "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                  "type": "Identifier",
+                  "name": "f"
+              },
+              "right": {
+                  "type": "ArrowFunctionExpression",
+                  "id": null,
+                  "params": [{
+                      "type": "AssignmentPattern",
+                      "left": {
+                          "type": "ArrayPattern",
+                          "elements": [{
+                              "type": "RestElement",
+                              "argument": {
+                                  "type": "ObjectPattern",
+                                  "properties": [{
+                                          "type": "Property",
+                                          "key": {
+                                              "type": "Literal",
+                                              "value": 0,
+                                              "raw": "0"
+                                          },
+                                          "computed": false,
+                                          "value": {
+                                              "type": "Identifier",
+                                              "name": "v"
+                                          },
+                                          "kind": "init",
+                                          "method": false,
+                                          "shorthand": false
+                                      },
+                                      {
+                                          "type": "Property",
+                                          "key": {
+                                              "type": "Literal",
+                                              "value": 1,
+                                              "raw": "1"
+                                          },
+                                          "computed": false,
+                                          "value": {
+                                              "type": "Identifier",
+                                              "name": "w"
+                                          },
+                                          "kind": "init",
+                                          "method": false,
+                                          "shorthand": false
+                                      },
+                                      {
+                                          "type": "Property",
+                                          "key": {
+                                              "type": "Literal",
+                                              "value": 2,
+                                              "raw": "2"
+                                          },
+                                          "computed": false,
+                                          "value": {
+                                              "type": "Identifier",
+                                              "name": "x"
+                                          },
+                                          "kind": "init",
+                                          "method": false,
+                                          "shorthand": false
+                                      },
+                                      {
+                                          "type": "Property",
+                                          "key": {
+                                              "type": "Literal",
+                                              "value": 3,
+                                              "raw": "3"
+                                          },
+                                          "computed": false,
+                                          "value": {
+                                              "type": "Identifier",
+                                              "name": "y"
+                                          },
+                                          "kind": "init",
+                                          "method": false,
+                                          "shorthand": false
+                                      },
+                                      {
+                                          "type": "Property",
+                                          "key": {
+                                              "type": "Identifier",
+                                              "name": "length"
+                                          },
+                                          "computed": false,
+                                          "value": {
+                                              "type": "Identifier",
+                                              "name": "z"
+                                          },
+                                          "kind": "init",
+                                          "method": false,
+                                          "shorthand": false
+                                      }
+                                  ]
+                              }
+                          }]
+                      },
+                      "right": {
+                          "type": "ArrayExpression",
+                          "elements": [{
+                                  "type": "Literal",
+                                  "value": 7,
+                                  "raw": "7"
+                              },
+                              {
+                                  "type": "Literal",
+                                  "value": 8,
+                                  "raw": "8"
+                              },
+                              {
+                                  "type": "Literal",
+                                  "value": 9,
+                                  "raw": "9"
+                              }
+                          ]
+                      }
+                  }],
+                  "body": {
+                      "type": "BlockStatement",
+                      "body": []
+                  },
+                  "generator": false,
+                  "expression": false,
+                  "async": false
+              }
+          }
+      }],
+      "sourceType": "script"
+  });
+});
+
+it('should parse arrow parameter with binding identifier yield (sloppy)', () => {
+  expect(parseScript(`var af = yield => 1;`, {
+      ranges: true,
+      raw: true
+  })).to.eql({
+      "type": "Program",
+      "start": 0,
+      "end": 20,
+      "body": [{
+          "type": "VariableDeclaration",
+          "start": 0,
+          "end": 20,
+          "declarations": [{
+              "type": "VariableDeclarator",
+              "start": 4,
+              "end": 19,
+              "id": {
+                  "type": "Identifier",
+                  "start": 4,
+                  "end": 6,
+                  "name": "af"
+              },
+              "init": {
+                  "type": "ArrowFunctionExpression",
+                  "start": 9,
+                  "end": 19,
+                  "id": null,
+                  "generator": false,
+                  "expression": true,
+                  "async": false,
+                  "params": [{
+                      "type": "Identifier",
+                      "start": 9,
+                      "end": 14,
+                      "name": "yield"
+                  }],
+                  "body": {
+                      "type": "Literal",
+                      "start": 18,
+                      "end": 19,
+                      "value": 1,
+                      "raw": "1"
+                  }
+              }
+          }],
+          "kind": "var"
+      }],
+      "sourceType": "script"
+  });
+});
+
+it('should parse Rest element containing an object binding pattern', () => {
+  expect(parseScript(`f = ([...{ length }]) => {}`, {
+      ranges: true,
+      raw: true
+  })).to.eql({
+      "body": [{
+          "end": 27,
+          "expression": {
+              "end": 27,
+              "left": {
+                  "end": 1,
+                  "name": "f",
+                  "start": 0,
+                  "type": "Identifier"
+              },
+              "operator": "=",
+              "right": {
+                  "async": false,
+                  "body": {
+                      "body": [],
+                      "end": 27,
+                      "start": 25,
+                      "type": "BlockStatement"
+                  },
+                  "end": 27,
+                  "expression": false,
+                  "generator": false,
+                  "id": null,
+                  "params": [{
+                      "elements": [{
+                          "argument": {
+                              "end": 19,
+                              "properties": [{
+                                  "computed": false,
+                                  "end": 17,
+                                  "key": {
+                                      "end": 17,
+                                      "name": "length",
+                                      "start": 11,
+                                      "type": "Identifier"
+                                  },
+                                  "kind": "init",
+                                  "method": false,
+                                  "shorthand": true,
+                                  "start": 11,
+                                  "type": "Property",
+                                  "value": {
+                                      "end": 17,
+                                      "name": "length",
+                                      "start": 11,
+                                      "type": "Identifier"
+                                  }
+                              }],
+                              "start": 9,
+                              "type": "ObjectPattern"
+                          },
+                          "end": 19,
+                          "start": 6,
+                          "type": "RestElement",
+                      }],
+                      "end": 20,
+                      "start": 5,
+                      "type": "ArrayPattern"
+                  }, ],
+                  "start": 4,
+                  "type": "ArrowFunctionExpression"
+              },
+              "start": 0,
+              "type": "AssignmentExpression"
+          },
+          "start": 0,
+          "type": "ExpressionStatement"
+      }],
+      "end": 27,
+      "sourceType": "script",
+      "start": 0,
+      "type": "Program"
+  });
+});
+
+it('should parse multiple params', () => {
+  expect(parseScript(`(a, b) => "test";`, {
+      ranges: true,
+      raw: true
+  })).to.eql({
+      "body": [{
+          "end": 17,
+          "expression": {
+              "body": {
+                  "end": 16,
+                  "raw": "\"test\"",
+                  "start": 10,
+                  "type": "Literal",
+                  "value": "test"
+              },
+              "end": 16,
+              "expression": true,
+              "generator": false,
+              "async": false,
+              "id": null,
+              "params": [{
+                      "end": 2,
+                      "name": "a",
+                      "start": 1,
+                      "type": "Identifier"
+                  },
+                  {
+                      "end": 5,
+                      "name": "b",
+                      "start": 4,
+                      "type": "Identifier"
+                  },
+              ],
+              "start": 0,
+              "type": "ArrowFunctionExpression"
+          },
+          "start": 0,
+          "type": "ExpressionStatement"
+      }],
+      "end": 17,
+      "sourceType": "script",
+      "start": 0,
+      "type": "Program"
+  });
+});
+
+it('should parse no auto return', () => {
+  expect(parseScript(`(a, b) => { 42; };`, {
+      ranges: false,
+      raw: true
+  })).to.eql({
+      "type": "Program",
+      "body": [{
+          "type": "ExpressionStatement",
+          "expression": {
+              "type": "ArrowFunctionExpression",
+              "id": null,
+              "params": [{
+                      "type": "Identifier",
+                      "name": "a"
+                  },
+                  {
+                      "type": "Identifier",
+                      "name": "b"
+                  }
+              ],
+              "body": {
+                  "type": "BlockStatement",
+                  "body": [{
+                      "type": "ExpressionStatement",
+                      "expression": {
+                          "type": "Literal",
+                          "value": 42,
+                          "raw": "42"
+                      }
+                  }]
+              },
+              "generator": false,
+              "expression": false,
+              "async": false
+          }
+      }],
+      "sourceType": "script"
+  });
+});
+
+it('should parse no strict eval param', () => {
+  expect(parseScript(`(eval, a) => 42;`, {
+      ranges: false,
+      raw: true
+  })).to.eql({
+      "type": "Program",
+      "body": [{
+          "type": "ExpressionStatement",
+          "expression": {
+              "type": "ArrowFunctionExpression",
+              "id": null,
+              "params": [{
+                      "type": "Identifier",
+                      "name": "eval"
+                  },
+                  {
+                      "type": "Identifier",
+                      "name": "a"
+                  }
+              ],
+              "body": {
+                  "type": "Literal",
+                  "value": 42,
+                  "raw": "42"
+              },
+              "generator": false,
+              "expression": true,
+              "async": false
+          }
+      }],
+      "sourceType": "script"
+  });
+});
+
+it('should parse not strict octal', () => {
+  expect(parseScript(`(a) => 00`, {
+      ranges: false,
+      raw: true
+  })).to.eql({
+      "type": "Program",
+      "body": [{
+          "type": "ExpressionStatement",
+          "expression": {
+              "type": "ArrowFunctionExpression",
+              "id": null,
+              "params": [{
+                  "type": "Identifier",
+                  "name": "a"
+              }],
+              "body": {
+                  "type": "Literal",
+                  "value": 0,
+                  "raw": "00"
+              },
+              "generator": false,
+              "expression": true,
+              "async": false
+          }
+      }],
+      "sourceType": "script"
+  });
+});
+
+
+it('should parse arrow function paren', () => {
+  expect(parseScript('(a) => a;', {
+      ranges: false
+  })).to.eql({
+      "type": "Program",
+      "body": [{
+          "type": "ExpressionStatement",
+          "expression": {
+              "type": "ArrowFunctionExpression",
+              "id": null,
+              "params": [{
+                  "type": "Identifier",
+                  "name": "a"
+              }],
+              "body": {
+                  "type": "Identifier",
+                  "name": "a"
+              },
+              "generator": false,
+              "expression": true,
+              "async": false
+          }
+      }],
+      "sourceType": "script"
+  });
+});
+
+it('should parse arrow function', () => {
+  expect(parseScript('a => a;', {
+      ranges: false
+  })).to.eql({
+      "type": "Program",
+      "body": [{
+          "type": "ExpressionStatement",
+          "expression": {
+              "type": "ArrowFunctionExpression",
+              "id": null,
+              "params": [{
+                  "type": "Identifier",
+                  "name": "a"
+              }],
+              "body": {
+                  "type": "Identifier",
+                  "name": "a"
+              },
+              "generator": false,
+              "expression": true,
+              "async": false
+          }
+      }],
+      "sourceType": "script"
+  });
+});
+
+it('should parse "(eval, a = 10) => 42"', () => {
+  expect(parseScript(`(eval, a = 10) => 42`, {
+      ranges: true,
+      raw: true
+  })).to.eql({
+      "type": "Program",
+      "start": 0,
+      "end": 20,
+      "body": [
+        {
+          "type": "ExpressionStatement",
+          "start": 0,
+          "end": 20,
+          "expression": {
+            "type": "ArrowFunctionExpression",
+            "start": 0,
+            "end": 20,
+            "id": null,
+            "generator": false,
+            "expression": true,
+            "async": false,
+            "params": [
+              {
+                "type": "Identifier",
+                "start": 1,
+                "end": 5,
+                "name": "eval"
+              },
+              {
+                "type": "AssignmentPattern",
+                "start": 7,
+                "end": 13,
+                "left": {
+                  "type": "Identifier",
+                  "start": 7,
+                  "end": 8,
+                  "name": "a"
+                },
+                "right": {
+                  "type": "Literal",
+                  "start": 11,
+                  "end": 13,
+                  "value": 10,
+                  "raw": "10"
+                }
+              }
+            ],
+            "body": {
+              "type": "Literal",
+              "start": 18,
+              "end": 20,
+              "value": 42,
+              "raw": "42"
+            }
+          }
+        }
+      ],
+      "sourceType": "script"
+    });
+});
+
+it('should parse "([a]) => 0"', () => {
+  expect(parseScript(`([a]) => abc`, {
+      ranges: true,
+      raw: true
+  })).to.eql({
+      "type": "Program",
+      "start": 0,
+      "end": 12,
+      "body": [
+        {
+          "type": "ExpressionStatement",
+          "start": 0,
+          "end": 12,
+          "expression": {
+            "type": "ArrowFunctionExpression",
+            "start": 0,
+            "end": 12,
+            "id": null,
+            "generator": false,
+            "expression": true,
+            "async": false,
+            "params": [
+              {
+                "type": "ArrayPattern",
+                "start": 1,
+                "end": 4,
+                "elements": [
+                  {
+                    "type": "Identifier",
+                    "start": 2,
+                    "end": 3,
+                    "name": "a"
+                  }
+                ]
+              }
+            ],
+            "body": {
+              "type": "Identifier",
+              "start": 9,
+              "end": 12,
+              "name": "abc"
+            }
+          }
+        }
+      ],
+      "sourceType": "script"
+    })
+});
+
+it('should parse "a => 0"', () => {
+  expect(parseScript(`a => 0`, {
+      ranges: true,
+      raw: true
+  })).to.eql({
+      "type": "Program",
+      "start": 0,
+      "end": 6,
+      "body": [
+        {
+          "type": "ExpressionStatement",
+          "start": 0,
+          "end": 6,
+          "expression": {
+            "type": "ArrowFunctionExpression",
+            "start": 0,
+            "end": 6,
+            "id": null,
+            "generator": false,
+            "expression": true,
+            "async": false,
+            "params": [
+              {
+                "type": "Identifier",
+                "start": 0,
+                "end": 1,
+                "name": "a"
+              }
+            ],
+            "body": {
+              "type": "Literal",
+              "start": 5,
+              "end": 6,
+              "value": 0,
+              "raw": "0"
+            }
+          }
+        }
+      ],
+      "sourceType": "script"
+    })
+});
+
+it('should parse "(...[]) => 0"', () => {
+  expect(parseScript(`(...[]) => 0`, {})).to.eql({
+      "type": "Program",
+      "body": [{
+          "type": "ExpressionStatement",
+          "expression": {
+              "type": "ArrowFunctionExpression",
+              "id": null,
+              "params": [{
+                  "type": "RestElement",
+                  "argument": {
+                      "type": "ArrayPattern",
+                      "elements": []
+                  }
+              }],
+              "body": {
+                  "type": "Literal",
+                  "value": 0
+              },
+              "generator": false,
+              "expression": true,
+              "async": false
+          }
+      }],
+      "sourceType": "script"
+  })
+});
+
+it.skip('should parse "(a, ...[]) => 0"', () => {
+  expect(parseScript(`(a, ...[]) => 0`, {})).to.eql({
+      "type": "Program",
+      "body": [{
+          "type": "ExpressionStatement",
+          "expression": {
+              "type": "ArrowFunctionExpression",
+              "id": null,
+              "params": [{
+                      "type": "Identifier",
+                      "name": "a"
+                  },
+                  {
+                      "type": "RestElement",
+                      "argument": {
+                          "type": "ArrayPattern",
+                          "elements": []
+                      }
+                  }
+              ],
+              "body": {
+                  "type": "Literal",
+                  "value": 0
+              },
+              "generator": false,
+              "expression": true,
+              "async": false
+          }
+      }],
+      "sourceType": "script"
+  })
+});
+
+
+
 });

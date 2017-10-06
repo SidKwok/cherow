@@ -2384,7 +2384,7 @@ export class Parser {
             switch (this.token) {
 
                 case Token.LeftParen:
-                    const args = this.parseArguments(context, pos);
+                    const args = this.parseArguments(context & ~Context.inParameter, pos);
 
                     if (this.token === Token.Arrow) {
 
@@ -2825,7 +2825,7 @@ export class Parser {
             case Token.FalseKeyword:
                 return this.parseTrueOrFalseExpression(context);
             case Token.LeftParen:
-                return this.parseParenthesizedExpression(context & ~(Context.AllowCall | Context.NonSimpleParameter));
+                return this.parseParenthesizedExpression(context & ~(Context.AllowCall | Context.inParameter | Context.NonSimpleParameter));
             case Token.LeftBracket:
                 return this.parseArrayExpression(context);
             case Token.FunctionKeyword:
@@ -2943,7 +2943,7 @@ export class Parser {
         this.expect(context, Token.Arrow);
 
         const savedScope = this.enterFunctionScope();
-
+        
         this.parseArrowFormalList(context, params);
 
         let expression = false;
@@ -2969,17 +2969,15 @@ export class Parser {
         });
     }
 
-    private parseRestElement(context: Context): any {
+    private parseRestElement(context: Context) {
         const pos = this.getLocations();
-
         this.expect(context, Token.Ellipsis);
-        const arg = this.parseBindingPatternOrIdentifier(context, pos);
+        const argument = this.parseBindingPatternOrIdentifier(context, pos);
         if (this.token === Token.Assign) this.error(Errors.DefaultRestParameter);
         if (this.token !== Token.RightParen) this.error(Errors.ParameterAfterRestParameter);
-
         return this.finishNode(pos, {
             type: 'RestElement',
-            arguments: arg
+            argument
         });
     }
 
@@ -3314,6 +3312,7 @@ export class Parser {
 
     private parseAssignmentElementList(context: Context, pos: Location) {
         this.expect(context, Token.LeftBracket);
+        
         const elements: (ESTree.Pattern | null)[] = [];
         while (this.token !== Token.RightBracket) {
             if (this.parseOptional(context, Token.Comma)) {
