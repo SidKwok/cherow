@@ -1805,7 +1805,7 @@ export class Parser {
 
             const key = '@' + expr.name;
             if (this.labelSet === undefined) this.labelSet = {};
-            else if (hasOwn.call(this.labelSet, key)) this.error(Errors.Redeclaration, expr.name);
+            else if (this.labelSet[key] === true) this.error(Errors.Redeclaration, expr.name);
 
             this.labelSet[key] = true;
             let body: ESTree.Statement;
@@ -1823,7 +1823,7 @@ export class Parser {
                 body = this.parseStatement(context);
             }
 
-            delete this.labelSet[key];
+            this.labelSet[key] = false;
 
             return this.finishNode(pos, {
                 type: 'LabeledStatement',
@@ -2841,7 +2841,7 @@ export class Parser {
 
         const savedScope = this.enterFunctionScope();
 
-        this.parseArrowFormalList(context, params)
+        this.parseArrowFormalList(context, params);
 
         let expression = false;
         let body: ESTree.Expression | ESTree.BlockStatement;
