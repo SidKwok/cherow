@@ -212,7 +212,7 @@ describe('Expressions - Rest parameters', () => {
             });
         });
 
-        it.skip('should parse single element with initializer', () => {
+        it('should parse single element with initializer', () => {
             expect(parseScript('function singleElementWithInitializer(...{a: b = 0}) {}')).to.eql({
                 "type": "Program",
                 "body": [{
@@ -471,7 +471,7 @@ describe('Expressions - Rest parameters', () => {
             });
         });
 
-        it.skip('should parse multi element with initializer', () => {
+        it('should parse multi element with initializer', () => {
             expect(parseScript('function multiElementWithInitializer(...{a: r = 0, b: s, c: t = 1}) {}')).to.eql({
                 "type": "Program",
                 "body": [{
@@ -1033,7 +1033,7 @@ describe('Expressions - Rest parameters', () => {
             });
         });
 
-        it.skip('should parse single element with initializer', () => {
+        it('should parse single element with initializer', () => {
             expect(parseScript('function singleElementWithInitializer(...[a = 0]) {}')).to.eql({
                 "type": "Program",
                 "body": [{
@@ -1260,7 +1260,7 @@ describe('Expressions - Rest parameters', () => {
             });
         });
 
-        it.skip('should parse multi element with initializer', () => {
+        it('should parse multi element with initializer', () => {
             expect(parseScript('function multiElementWithInitializer(...[a = 0, b, c = 1]) {}')).to.eql({
                 "type": "Program",
                 "body": [{

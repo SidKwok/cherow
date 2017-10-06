@@ -4456,7 +4456,7 @@ describe('Declarations - Class', () => {
         });
     });
 
-    it.skip('should parse BindingElement with object binding pattern and initializer', () => {
+    it('should parse BindingElement with object binding pattern and initializer', () => {
         expect(parseScript(`class C {
             async *method([{ x, y, z } = { x: 44, y: 55, z: 66 }]) {}
         };`, {
@@ -6843,7 +6843,7 @@ describe('Declarations - Class', () => {
           });
     });
 
-    it.skip('should parse bindingElement with array binding pattern ', () => {
+    it('should parse bindingElement with array binding pattern ', () => {
         expect(parseScript(`class C {
             async *method([[x, y, z] = [4, 5, 6]]) {
             }
@@ -7172,7 +7172,7 @@ describe('Declarations - Class', () => {
         });
     });
 
-    it.skip('should parse destructuring initializer with an undefined value ', () => {
+    it('should parse destructuring initializer with an undefined value ', () => {
         expect(parseScript(`class C {
             async *method([x = 23]) {
             }
@@ -8228,7 +8228,7 @@ describe('Declarations - Class', () => {
         });
     });
 
-    it.skip('should parse bindingElement with array binding pattern', () => {
+    it('should parse bindingElement with array binding pattern', () => {
         expect(parseScript(`class C {
             async *method([[] = function() { return function*() {}(); }()] = []) {
             }
@@ -8591,14 +8591,13 @@ describe('Declarations - Class', () => {
         });
     });
 
-    it.skip('should parse object binding pattern with "nested" array binding pattern', () => {
+    it('should parse object binding pattern with "nested" array binding pattern', () => {
         expect(parseScript(`class C {
             async *method({ w: [x, y, z] = [4, 5, 6] }) {
             }
           };`, {
             ranges: true,
             locations: true,
-            raw: true,
             next: true
         })).to.eql({
             "type": "Program",
@@ -8757,8 +8756,7 @@ describe('Declarations - Class', () => {
                                                                             "line": 2,
                                                                             "column": 45
                                                                         }
-                                                                    },
-                                                                    "raw": "4"
+                                                                    }
                                                                 },
                                                                 {
                                                                     "type": "Literal",
@@ -8774,8 +8772,7 @@ describe('Declarations - Class', () => {
                                                                             "line": 2,
                                                                             "column": 48
                                                                         }
-                                                                    },
-                                                                    "raw": "5"
+                                                                    }
                                                                 },
                                                                 {
                                                                     "type": "Literal",
@@ -8791,8 +8788,7 @@ describe('Declarations - Class', () => {
                                                                             "line": 2,
                                                                             "column": 51
                                                                         }
-                                                                    },
-                                                                    "raw": "6"
+                                                                    }
                                                                 }
                                                             ],
                                                             "start": 53,
@@ -8808,12 +8804,12 @@ describe('Declarations - Class', () => {
                                                                 }
                                                             }
                                                         },
-                                                        "start": 38,
+                                                        "start": 41,
                                                         "end": 62,
                                                         "loc": {
                                                             "start": {
                                                                 "line": 2,
-                                                                "column": 28
+                                                                "column": 31
                                                             },
                                                             "end": {
                                                                 "line": 2,

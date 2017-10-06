@@ -1207,7 +1207,7 @@ describe('Declarations - Functions', () => {
         });
     });
 
-    it.skip('should parse "function f([x = 23]) {}"', () => {
+    it('should parse "function f([x = 23]) {}"', () => {
         expect(parseScript(`function f([x = 23]) {}`, {
             ranges: false,
             raw: true
@@ -1303,7 +1303,7 @@ describe('Declarations - Functions', () => {
         });
     });
 
-    it.skip('should parse "function f([[] = function() { }()]) {}"', () => {
+    it('should parse "function f([[] = function() { }()]) {}"', () => {
         expect(parseScript(`function f([[] = function() { }()]) {}`, {
             ranges: false
         })).to.eql({
@@ -1358,7 +1358,7 @@ describe('Declarations - Functions', () => {
         });
     });
 
-    it.skip('should parse "function f([[,] = g()]) {}"', () => {
+    it('should parse "function f([[,] = g()]) {}"', () => {
         expect(parseScript(`function f([[,] = g()]) {}`, {
             ranges: false
         })).to.eql({

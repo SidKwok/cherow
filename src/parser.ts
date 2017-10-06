@@ -1797,7 +1797,7 @@ export class Parser {
     private parseExportDeclaration(context: Context): any {}
     private parseImportDeclaration(context: Context): any {}
 
-    private parseModuleItem(context: Context): any {
+    private parseModuleItem(context: Context): ESTree.Statement {
         // ecma262/#prod-ModuleItem
         // ModuleItem :
         //    ImportDeclaration
@@ -2320,7 +2320,7 @@ export class Parser {
 
                 // '('
             case Token.LeftParen:
-                this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+               // this.error(Errors.UnexpectedToken, tokenDesc(this.token));
 
             default:
                 return this.finishNode(pos, {
@@ -2425,9 +2425,12 @@ export class Parser {
                     const args = this.parseArguments(context & ~Context.inParameter, pos);
 
                     if (this.token === Token.Arrow) {
-
                         return this.parseArrowExpression(context | Context.Async, pos, args);
                     }
+
+                    if (context & Context.Import && args.length !== 1 &&
+                        expr.type === 'Import') this.error(Errors.BadImportCallArity);
+
                     expr = this.finishNode(pos, {
                         type: 'CallExpression',
                         callee: expr,
@@ -2441,7 +2444,7 @@ export class Parser {
         }
     }
 
-    private parseNewExpression(context: Context): any {
+    private parseNewExpression(context: Context) {
 
         const pos = this.getLocations();
 
@@ -2506,7 +2509,7 @@ export class Parser {
         });
     }
 
-    private parseSpreadElement(context: Context): any {
+    private parseSpreadElement(context: Context): ESTree.SpreadElement {
         const pos = this.getLocations();
         // Disallow SpreadElement inside dynamic import
         if (context & Context.Import) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
@@ -2518,7 +2521,7 @@ export class Parser {
         });
     }
 
-    private parseArguments(context: Context, pos: Location): any {
+    private parseArguments(context: Context, pos: Location): ESTree.Expression[] {
         this.expect(context, Token.LeftParen);
         const args: any[] = [];
         if (this.token !== Token.RightParen) {
@@ -2806,7 +2809,7 @@ export class Parser {
     }
 
 
-    private parseObjectExpression(context: Context): any {
+    private parseObjectExpression(context: Context): ESTree.ObjectExpression {
 
         const pos = this.getLocations();
 
@@ -2857,8 +2860,7 @@ export class Parser {
         }
     }
 
-
-    private parseObjectElement(context: Context): any {
+    private parseObjectElement(context: Context): ESTree.Property {
         const pos = this.getLocations();
 
         let key: ESTree.Expression | null = null;
@@ -3011,7 +3013,7 @@ export class Parser {
         const savedScope = this.enterFunctionScope();
 
         const params = this.parseParameterList(context | Context.inParameter);
-
+        
         const body = this.parseFunctionBody(context);
         this.flags = savedFlag;
 
@@ -3203,7 +3205,7 @@ export class Parser {
         });
     }
 
-    private parsePrimaryExpression(context: Context, pos: Location): any {
+    private parsePrimaryExpression(context: Context, pos: Location) {
 
         switch (this.token) {
             case Token.Divide:
@@ -3621,7 +3623,7 @@ export class Parser {
         const pos = this.getLocations();
         const pattern = this.parseBindingPatternOrIdentifier(context, pos);
         if (!this.parseOptional(context, Token.Assign)) return pattern;
-        const right = this.parseBindingPatternOrIdentifier(context, pos);
+        const right = this.parseAssignmentExpression(context);
         return this.finishNode(pos, {
             type: 'AssignmentPattern',
             left: pattern,
@@ -3646,7 +3648,7 @@ export class Parser {
 
         const name = this.tokenValue;
         const token = this.token;
-
+        
         if (!this.isIdentifier(context, token)) this.error(Errors.Unexpected);
 
         if (context & Context.Strict && this.isEvalOrArguments(name)) this.error(Errors.StrictLHSAssignment);
@@ -3667,7 +3669,7 @@ export class Parser {
         });
     }
 
-    private parseAssignmentRestElement(context: Context): any {
+    private parseAssignmentRestElement(context: Context): ESTree.RestElement {
         const pos = this.getLocations();
         this.expect(context, Token.Ellipsis);
         const argument = this.parseBindingPatternOrIdentifier(context, pos);
@@ -3704,7 +3706,7 @@ export class Parser {
         });
     }
 
-    private parseArrayAssignmentPattern(context: Context): any {
+    private parseArrayAssignmentPattern(context: Context): ESTree.AssignmentPattern {
         return this.parseAssignmentPattern(context);
     }
 
@@ -3756,11 +3758,11 @@ export class Parser {
         let key;
         let value;
 
-        if (this.token === Token.Identifier) {
+        if (this.isIdentifier(context, this.token)) {
             pos = this.getLocations();
             const keyToken = this.token;
             const tokenValue = this.tokenValue;
-            key = this.parseIdentifier(context);
+            key = this.parsePropertyName(context);
             const init = this.finishNode(pos, {
                 type: 'Identifier',
                 name: tokenValue

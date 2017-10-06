@@ -2318,25 +2318,16 @@ Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context, 
 };
 Parser.prototype.buildUnaryExpression = function buildUnaryExpression (context) {
     var pos = this.getLocations();
-    switch (this.token) {
-        case 4468779 /* DeleteKeyword */:
-        case 6555951 /* Add */:
-        case 6555952 /* Subtract */:
-        case 4456494 /* Complement */:
-        case 4456493 /* Negate */:
-        case 4468778 /* TypeofKeyword */:
-        case 4468780 /* VoidKeyword */:
-            var token = this.token;
-            this.nextToken(context);
-            return this.finishNode(pos, {
-                type: 'UnaryExpression',
-                operator: tokenDesc(token),
-                argument: this.buildUnaryExpression(context),
-                prefix: true
-            });
-        default:
-            return this.parseUpdateExpression(context, pos);
-    }
+    if (!hasMask(this.token, 4456448 /* UnaryOperator */) || this.token === 4526190 /* AwaitKeyword */)
+        { return this.parseUpdateExpression(context, pos); }
+    var operator = this.token;
+    this.nextToken(context);
+    return this.finishNode(pos, {
+        type: 'UnaryExpression',
+        operator: tokenDesc(operator),
+        argument: this.buildUnaryExpression(context),
+        prefix: true
+    });
 };
 Parser.prototype.parseUpdateExpression = function parseUpdateExpression (context, pos) {
     var expr;
@@ -2400,7 +2391,7 @@ Parser.prototype.parseImport = function parseImport (context, pos) {
             return this.parseMetaProperty(context, id, pos);
         // '('
         case 262155 /* LeftParen */:
-            this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
+        // this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         default:
             return this.finishNode(pos, {
                 type: 'Import'
@@ -2488,6 +2479,9 @@ Parser.prototype.parseCallExpression = function parseCallExpression (context, po
                 if (this$1.token === 10 /* Arrow */) {
                     return this$1.parseArrowExpression(context | 32 /* Async */, pos, args);
                 }
+                if (context & 32768 /* Import */ && args.length !== 1 &&
+                    expr.type === 'Import')
+                    { this$1.error(14 /* BadImportCallArity */); }
                 expr = this$1.finishNode(pos, {
                     type: 'CallExpression',
                     callee: expr,
@@ -2590,14 +2584,14 @@ Parser.prototype.parseArguments = function parseArguments (context, pos) {
 Parser.prototype.matchAsyncFunction = function matchAsyncFunction (context) {
     this.peekToken(context);
     if (this.line !== this.peekedState.line)
-        { return 1 /* None */; }
+        { return 0 /* None */; }
     switch (this.peekedToken) {
         case 274520 /* FunctionKeyword */:
-            return 2 /* Function */;
+            return 1 /* Function */;
         default:
             if (this.isIdentifier(context, this.peekedToken))
-                { return 3 /* Identifier */; }
-            return 1 /* None */;
+                { return 2 /* Identifier */; }
+            return 0 /* None */;
     }
 };
 Parser.prototype.parseClassDeclaration = function parseClassDeclaration (context) {
@@ -3209,9 +3203,9 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 69732 /* AsyncKeyword */:
             var state = this.matchAsyncFunction(context);
             switch (state) {
-                case 2 /* Function */:
+                case 1 /* Function */:
                     return this.parseFunctionExpression(context);
-                case 3 /* Identifier */:
+                case 2 /* Identifier */:
                     this.expect(context, 69732 /* AsyncKeyword */);
                     var expr = this.parseIdentifier(context);
                     return this.parseArrowExpression(context | 32 /* Async */, pos, [expr]);
@@ -3543,7 +3537,7 @@ Parser.prototype.parseAssignmentPattern = function parseAssignmentPattern (conte
     var pattern = this.parseBindingPatternOrIdentifier(context, pos);
     if (!this.parseOptional(context, 1310749 /* Assign */))
         { return pattern; }
-    var right = this.parseBindingPatternOrIdentifier(context, pos);
+    var right = this.parseAssignmentExpression(context);
     return this.finishNode(pos, {
         type: 'AssignmentPattern',
         left: pattern,
@@ -3662,10 +3656,10 @@ Parser.prototype.parseAssignmentProperty = function parseAssignmentProperty (con
     var method = false;
     var key;
     var value;
-    if (this.token === 262145 /* Identifier */) {
+    if (this.isIdentifier(context, this.token)) {
         pos = this.getLocations();
         var tokenValue = this.tokenValue;
-        key = this.parseIdentifier(context);
+        key = this.parsePropertyName(context);
         var init = this.finishNode(pos, {
             type: 'Identifier',
             name: tokenValue

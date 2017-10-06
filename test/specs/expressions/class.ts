@@ -1710,7 +1710,7 @@ describe('Espressions - Class', () => {
               });
         });
     
-        it.skip('should parse destructuring initializer with a "hole"', () => {
+        it('should parse destructuring initializer with a "hole"', () => {
             expect(parseScript(`var C = class {
                     async method([x = 23]) {
                     }
@@ -1817,7 +1817,7 @@ describe('Espressions - Class', () => {
         });
     
     
-        it.skip('should parse BindingElement with object binding pattern', () => {
+        it('should parse BindingElement with object binding pattern', () => {
             expect(parseScript(`var C = class {
                     async *method([{ x, y, z } = { x: 44, y: 55, z: 66 }]) {
                     }
@@ -2190,7 +2190,7 @@ describe('Espressions - Class', () => {
             });
         });
 
-        it.skip('should parse destructuring initializer with a "hole"', () => {
+        it('should parse destructuring initializer with a "hole"', () => {
             expect(parseScript(`var C = class {
                     async *method([x = 23] = [,]) {
                     }
@@ -2336,7 +2336,7 @@ describe('Espressions - Class', () => {
             });
         });
 
-        it.skip('should parse object binding pattern with "nested" array binding pattern', () => {
+        it('should parse object binding pattern with "nested" array binding pattern', () => {
             expect(parseScript(`var C = class {
                     async *method({ w: [x, y, z] = [4, 5, 6] } = { w: [7, undefined, ] }) {
                     }
@@ -2472,7 +2472,7 @@ describe('Espressions - Class', () => {
         });
 
        
-        it.skip('should parse object binding pattern with "nested" array binding pattern using initializer', () => {
+        it('should parse object binding pattern with "nested" array binding pattern using initializer', () => {
             expect(parseScript(`var C = class {
                     async *method({ w: [x, y, z] = [4, 5, 6] }) {
                     }
@@ -2576,7 +2576,8 @@ describe('Espressions - Class', () => {
                 "type": "Program",
             });
         });
-        it.skip('should parse destructuring initializer with an undefined value ', () => {
+        
+        it('should parse destructuring initializer with an undefined value ', () => {
             expect(parseScript(`var C = class {
                     static method([x = 23]) {
                     }
