@@ -5641,7 +5641,7 @@ describe('Expressions - Arrow function', () => {
               "sourceType": "script"
           });
       });
-      it.skip('should parse arrow parameters cover includes rest concise body function body', () => {
+      it('should parse arrow parameters cover includes rest concise body function body', () => {
           expect(parseScript(`var af = (x, ...y) => { return [x, y.length]; };`, {
               ranges: true,
               raw: true

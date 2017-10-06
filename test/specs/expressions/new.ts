@@ -22,7 +22,7 @@ describe('Espressions - New', () => {
           }).to.throw();
       });
   
-      it.skip('should parse "function a() { return () => new.target }"', () => {
+      it('should parse "function a() { return () => new.target }"', () => {
           expect(parseScript('function a() { return () => new.target }', {
               ranges: true,
               raw: true,

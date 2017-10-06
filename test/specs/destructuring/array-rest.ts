@@ -5,7 +5,7 @@ const expect = chai.expect;
 
 describe('Destructuring - Arrow rest', () => {
 
-    it.skip('should parse "let xs = [0, "", true];"', () => {
+    it('should parse "let xs = [0, "", true];"', () => {
         expect(parseScript('let xs = [0, "", true];', {
             ranges: true
         })).to.eql({
@@ -62,7 +62,7 @@ describe('Destructuring - Arrow rest', () => {
             });
     });
 
-    it.skip('should parse "let [a, ...ys] = xs;"', () => {
+    it('should parse "let [a, ...ys] = xs;"', () => {
         expect(parseScript('let [a, ...ys] = xs;', {
             ranges: false,
             raw: true,
@@ -103,7 +103,7 @@ describe('Destructuring - Arrow rest', () => {
         });
     });
 
-    it.skip('should parse "let [...e] = 0;"', () => {
+    it('should parse "let [...e] = 0;"', () => {
         expect(parseScript('let [...e] = 0;', {
             ranges: false,
             raw: true

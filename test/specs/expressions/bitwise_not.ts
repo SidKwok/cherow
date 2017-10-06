@@ -67,7 +67,7 @@ describe('Espressions - bitwise not', () => {
         });
     });
 
-    it.skip('should parse "~(function(){return 1}) === -1"', () => {
+    it('should parse "~(function(){return 1}) === -1"', () => {
         expect(parseScript('~(function(){return 1}) === -1')).to.eql({
             "type": "Program",
             "body": [{

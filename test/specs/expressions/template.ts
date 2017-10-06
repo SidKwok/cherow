@@ -192,7 +192,7 @@ describe('Espressions - Template', () => {
         });
     });
 
-    it.skip('should parse method invocation in expression position of TemplateLiteral', () => {
+    it('should parse method invocation in expression position of TemplateLiteral', () => {
         expect(parseScript('var object = { fn: function() { return `result`; } };', {
             locations: true,
             raw: true
@@ -383,7 +383,7 @@ describe('Espressions - Template', () => {
         });
     });
 
-    it.skip('should parse function invocation in expression position of TemplateLiteral', () => {
+    it('should parse function invocation in expression position of TemplateLiteral', () => {
         expect(parseScript('function fn() { return `result`; }', {
             locations: true,
             raw: true
@@ -577,7 +577,7 @@ describe('Espressions - Template', () => {
         });
     });
 
-    it.skip('should parse line terminator', () => {
+    it('should parse line terminator', () => {
         expect(parseScript('var source = `\n\r\n`;', {
             ranges: false,
             raw: true
@@ -847,7 +847,7 @@ describe('Espressions - Template', () => {
         });
     });
 
-    it.skip('should parse line terminator', () => {
+    it('should parse line terminator', () => {
         expect(parseScript("var source = '`\\n\\r\\n`';", {
             ranges: false,
             raw: true

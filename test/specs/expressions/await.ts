@@ -1064,7 +1064,7 @@ it('should fail on await binding identifier nested', () => {
         });
     });
 
-    it.skip('should parse await in function', () => {
+    it('should parse await in function', () => {
         expect(parseScript('function foo(await) { return await; }', {
             ranges: true,
             raw: true,

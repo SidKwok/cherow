@@ -20,10 +20,11 @@ export const enum Context {
     inParameter           = 1 << 17,
     ArrowParameterList    = 1 << 18,
     IfClause              = 1 << 19,
+    HasConstructor         = 1 << 20,
     /* Variable declaration */
-    Const                  = 1 << 20,
-    Let                    = 1 << 21,
-    Var                    = 1 << 22,
+    Const                  = 1 << 21,
+    Let                    = 1 << 22,
+    Var                    = 1 << 23,
 
      // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
@@ -39,21 +40,21 @@ export const enum Flags {
     ArgumentList                 = 1 << 5,
 
     /* Numeric */
-    Noctal                       = 1 << 4, // e.g. `0777`
-    BigInt                       = 1 << 5, // e.g. `100n`
-    Float                        = 1 << 6, // e.g. `09.01`
-    Exponent                     = 1 << 7, // e.g. `10e2`
+    Noctal                       = 1 << 6, // e.g. `0777`
+    BigInt                       = 1 << 7, // e.g. `100n`
+    Float                        = 1 << 8, // e.g. `09.01`
+    Exponent                     = 1 << 9, // e.g. `10e2`
 
     /* Options */
-    OptionsRanges                = 1 << 8,
-    OptionsLoc                   = 1 << 9,
-    OptionsSource                = 1 << 10,
-    OptionsJSX                   = 1 << 11,
-    OptionsRaw                   = 1 << 12,
-    OptionsNext                  = 1 << 13,
-    OptionsOnComment             = 1 << 14,
-    OptionsOnToken               = 1 << 15,
-    OptionsV8                    = 1 << 16,
+    OptionsRanges                = 1 << 10,
+    OptionsLoc                   = 1 << 11,
+    OptionsSource                = 1 << 12,
+    OptionsJSX                   = 1 << 13,
+    OptionsRaw                   = 1 << 14,
+    OptionsNext                  = 1 << 15,
+    OptionsOnComment             = 1 << 16,
+    OptionsOnToken               = 1 << 17,
+    OptionsV8                    = 1 << 18,
 
     // BigInt implementation can't handle either float or exponent acc. TC-39
     FloatOrExponent = Float | Exponent

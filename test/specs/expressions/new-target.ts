@@ -842,7 +842,7 @@ describe('Espressions - New target', () => {
           });
         });
 
-        it.skip('should parse new.target in method param list', () => {
+        it('should parse new.target in method param list', () => {
           expect(parseScript('({ set m(a = new.target){} })', {
               ranges: true,
               raw: true,
@@ -1049,7 +1049,7 @@ describe('Espressions - New target', () => {
           });
         });
 
-        it.skip('should parse "({ m(a = new.target){} })"', () => {
+        it('should parse "({ m(a = new.target){} })"', () => {
           expect(parseScript('({ m(a = new.target){} })', {
               ranges: true,
               raw: true,
@@ -1256,7 +1256,7 @@ describe('Espressions - New target', () => {
           });
         });
 
-        it.skip('should parse "({ get m(){ new.target } })"', () => {
+        it('should parse "({ get m(){ new.target } })"', () => {
           expect(parseScript('({ get m(){ new.target } })', {
               ranges: true,
               raw: true,

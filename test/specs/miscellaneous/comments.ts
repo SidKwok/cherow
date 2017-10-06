@@ -437,7 +437,7 @@ describe('Miscellaneous - comments', () => {
           });
     });
 
-    it.skip('should parse a single "function x(){ /*esprima*/ return; /*sucks*/}"', () => {
+    it('should parse a single "function x(){ /*esprima*/ return; /*sucks*/}"', () => {
         expect(parseScript('function x(){ /*esprima*/ return; /*sucks*/}', {
             ranges: true,
             raw: true
