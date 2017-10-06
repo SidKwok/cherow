@@ -13,6 +13,12 @@ export const enum AsyncState {
         Identifier
 }
 
+const enum ObjectFlags {
+    None = 0,
+        Yield = 1 << 0,
+        Await = 1 << 1,
+}
+
 export class Parser {
     private readonly source: string;
     private index: number;
@@ -108,10 +114,10 @@ export class Parser {
     }
 
     public parseScript(context: Context): ESTree.Program {
-
+        this.nextToken(context);
         const node: ESTree.Program = {
             type: 'Program',
-            body: this.parseStatementList(context | Context.AllowIn),
+            body: this.parseStatementList(context | Context.AllowIn, Token.EndOfSource),
             sourceType: 'script'
         };
 
@@ -1651,25 +1657,23 @@ export class Parser {
         return statements;
     }
 
-    private parseStatementList(context: Context): ESTree.Statement[] {
-
-        this.nextToken(context);
+    private parseStatementList(context: Context, endToken: Token): ESTree.Statement[] {
 
         const statements: ESTree.Statement[] = [];
 
-        while (this.token !== Token.EndOfSource) {
-            if (!(this.token & Token.StringLiteral)) break;
+        while (this.token !== endToken) {
+            if (this.token !== Token.StringLiteral) break;
             const item: ESTree.Statement = this.parseStatementListItem(context);
-
             statements.push(item);
             if (!isDirective(item)) break;
             if (item.expression.value === 'use strict') {
+                if (this.flags & Flags.HasNonSimpleParameter) this.error(Errors.IllegalUseStrict);
                 context |= Context.Strict;
                 break;
             }
         }
 
-        while (this.token !== Token.EndOfSource) {
+        while (this.token !== endToken) {
             statements.push(this.parseStatementListItem(context));
         }
 
@@ -2226,7 +2230,7 @@ export class Parser {
                     }
 
                     // '['
-                case Token.LeftBracket: 
+                case Token.LeftBracket:
                     {
                         this.expect(context, Token.LeftBracket);
                         const start = this.getLocations();
@@ -2306,7 +2310,7 @@ export class Parser {
 
                 if (this.token === Token.Identifier) {
                     if (this.tokenValue !== 'target') this.error(Errors.MetaNotInFunctionBody);
-                    if (context & Context.FormalParameter) return this.parseMetaProperty(context, id, pos);
+                    if (context & Context.inParameter) return this.parseMetaProperty(context, id, pos);
                     if (!(this.flags & Flags.InFunctionBody)) this.error(Errors.MetaNotInFunctionBody);
                 }
 
@@ -2319,8 +2323,8 @@ export class Parser {
             default:
                 return this.finishNode(pos, {
                     type: 'NewExpression',
-                    callee: this.parseMemberExpression(context & ~Context.FormalParameter | Context.NewExpression, pos),
-                    arguments: this.token === Token.LeftParen ? this.parseArguments(context & ~Context.FormalParameter, pos) : []
+                    callee: this.parseMemberExpression(context & ~Context.inParameter | Context.NewExpression, pos),
+                    arguments: this.token === Token.LeftParen ? this.parseArguments(context & ~Context.inParameter, pos) : []
                 });
         }
     }
@@ -2629,7 +2633,7 @@ export class Parser {
 
         const savedFlags = this.flags;
         const savedScope = this.enterFunctionScope();
-        const params = this.parseFormalParameterList(context & ~(Context.Statement | Context.OptionalIdentifier) | Context.FormalParameter);
+        const params = this.parseParameterList(context & ~(Context.Statement | Context.OptionalIdentifier) | Context.inParameter);
         const body = this.parseFunctionBody(context & ~(Context.Statement | Context.OptionalIdentifier));
 
         this.exitFunctionScope(savedScope);
@@ -2646,11 +2650,22 @@ export class Parser {
         });
     }
 
-    private parseFormalParameterList(context: Context): ESTree.Node[] {
-
-        this.flags &= ~Flags.HasNonSimpleParameter;
+    private parseParameterList(context: Context): ESTree.Node[] {
+        // FormalParameters [Yield,Await]: (modified)
+        //      [empty]
+        //      FormalParameterList[?Yield,Await]
+        //
+        // FormalParameter[Yield,Await]: (modified)
+        //      BindingElement[?Yield,Await]
+        //
+        // BindingElement [Yield,Await]: (modified)
+        //      SingleNameBinding[?Yield,?Await]
+        //      BindingPattern[?Yield,?Await]Initializer [In, ?Yield,?Await] opt
+        //
+        // SingleNameBinding [Yield,Await]:
+        //      BindingIdentifier[?Yield,?Await]Initializer [In, ?Yield,?Await] opt
         this.expect(context, Token.LeftParen);
-
+        this.flags &= ~Flags.HasNonSimpleParameter;
         const result = [];
 
         while (this.token !== Token.RightParen) {
@@ -2674,6 +2689,9 @@ export class Parser {
     ): ESTree.AssignmentPattern | ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.RestElement {
         const pos = this.getLocations();
         const left = this.token === Token.Ellipsis ? this.parseRestElement(context) : this.parseBindingPatternOrIdentifier(context, pos);
+
+        // Initializer[In, Yield] :
+        //     = AssignmentExpression[?In, ?Yield]
         if (!this.parseOptional(context, Token.Assign)) return left;
         const right = this.parseAssignmentExpression(context);
         return this.finishNode(pos, {
@@ -2681,7 +2699,6 @@ export class Parser {
             left,
             right
         });
-
     }
 
     private parsePrimaryExpression(context: Context, pos: Location): any {
@@ -3118,25 +3135,13 @@ export class Parser {
         });
     }
 
-    private parseFunctionBody(context: Context) {
+    private parseFunctionBody(context: Context): ESTree.BlockStatement {
         const pos = this.getLocations();
         this.expect(context, Token.LeftBrace);
-        const body: ESTree.Statement[] = [];
         const previousLabelSet = this.labelSet;
         this.labelSet = {};
         this.flags |= Flags.InFunctionBody;
-        while (this.token !== Token.RightBrace) {
-            const item = this.parseStatementListItem(context);
-            body.push(item);
-            if (!isDirective(item)) break;
-            if (item.expression.value === 'use strict') {
-                if (this.flags & Flags.HasNonSimpleParameter) this.error(Errors.IllegalUseStrict);
-                break;
-            }
-        }
-
-        while (this.token !== Token.RightBrace) body.push(this.parseStatementListItem(context));
-
+        const body = this.parseStatementList(context, Token.RightBrace);
         this.expect(context, Token.RightBrace);
         this.labelSet = previousLabelSet;
         this.flags &= ~Flags.InFunctionBody;
@@ -3172,16 +3177,13 @@ export class Parser {
     private parseAssignmentPattern(context: Context): ESTree.AssignmentPattern {
         const pos = this.getLocations();
         const pattern = this.parseBindingPatternOrIdentifier(context, pos);
-        if (this.parseOptional(context, Token.Assign)) {
-            const right = this.parseBindingPatternOrIdentifier(context, pos);
-            return this.finishNode(pos, {
-                type: 'AssignmentPattern',
-                left: pattern,
-                right
-            });
-        }
-
-        return pattern;
+        if (!this.parseOptional(context, Token.Assign)) return pattern;
+        const right = this.parseBindingPatternOrIdentifier(context, pos);
+        return this.finishNode(pos, {
+            type: 'AssignmentPattern',
+            left: pattern,
+            right
+        });
     }
 
     private parseBindingPatternOrIdentifier(context: Context, pos: Location) {

@@ -18,7 +18,7 @@ export const enum Context {
     Constructor           = 1 << 15,
     Import                = 1 << 16,
     Export                = 1 << 17,
-    FormalParameter       = 1 << 18,
+    inParameter           = 1 << 18,
 
     /* Variable declaration */
     Const                  = 1 << 19,
