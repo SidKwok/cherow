@@ -27,6 +27,8 @@ export class Parser {
     private flags: Flags;
     private tokenValue: any;
     private token: Token;
+    private peekedToken: Token;
+    private peekedState: any;
     private startPos: number;
     private startColumn: number;
     private startLine: number;
@@ -63,6 +65,8 @@ export class Parser {
         this.tokenValue = undefined;
         this.tokenRaw = '';
         this.token = 0;
+        this.peekedToken = 0;
+        this.peekedState = undefined;
         this.labelSet = undefined;
         this.errorLocation = undefined;
         this.tokenRegExp = undefined;
@@ -251,6 +255,13 @@ export class Parser {
         return true;
     }
 
+    private peekToken(context: Context) {
+        const savedState = this.saveState();
+        this.peekedToken = this.scanToken(context);
+        this.peekedState = this.saveState();
+        this.rewindState(savedState);
+    }
+
     /**
      * Scan the entire source code. Skips whitespace and comments, and
      * return the token at the given index.
@@ -258,6 +269,12 @@ export class Parser {
      * @param context Context
      */
     private scanToken(context: Context): Token {
+
+        if (this.peekedState) {
+            this.rewindState(this.peekedState);
+            this.peekedState = undefined;
+            return this.peekedToken;
+        }
 
         this.flags &= ~(Flags.LineTerminator | Flags.HasUnicode);
 
@@ -1751,16 +1768,34 @@ export class Parser {
     }
 
     private nextTokenIsFuncKeywordOnSameLine(context: Context): boolean {
-        const savedState = this.saveState();
-        this.nextToken(context);
-        const next = this.token;
-        const line = this.line;
-        this.rewindState(savedState);
-        return this.line === line && next === Token.FunctionKeyword;
+        this.peekToken(context);
+        return this.line === this.peekedState.line && this.peekedToken === Token.FunctionKeyword;
     }
 
     private isIdentifier(context: Context, t: Token) {
         return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual || (t & Token.FutureReserved) === Token.FutureReserved;
+    }
+
+    private isIdentifierOrKeyword(t: Token) {
+        switch (t) {
+            case Token.Identifier:
+                return true;
+            default:
+                return hasMask(t, Token.Keyword);
+        }
+    }
+
+    // 'import', 'import.meta'
+    private nextTokenIsLeftParenOrPeriod(context: Context): boolean {
+        this.peekToken(context);
+        return this.peekedToken === Token.LeftParen || this.peekedToken === Token.Period;
+    }
+
+    private isLexical(context: Context): boolean {
+        // In ES6 'let' always starts a lexical declaration if followed by an identifier or {
+        // or [.
+        this.peekToken(context);
+        return this.peekedToken === Token.Identifier || hasMask(this.peekedToken, Token.BindingPattern);
     }
 
     private parseModuleItem(context: Context): any {}
@@ -1770,6 +1805,20 @@ export class Parser {
         switch (this.token) {
             case Token.FunctionKeyword:
                 return this.parseFunction(context | Context.Declaration);
+                // VariableStatement[?Yield]
+            case Token.ConstKeyword:
+                return this.parseVariableStatement(context | (Context.Const));
+                // VariableStatement[?Yield]
+            case Token.LetKeyword:
+                // If let follows identifier on the same line, it is an declaration. Parse it as a variable statement
+                if (this.isLexical(context)) return this.parseVariableStatement(context | Context.Let);
+
+            case Token.ImportKeyword:
+                // We must be careful not to parse a dynamic import
+                // expression as an import declaration.
+                if (this.flags & Flags.OptionsNext && this.nextTokenIsLeftParenOrPeriod(context)) return this.parseStatement(context);
+                if (!(context & Context.Module)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+
             default:
                 return this.parseStatement(context);
         }
@@ -1784,6 +1833,9 @@ export class Parser {
                 // EmptyStatement
             case Token.Semicolon:
                 return this.parseEmptyStatement(context);
+                // VariableStatement[?Yield]
+            case Token.VarKeyword:
+                return this.parseVariableStatement(context);
             case Token.AsyncKeyword:
                 if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
                     return this.parseFunction(context | Context.Declaration);
@@ -1855,6 +1907,44 @@ export class Parser {
         return this.finishNode(pos, {
             type: 'ExpressionStatement',
             expression: expr
+        });
+    }
+
+    private parseVariableStatement(context: Context) {
+        const pos = this.getLocations();
+        const token = this.token;
+        this.nextToken(context);
+        const declarations = this.parseVariableDeclarationList(context);
+        this.consumeSemicolon(context);
+        return this.finishNode(pos, {
+            type: 'VariableDeclaration',
+            declarations,
+            kind: tokenDesc(token)
+        });
+    }
+
+    private parseVariableDeclarationList(context: Context): ESTree.VariableDeclarator[] {
+        const list: ESTree.VariableDeclarator[] = [this.parseVariableDeclaration(context)];
+
+        while (this.parseOptional(context, Token.Comma)) {
+            list.push(this.parseVariableDeclaration(context));
+        }
+        return list;
+    }
+
+    private parseVariableDeclaration(context: Context): ESTree.VariableDeclarator {
+        const pos = this.getLocations();
+        const id = this.parseBindingPatternOrIdentifier(context, pos);
+        const t = this.token;
+        let init = null;
+        if (t !== Token.InKeyword || t !== Token.OfKeyword && this.token === Token.Assign) {
+            init = this.parseAssignmentExpression(context);
+        }
+
+        return this.finishNode(pos, {
+            type: 'VariableDeclarator',
+            init,
+            id
         });
     }
 
@@ -2196,15 +2286,6 @@ export class Parser {
         }
     }
 
-    private isIdentifierOrKeyword(t: Token) {
-        switch (t) {
-            case Token.Identifier:
-                return true;
-            default:
-                return hasMask(t, Token.Keyword);
-        }
-    }
-
     private parseMemberExpression(
         context: Context,
         pos: Location,
@@ -2397,17 +2478,13 @@ export class Parser {
     }
 
     private matchAsyncFunction(context: Context): AsyncState {
-        const savedState = this.saveState();
-        this.nextToken(context);
-        const next = this.token;
-        const line = this.line;
-        this.rewindState(savedState);
-        if (this.line !== line) return AsyncState.None;
-        switch (next) {
+        this.peekToken(context);
+        if (this.line !== this.peekedState.line) return AsyncState.None;
+        switch (this.peekedToken) {
             case Token.FunctionKeyword:
                 return AsyncState.Function;
             default:
-                if (this.isIdentifier(context, next)) return AsyncState.Identifier;
+                if (this.isIdentifier(context, this.peekedToken)) return AsyncState.Identifier;
                 return AsyncState.None;
         }
     }
