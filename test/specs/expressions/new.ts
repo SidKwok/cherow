@@ -236,7 +236,7 @@ describe('Espressions - New', () => {
           });
       });
   
-      it.skip('should parse "function a() { var b = arguments.length !== 0 ? arguments[0] : new.target }"', () => {
+      it('should parse "function a() { var b = arguments.length !== 0 ? arguments[0] : new.target }"', () => {
           expect(parseScript(`function a() {
               var b = arguments.length !== 0 ? arguments[0] : new.target
           }`, {

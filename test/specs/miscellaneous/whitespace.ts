@@ -487,18 +487,28 @@ describe('Whitespace', () => {
             })
         });
 
-        it.skip('should skip multi line comment with vertical tab', () => {
+        it('should skip multi line comment with vertical tab', () => {
             expect(parseScript(`/*multilinecommentx = 1;*/`, {
                 ranges: true,
+                locations: true
                 
             })).to.eql({
                 "type": "Program",
-                "end": 28,
-
-                "body": [],
                 "start": 0,
+                "end": 30,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 30
+                  }
+                },
+                "body": [],
                 "sourceType": "script"
-            })
+              })
         });
 
         it('should skip multi line comment with horizontal tab', () => {
@@ -543,14 +553,27 @@ describe('Whitespace', () => {
             })
         });
 
-        it.skip('should skip single line comments with carriage return', () => {
+        it('should skip single line comments with carriage return', () => {
             expect(parseScript(`  \t // foo bar\r  `, {
                 ranges: true,
+                locations: true
                 
             })).to.eql({
                 "type": "Program",
                 "body": [],
-                "sourceType": "script"
+                "end": 17,
+                  "loc": {
+                    "end": {
+                      "column": 2,
+                      "line": 2
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1
+                    }
+                  },
+                "sourceType": "script",
+                "start": 0
             })
         });
 

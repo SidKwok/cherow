@@ -2941,6 +2941,8 @@ export class Parser {
 
     private parseArrowExpression(context: Context, pos: Location, params: any): ESTree.ArrowFunctionExpression {
 
+        if (this.flags & Flags.InFunctionBody) context &= ~Context.Yield; 
+
         if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
         this.expect(context, Token.Arrow);
 

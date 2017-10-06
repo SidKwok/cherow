@@ -280,7 +280,7 @@ describe('Next - Pipeline operator', () => {
         });
     });
 
-    it.skip('should parse precedence', () => {
+    it('should parse precedence', () => {
         expect(parseScript(`
         4 || 9 |> inc;
         10 |> f || h |> inc`, {
@@ -293,27 +293,27 @@ describe('Next - Pipeline operator', () => {
                 {
                     "type": "ExpressionStatement",
                     "expression": {
-                        "type": "BinaryExpression",
+                        "type": "LogicalExpression",
                         "left": {
-                            "type": "LogicalExpression",
-                            "left": {
-                                "type": "Literal",
-                                "value": 4,
-                                "start": 9,
-                                "end": 10,
-                                "loc": {
-                                    "start": {
-                                        "line": 2,
-                                        "column": 8
-                                    },
-                                    "end": {
-                                        "line": 2,
-                                        "column": 9
-                                    }
+                            "type": "Literal",
+                            "value": 4,
+                            "start": 9,
+                            "end": 10,
+                            "loc": {
+                                "start": {
+                                    "line": 2,
+                                    "column": 8
                                 },
-                                "raw": "4"
+                                "end": {
+                                    "line": 2,
+                                    "column": 9
+                                }
                             },
-                            "right": {
+                            "raw": "4"
+                        },
+                        "right": {
+                            "type": "BinaryExpression",
+                            "left": {
                                 "type": "Literal",
                                 "value": 9,
                                 "start": 14,
@@ -330,29 +330,29 @@ describe('Next - Pipeline operator', () => {
                                 },
                                 "raw": "9"
                             },
-                            "operator": "||",
-                            "start": 9,
-                            "end": 15,
-                            "loc": {
-                                "start": {
-                                    "line": 2,
-                                    "column": 8
-                                },
-                                "end": {
-                                    "line": 2,
-                                    "column": 14
+                            "right": {
+                                "type": "Identifier",
+                                "name": "inc",
+                                "start": 19,
+                                "end": 22,
+                                "loc": {
+                                    "start": {
+                                        "line": 2,
+                                        "column": 18
+                                    },
+                                    "end": {
+                                        "line": 2,
+                                        "column": 21
+                                    }
                                 }
-                            }
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "inc",
-                            "start": 19,
+                            },
+                            "operator": "|>",
+                            "start": 14,
                             "end": 22,
                             "loc": {
                                 "start": {
                                     "line": 2,
-                                    "column": 18
+                                    "column": 13
                                 },
                                 "end": {
                                     "line": 2,
@@ -360,7 +360,7 @@ describe('Next - Pipeline operator', () => {
                                 }
                             }
                         },
-                        "operator": "|>",
+                        "operator": "||",
                         "start": 9,
                         "end": 22,
                         "loc": {
@@ -390,47 +390,14 @@ describe('Next - Pipeline operator', () => {
                 {
                     "type": "ExpressionStatement",
                     "expression": {
-                        "type": "BinaryExpression",
+                        "type": "LogicalExpression",
                         "left": {
-                            "type": "LogicalExpression",
+                            "type": "BinaryExpression",
                             "left": {
-                                "type": "BinaryExpression",
-                                "left": {
-                                    "type": "Literal",
-                                    "value": 10,
-                                    "start": 32,
-                                    "end": 34,
-                                    "loc": {
-                                        "start": {
-                                            "line": 3,
-                                            "column": 8
-                                        },
-                                        "end": {
-                                            "line": 3,
-                                            "column": 10
-                                        }
-                                    },
-                                    "raw": "10"
-                                },
-                                "right": {
-                                    "type": "Identifier",
-                                    "name": "f",
-                                    "start": 38,
-                                    "end": 39,
-                                    "loc": {
-                                        "start": {
-                                            "line": 3,
-                                            "column": 14
-                                        },
-                                        "end": {
-                                            "line": 3,
-                                            "column": 15
-                                        }
-                                    }
-                                },
-                                "operator": "|>",
+                                "type": "Literal",
+                                "value": 10,
                                 "start": 32,
-                                "end": 39,
+                                "end": 34,
                                 "loc": {
                                     "start": {
                                         "line": 3,
@@ -438,11 +405,44 @@ describe('Next - Pipeline operator', () => {
                                     },
                                     "end": {
                                         "line": 3,
+                                        "column": 10
+                                    }
+                                },
+                                "raw": "10"
+                            },
+                            "right": {
+                                "type": "Identifier",
+                                "name": "f",
+                                "start": 38,
+                                "end": 39,
+                                "loc": {
+                                    "start": {
+                                        "line": 3,
+                                        "column": 14
+                                    },
+                                    "end": {
+                                        "line": 3,
                                         "column": 15
                                     }
                                 }
                             },
-                            "right": {
+                            "operator": "|>",
+                            "start": 32,
+                            "end": 39,
+                            "loc": {
+                                "start": {
+                                    "line": 3,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 3,
+                                    "column": 15
+                                }
+                            }
+                        },
+                        "right": {
+                            "type": "BinaryExpression",
+                            "left": {
                                 "type": "Identifier",
                                 "name": "h",
                                 "start": 43,
@@ -458,29 +458,29 @@ describe('Next - Pipeline operator', () => {
                                     }
                                 }
                             },
-                            "operator": "||",
-                            "start": 32,
-                            "end": 44,
-                            "loc": {
-                                "start": {
-                                    "line": 3,
-                                    "column": 8
-                                },
-                                "end": {
-                                    "line": 3,
-                                    "column": 20
+                            "right": {
+                                "type": "Identifier",
+                                "name": "inc",
+                                "start": 48,
+                                "end": 51,
+                                "loc": {
+                                    "start": {
+                                        "line": 3,
+                                        "column": 24
+                                    },
+                                    "end": {
+                                        "line": 3,
+                                        "column": 27
+                                    }
                                 }
-                            }
-                        },
-                        "right": {
-                            "type": "Identifier",
-                            "name": "inc",
-                            "start": 48,
+                            },
+                            "operator": "|>",
+                            "start": 43,
                             "end": 51,
                             "loc": {
                                 "start": {
                                     "line": 3,
-                                    "column": 24
+                                    "column": 19
                                 },
                                 "end": {
                                     "line": 3,
@@ -488,7 +488,7 @@ describe('Next - Pipeline operator', () => {
                                 }
                             }
                         },
-                        "operator": "|>",
+                        "operator": "||",
                         "start": 32,
                         "end": 51,
                         "loc": {

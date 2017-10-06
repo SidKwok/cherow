@@ -5,7 +5,7 @@ const expect = chai.expect;
 
 describe('Espressions - Member', () => {
 
-  it.skip('should parse method.static module code', () => {
+  it('should parse method.static module code', () => {
     expect(parseModule('method.static', {
         ranges: true,
         raw: true,

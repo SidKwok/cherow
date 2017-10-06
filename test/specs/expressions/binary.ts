@@ -244,7 +244,7 @@ describe('Espressions - binary', () => {
           });
     });
 
-    it.skip('should parse "a < !(--b)"', () => {
+    it('should parse "a < !(--b)"', () => {
         expect(parseModule('a < !(--b)', {
             ranges: true
         })).to.eql({
@@ -293,7 +293,7 @@ describe('Espressions - binary', () => {
             "sourceType": "module"
           });
     });
-    it.skip('should parse "x - y + z"', () => {
+    it('should parse "x - y + z"', () => {
         expect(parseModule('1 <!--b')).to.eql({
               "body": [
                 {
