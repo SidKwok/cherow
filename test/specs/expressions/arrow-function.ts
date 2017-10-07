@@ -153,7 +153,7 @@ describe('Expressions - Arrow function', () => {
       it('should fail on parameter named "yield" (strict)', () => {
           expect(() => {
               parseScript('"use strict"; var af = yield => 1;');
-          }).to.not.throw('');
+          }).to.throw('');
       });
       it('should fail if includes ...rest"', () => {
           expect(() => {

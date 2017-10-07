@@ -14,7 +14,7 @@ describe('Statements - Generator', () => {
     it('should fail on yield as parameter', () => {
         expect(() => {
             parseScript('function* g(yield) {}');
-        }).to.not.throw('');
+        }).to.throw('');
     });
 
     it('should fail on `yield` star after newline', () => {
@@ -29,13 +29,13 @@ describe('Statements - Generator', () => {
     it('should fail on "label: function* a(){}"', () => {
         expect(() => {
             parseScript('label: function* a(){}');
-        }).to.not.throw('');
+        }).to.throw('');
     });
 
     it('should fail on "function*g(yield){}"', () => {
         expect(() => {
             parseScript('function*g(yield){}');
-        }).to.not.throw('');
+        }).to.throw('');
     });
 
     it('should fail on "function*g({yield}){}"', () => {
@@ -47,28 +47,28 @@ describe('Statements - Generator', () => {
     it('should fail on "function*g([yield]){}"', () => {
         expect(() => {
             parseScript('function*g([yield]){}');
-        }).to.not.throw('');
+        }).to.throw('');
     });
     
     it('should fail on "function*g({a: yield}){}"', () => {
         expect(() => {
             parseScript('function*g({a: yield}){}');
-        }).to.not.throw('');
+        }).to.throw('');
     });
     it('should fail on "function*g(yield = 0){}"', () => {
         expect(() => {
             parseScript('function*g(yield = 0){}');
-        }).to.not.throw('');
+        }).to.throw('');
     });
     it('should fail on "function*g(){ var yield; }"', () => {
         expect(() => {
             parseScript('function*g(){ var yield; }');
-        }).to.not.throw('');
+        }).to.throw('');
     });
     it('should fail on "function*g(){ var yield = 1; }"', () => {
         expect(() => {
             parseScript('function*g(){ var yield = 1; }');
-        }).to.not.throw('');
+        }).to.throw('');
     });
     it('should fail on "function*g(){ function yield(){}; }"', () => {
         expect(() => {
@@ -78,7 +78,7 @@ describe('Statements - Generator', () => {
     it('should fail on "function*g() { var yield; }"', () => {
         expect(() => {
             parseScript('function*g() { var yield; }');
-        }).to.not.throw('');
+        }).to.throw('');
     });
     it('should fail on "function*g() { let yield; }"', () => {
         expect(() => {

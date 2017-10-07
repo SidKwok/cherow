@@ -74,7 +74,7 @@ describe('Espressions - Yield', () => {
       it('should fail on invalid yield generator expression parameter', () => {
           expect(() => {
               parseScript('(function *(yield){})');
-          }).to.not.throw();
+          }).to.throw();
       });
   
   
@@ -99,13 +99,13 @@ describe('Espressions - Yield', () => {
       it('should fail on invalid yield generator parameter', () => {
           expect(() => {
               parseScript('function *g(yield){}');
-          }).to.not.throw();
+          }).to.throw();
       });
   
       it('should fail on invalid yield generator strict function expression', () => {
           expect(() => {
               parseScript('function *g(a, b, c, ...yield){}');
-          }).to.not.throw();
+          }).to.throw();
       });
   
       it('should fail on invalid yield generator rest', () => {
@@ -123,7 +123,7 @@ describe('Espressions - Yield', () => {
       it('should fail on invalid yield generator variable declaration', () => {
           expect(() => {
               parseScript('function *g() { var yield; }');
-          }).to.not.throw();
+          }).to.throw();
       });
   
       it('should fail on "yield 10"', () => {

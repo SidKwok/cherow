@@ -269,7 +269,7 @@ export class Parser {
         this.endPos = this.index;
         this.endColumn = this.column;
         this.endLine = this.line;
-        let state = ScannerState.None;
+        const state = ScannerState.None;
 
         while (this.hasNext()) {
 
@@ -794,9 +794,7 @@ export class Parser {
                         if (!(state & ScannerState.MultiLine)) break loop;
                         break;
                     case Chars.LineFeed:
-                        this.index++;
-                        this.column = 0;
-                        this.line++;
+                        this.advanceNewline();
                         if (!(state & ScannerState.MultiLine)) break loop;
                         break;
                     case Chars.LineSeparator:
@@ -1746,9 +1744,6 @@ export class Parser {
             if ((t & Token.Reserved) === Token.Reserved) this.error(Errors.UnexpectedStrictReserved);
             return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual;
         }
-
-        if (context & Context.Async && this.token === Token.AwaitKeyword) this.error(Errors.Unexpected);
-
         return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual || (t & Token.FutureReserved) === Token.FutureReserved;
     }
 
@@ -2471,6 +2466,8 @@ export class Parser {
         const expr = this.parseBinaryExpression(context, 0, pos);
 
         if (this.token === Token.Arrow) {
+            // Invalid: '"use strict"; var af = yield => 1;'
+            if (context & Context.Strict && token === Token.YieldKeyword) this.error(Errors.Unexpected);
             return this.parseArrowExpression(context, pos, [expr]);
         }
 
@@ -2552,6 +2549,9 @@ export class Parser {
     private parseConditionalExpression(context: Context, expression: ESTree.Expression, pos: Location): ESTree.Expression {
 
         if (!(this.parseOptional(context, Token.QuestionMark))) return expression;
+        // Valid: '(b = c) => d ? (e, f) : g;'
+        // Invalid: '() => {} ? 1 : 2;'
+        if (context & Context.ArrowBody) return expression;
 
         const consequent = this.parseAssignmentExpression(context);
         this.expect(context, Token.Colon);
@@ -3449,6 +3449,10 @@ export class Parser {
         const token = this.token;
 
         if (this.token === Token.Multiply) {
+            // Annex B.3.4 doesn't allow generators functions
+            if (context & Context.AnnexB) this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
+            // If we are in the 'await' context. Check if the 'Next' option are set
+            // and allow use of async generators. Throw a decent error message if this isn't the case
             if (context & Context.Async && !(this.flags & Flags.OptionsNext)) this.error(Errors.InvalidAsyncGenerator);
             this.expect(context, Token.Multiply);
             context |= Context.Yield;
@@ -3588,8 +3592,7 @@ export class Parser {
         context: Context,
     ): ESTree.AssignmentPattern | ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.RestElement {
         const pos = this.getLocations();
-        if (context & Context.Async && this.token === Token.AwaitKeyword) this.error(Errors.Unexpected);
-        if (context & Context.Strict && this.token === Token.Identifier) this.addFunctionArg(this.tokenValue);
+
         const left = this.token === Token.Ellipsis ? this.parseRestElement(context) : this.parseBindingPatternOrIdentifier(context, pos);
 
         // Initializer[In, Yield] :
@@ -3692,7 +3695,7 @@ export class Parser {
         let body: ESTree.Expression | ESTree.BlockStatement;
 
         if (this.token === Token.LeftBrace) {
-            body = this.parseFunctionBody(context);
+            body = this.parseFunctionBody(context | Context.ArrowBody);
         } else {
             body = this.parseAssignmentExpression(context);
             expression = true;
@@ -4058,6 +4061,8 @@ export class Parser {
         const pos = this.getLocations();
         const pattern = this.parseBindingPatternOrIdentifier(context, pos);
         if (!this.parseOptional(context, Token.Assign)) return pattern;
+        
+        if (context & Context.inParameter && context & Context.Yield && this.token === Token.YieldKeyword) this.error(Errors.Unexpected);
         const right = this.parseAssignmentExpression(context);
         return this.finishNode(pos, {
             type: 'AssignmentPattern',
@@ -4072,11 +4077,16 @@ export class Parser {
                 return this.parseAssignmentElementList(context);
             case Token.LeftBrace:
                 return this.ObjectAssignmentPattern(context, pos);
+            case Token.Identifier:
+                if (context & Context.inParameter && context & Context.Strict) this.addFunctionArg(this.tokenValue);
+                return this.parseBindingIdentifier(context);
             case Token.LetKeyword:
                 if (context & Context.Lexical) this.error(Errors.LetInLexicalBinding);
                 // falls through
             case Token.YieldKeyword:
-                if (context & Context.Strict) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+                if (context & Context.Yield && !(context & Context.Method)) {
+                    this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+                }
             default:
                 if (!this.isIdentifier(context, this.token)) this.error(Errors.Unexpected);
                 return this.parseBindingIdentifier(context);
@@ -4144,6 +4154,7 @@ export class Parser {
     }
 
     private parseArrayAssignmentPattern(context: Context): ESTree.AssignmentPattern {
+
         return this.parseAssignmentPattern(context);
     }
 
@@ -4196,6 +4207,7 @@ export class Parser {
         let value;
 
         if (this.isIdentifier(context, this.token)) {
+
             pos = this.getLocations();
             const keyToken = this.token;
             const tokenValue = this.tokenValue;
@@ -4213,12 +4225,12 @@ export class Parser {
                     left: init,
                     right: expr
                 });
-            } else if (this.token !== Token.Colon) {
+            } else if (this.parseOptional(context, Token.Colon)) {
+                value = this.parseAssignmentPattern(context);
+            } else {
+                if (context & Context.YieldInParam) this.addVarName(tokenValue);
                 shorthand = true;
                 value = init;
-            } else {
-                this.expect(context, Token.Colon);
-                value = this.parseAssignmentPattern(context);
             }
         } else {
             computed = this.token === Token.LeftBracket;

@@ -164,7 +164,7 @@ describe('Declarations - Functions', () => {
     it('should fail on yield as function name in strict mode', () => {
         expect(() => {
             parseScript(`a: function* a(){}`);
-        }).to.not.throw('');
+        }).to.throw('');
     });
 
     it('should parse two function decl on top-level with same name', () => {
