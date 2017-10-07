@@ -8,7 +8,7 @@ describe('Declarations - Lexical', () => {
     it('should fail on const declarations mixed: with, without initialiser', () => {
         expect(() => {
             parseScript(`l\\u0065t a;`);
-        }).to.not.throw();
+        }).to.throw();
     });
     
     it('should fail on let newline await in normal function', () => {
@@ -103,7 +103,7 @@ describe('Declarations - Lexical', () => {
         expect(() => {
             parseScript(`let 
     let;`)
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on const declarations mixed: with, without initialiser', () => {
@@ -355,7 +355,7 @@ describe('Declarations - Lexical', () => {
     it('should fail on `let` contextual keyword containing Unicode escape sequences', () => {
         expect(() => {
             parseScript('"use strict"; l\\u0065t')
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on invalid let declaration', () => {

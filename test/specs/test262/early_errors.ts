@@ -238,7 +238,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "function* a(){ ({ *b(c = yield){} }); }"', () => {
             expect(() => {
                 parseScript('function* a(){ ({ *b(c = yield){} }); }');
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "continue"', () => {
             expect(() => {
@@ -997,7 +997,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "({ a(eval) { "use strict"; } });"', () => {
             expect(() => {
                 parseScript('function* a(){ !function*(b = yield c){} }');
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "while (true) { continue a; }"', () => {
             expect(() => {

@@ -22,11 +22,12 @@ export const enum Context {
     IfClause              = 1 << 19,
     HasConstructor        = 1 << 20,
     DisallowFor           = 1 << 21,
+    Declaration            = 1 << 22,
 
     /* Variable declaration */
-    Const                  = 1 << 22,
-    Let                    = 1 << 23,
-    Var                    = 1 << 24,
+    Const                  = 1 << 23,
+    Let                    = 1 << 24,
+    Var                    = 1 << 25,
 
      // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,

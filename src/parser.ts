@@ -1853,8 +1853,8 @@ export class Parser {
             case Token.BreakKeyword:
                 return this.parseBreakStatement(context);
 
-            // case Token.ForKeyword:
-            //     return this.parseForStatement(context);
+                // case Token.ForKeyword:
+                //     return this.parseForStatement(context);
 
                 // DebuggerStatement
             case Token.DebuggerKeyword:
@@ -1891,7 +1891,7 @@ export class Parser {
                 this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
 
             case Token.YieldKeyword:
-                    return this.parseLabelledStatement(context);
+                return this.parseLabelledStatement(context);
             case Token.AsyncKeyword:
                 if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
                     return this.parseFunctionDeclaration(context);
@@ -2364,6 +2364,7 @@ export class Parser {
     private parseVariableStatement(context: Context) {
         const pos = this.getLocations();
         const token = this.token;
+        if (this.flags & Flags.HasUnicode) this.error(Errors.Unexpected);
         this.nextToken(context);
         const declarations = this.parseVariableDeclarationList(context);
         this.consumeSemicolon(context);
@@ -3594,6 +3595,7 @@ export class Parser {
         // Initializer[In, Yield] :
         //     = AssignmentExpression[?In, ?Yield]
         if (!this.parseOptional(context, Token.Assign)) return left;
+        if (context & Context.Yield && this.token === Token.YieldKeyword) this.error(Errors.Unexpected);
         const right = this.parseAssignmentExpression(context);
         return this.finishNode(pos, {
             type: 'AssignmentPattern',
@@ -3656,7 +3658,7 @@ export class Parser {
                         return this.parseIdentifier(context);
                 }
             case Token.LetKeyword:
-                if (!(context & Context.Module)) return this.parseIdentifier(context);
+                return this.parseLetIdentifier(context);
             case Token.YieldKeyword:
                 if (!(context & Context.Strict && context & Context.Yield)) return this.parseIdentifier(context);
             case Token.AwaitKeyword:
@@ -3975,6 +3977,31 @@ export class Parser {
 
         if (this.flags & Flags.OptionsRaw) node.raw = 'null';
         return node;
+    }
+
+    /**
+     * 'Let' is a special in module code, so just to avoid double-checking
+     * for the 'let' keyword token, it got it's own method
+     *
+     * @param context  Context
+     */
+    private parseLetIdentifier(context: Context): ESTree.Identifier {
+        const name = this.tokenValue;
+        const pos = this.getLocations();
+
+        if (this.flags & (Flags.LineTerminator | Flags.HasUnicode)) this.error(Errors.Unexpected);
+
+        if (context & Context.Strict) {
+            if (this.isEvalOrArguments(name)) this.error(Errors.UnexpectedStrictReserved);
+            if (context & Context.Module) this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
+        }
+
+        this.nextToken(context);
+
+        return this.finishNode(pos, {
+            type: 'Identifier',
+            name
+        });
     }
 
     private parseIdentifier(context: Context): ESTree.Identifier {

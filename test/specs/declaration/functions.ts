@@ -90,15 +90,15 @@ describe('Declarations - Functions', () => {
     it('should fail if `yield` token is interpreted as an IdentifierReference within a generator', () => {
         expect(() => {
             parseScript(`var gen = function *g() {
-                var yi\u0065ld;
+                var yi\\u0065ld;
               };`);
-            }).to.not.throw('');
+            }).to.throw('');
     });
 
     it('should fail if a FunctionDeclaration has two identical parameters', () => {
         expect(() => {
             parseScript('0, function*(x = yield) {};');
-        }).to.not.throw('');
+        }).to.throw('');
     });
 
     it('should fail if a FunctionDeclaration has two identical parameters', () => {
