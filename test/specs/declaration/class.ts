@@ -9020,12 +9020,12 @@ describe('Declarations - Class', () => {
                                                         "elements": [
                                                             null
                                                         ],
-                                                        "start": 44,
+                                                        "start": 47,
                                                         "end": 50,
                                                         "loc": {
                                                             "start": {
                                                                 "line": 2,
-                                                                "column": 34
+                                                                "column": 37
                                                             },
                                                             "end": {
                                                                 "line": 2,

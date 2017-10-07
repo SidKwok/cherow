@@ -7,6 +7,11 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, CollectComments, ErrorLocation, Location } from './interface';
 
+export const enum Comments {
+    Multi,
+    Single
+}
+
 export class Parser {
     private readonly source: string;
     private index: number;
@@ -328,11 +333,11 @@ export class Parser {
 
                         if (next === Chars.Slash) {
                             this.advance();
-                            this.skipSingleLineComment(2);
+                            this.skipSingleMultiLineComment(true, 2);
                             continue;
                         } else if (next === Chars.Asterisk) {
                             this.advance();
-                            this.skipMultiLineComment();
+                            this.skipSingleMultiLineComment(false, 0);
                             continue;
                         } else if (next === Chars.EqualSign) {
                             this.advance();
@@ -353,7 +358,7 @@ export class Parser {
                             this.advance();
                             if (this.consume(Chars.Hyphen) &&
                                 this.consume(Chars.Hyphen)) {
-                                this.skipSingleLineComment(4);
+                                this.skipSingleMultiLineComment(true, 4);
                             }
                             continue;
                         }
@@ -391,7 +396,7 @@ export class Parser {
                             this.advance();
                             if (this.consume(Chars.GreaterThan)) {
                                 if (!(context & Context.Module) || this.flags & Flags.LineTerminator) {
-                                    this.skipSingleLineComment(3);
+                                    this.skipSingleMultiLineComment(true, 3);
                                 }
                                 continue;
                             }
@@ -790,52 +795,37 @@ export class Parser {
         }
     }
 
-    private skipSingleLineComment(offset: number) {
-
-        const start = this.index;
-
-        loop:
-            while (this.hasNext()) {
-                switch (this.nextChar()) {
-                    case Chars.LineFeed:
-                    case Chars.CarriageReturn:
-                    case Chars.LineSeparator:
-                    case Chars.ParagraphSeparator:
-                        this.advanceNewline();
-                        if (this.hasNext() && this.nextChar() === Chars.LineFeed) this.index++;
-                        break loop;
-                    default:
-                        this.advance();
-                }
-            }
-
-        if (this.flags & Flags.OptionsOnComment) {
-            this.collectComment('SingleLineComment', this.source.slice(start, this.index), this.startPos, this.index);
-        }
-    }
-
-    private skipMultiLineComment() {
+    private skipSingleMultiLineComment(context: boolean, offset: number) {
 
         const start = this.index;
         let closed = false;
+        let type: any = 'SingleLineComment';
+
+        if (context) closed = true;
 
         loop:
             while (this.hasNext()) {
                 const ch = this.nextChar();
+
                 switch (ch) {
+
+                    // '*'
                     case Chars.Asterisk:
                         this.advance();
                         if (this.consume(Chars.Slash)) {
                             closed = true;
+                            type = 'MultiLineComment';
                             break loop;
                         }
                         break;
+                    // Line Terminators
                     case Chars.CarriageReturn:
                     case Chars.LineSeparator:
                     case Chars.ParagraphSeparator:
                     case Chars.LineFeed:
                         this.advanceNewline();
                         if (this.hasNext() && this.nextChar() === Chars.LineFeed) this.index++;
+                        if (context) break loop;
                         break;
                     default:
                         this.advance();
@@ -845,7 +835,9 @@ export class Parser {
         if (!closed) this.error(Errors.UnterminatedComment);
 
         if (this.flags & Flags.OptionsOnComment) {
-            this.collectComment('MultiLineComment', this.source.slice(start, this.index - 2), this.startPos, this.index);
+            let index = this.index;
+            if (!context) index = this.index - 2;
+            this.collectComment(type, this.source.slice(start, index), this.startPos, this.index);
         }
     }
 
@@ -1827,18 +1819,18 @@ export class Parser {
                 return this.parseFunctionDeclaration(context);
                 // VariableStatement[?Yield]
             case Token.ConstKeyword:
-                return this.parseVariableStatement(context | (Context.Const));
+                return this.parseVariableStatement(context | (Context.DisallowFor | Context.Const));
                 // VariableStatement[?Yield]
             case Token.LetKeyword:
                 // If let follows identifier on the same line, it is an declaration. Parse it as a variable statement
-                if (this.isLexical(context)) return this.parseVariableStatement(context | Context.Let);
+                if (this.isLexical(context)) return this.parseVariableStatement(context |= (Context.DisallowFor | Context.Let));
             case Token.ClassKeyword:
                 return this.parseClassDeclaration(context);
 
             case Token.ImportKeyword:
                 // We must be careful not to parse a 'import()'
                 // expression or 'import.meta' as an import declaration.
-                if (this.flags & Flags.OptionsNext && this.nextTokenIsLeftParenOrPeriod(context)) return this.parseStatement(context);
+                if (this.flags & Flags.OptionsNext && this.nextTokenIsLeftParenOrPeriod(context)) return this.parseExpressionStatement(context);
                 if (!(context & Context.Module)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
 
             default:
@@ -1998,7 +1990,8 @@ export class Parser {
     private parseVariableDeclarationList(context: Context): ESTree.VariableDeclarator[] {
         const list: ESTree.VariableDeclarator[] = [this.parseVariableDeclaration(context)];
 
-        while (this.parseOptional(context, Token.Comma)) {
+        while (this.token === Token.Comma) {
+            this.expect(context, Token.Comma);
             list.push(this.parseVariableDeclaration(context));
         }
         return list;
@@ -2006,12 +1999,33 @@ export class Parser {
 
     private parseVariableDeclaration(context: Context): ESTree.VariableDeclarator {
         const pos = this.getLocations();
-        const id = this.parseBindingPatternOrIdentifier(context, pos);
         const t = this.token;
         let init = null;
-        if (!(t === Token.InKeyword || t === Token.OfKeyword) && this.parseOptional(context, Token.Assign)) {
-            init = this.parseAssignmentExpression(context);
+        const id = this.parseBindingPatternOrIdentifier(context, pos);
+
+        if (context & Context.Lexical) {
+            if (context & Context.Const) {
+                if (!(this.token === Token.InKeyword || this.token === Token.OfKeyword)) {
+                    if (this.token === Token.Assign) {
+                        this.nextToken(context);
+                        init = this.parseAssignmentExpression(context);
+                    } else {
+                        this.error(Errors.DeclarationMissingInitializer, 'const');
+                    }
+                }
+            } else if (context & Context.DisallowFor && id.type !== 'Identifier' || this.token === Token.Assign) {
+                this.expect(context, Token.Assign);
+                init = this.parseAssignmentExpression(context);
+            }
+        } else {
+            if (this.token === Token.Assign) {
+                this.expect(context, Token.Assign);
+                init = this.parseAssignmentExpression(context);
+            } else if (id.type !== 'Identifier' && context & Context.DisallowFor) {
+                this.expect(context, Token.Assign);
+            }
         }
+
 
         return this.finishNode(pos, {
             type: 'VariableDeclarator',
@@ -3641,7 +3655,7 @@ export class Parser {
     private parseBindingPatternOrIdentifier(context: Context, pos: Location) {
         switch (this.token) {
             case Token.LeftBracket:
-                return this.parseAssignmentElementList(context, pos);
+                return this.parseAssignmentElementList(context);
             case Token.LeftBrace:
                 return this.ObjectAssignmentPattern(context, pos);
             default:
@@ -3687,7 +3701,8 @@ export class Parser {
         });
     }
 
-    private parseAssignmentElementList(context: Context, pos: Location) {
+    private parseAssignmentElementList(context: Context) {
+        const pos = this.getLocations();
         this.expect(context, Token.LeftBracket);
 
         const elements: (ESTree.Pattern | null)[] = [];

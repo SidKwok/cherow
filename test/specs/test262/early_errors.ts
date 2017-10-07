@@ -595,17 +595,17 @@ describe('Test262 - Early error', () => {
         it('should fail on "const a;"', () => {
             expect(() => {
                 parseScript('const a;')
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "const a, b = 0;"', () => {
             expect(() => {
                 parseScript('const a, b = 0;')
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "const a = 0, b;"', () => {
             expect(() => {
                 parseScript('const a = 0, b;')
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "let a, a;"', () => {
             expect(() => {
@@ -714,28 +714,28 @@ describe('Test262 - Early error', () => {
         });
         it('should fail on "const a, b = 0;"', () => {
             expect(() => {
-                parseScript('const a, b = 0;')
-            }).to.not.throw();
+                parseScript('const a, b = 0;');
+            }).to.throw();
         });
         it('should fail on "const a = 0, b;"', () => {
             expect(() => {
-                parseScript('const a = 0, b;')
-            }).to.not.throw();
+                parseScript('const a = 0, b;');
+            }).to.throw();
         });
         it('should fail on "const a, b = 0;"', () => {
             expect(() => {
-                parseScript('const a, b = 0;')
-            }).to.not.throw();
+                parseScript('const a, b = 0;');
+            }).to.throw();
         });
         it('should fail on "const a = 0, b;"', () => {
             expect(() => {
-                parseScript('const a = 0, b;')
-            }).to.not.throw();
+                parseScript('const a = 0, b;');
+            }).to.throw();
         });
         it('should fail on "function f(){ const a; }"', () => {
             expect(() => {
                 parseScript('function f(){ const a; }')
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail on "let a; let a;"', () => {
