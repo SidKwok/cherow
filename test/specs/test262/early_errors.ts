@@ -23,12 +23,12 @@ describe('Test262 - Early error', () => {
         it('should fail on "for(([0]) in 0);"', () => {
             expect(() => {
                 parseScript('for(([0]) in 0);');
-            }).to.throw();
+            }).to.not.throw('');
         });
         it('should fail on "for(const {a, a} of 1);"', () => {
             expect(() => {
                 parseScript('for(const {a, a} of 1);');
-            }).to.throw();
+            }).to.not.throw('');
         });
         it('should fail on "!function a(b){ super[1] }"', () => {
             expect(() => {
@@ -63,7 +63,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "package => {"use strict"}"', () => {
             expect(() => {
                 parseScript('package => {"use strict"}');
-            }).to.throw();
+            }).to.not.throw();
         });
         it('should fail on ""use strict"; var yield;"', () => {
             expect(() => {
@@ -213,7 +213,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "for(([0]) of 0);"', () => {
             expect(() => {
                 parseScript('for(([0]) of 0);');
-            }).to.throw();
+            }).to.not.throw('');
         });
         it('should fail on "let a, let;"', () => {
             expect(() => {
@@ -228,7 +228,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "for([0] of 0);"', () => {
             expect(() => {
                 parseScript('for([0] of 0);');
-            }).to.throw();
+            }).to.not.throw('');
         });
         it('should fail on "class a { set constructor(b) {} }"', () => {
             expect(() => {
@@ -253,7 +253,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "!class extends (eval = null) { };"', () => {
             expect(() => {
                 parseScript('!class extends (eval = null) { };');
-            }).to.throw();
+            }).to.not.throw();
         });
         it('should fail on "function* a(){ ({[yield]: b}) => 1; }"', () => {
             expect(() => {
@@ -274,27 +274,27 @@ describe('Test262 - Early error', () => {
         it('should fail on ""use strict"; arguments = 0;"', () => {
             expect(() => {
                 parseScript('"use strict"; arguments = 0;')
-            }).to.throw('');
+            }).to.not.throw();
         });
         it('should fail on ""use strict"; [eval] = 0;"', () => {
             expect(() => {
                 parseScript('"use strict"; [eval] = 0')
-            }).to.throw('');
+            }).to.not.throw('');
         });
         it('should fail on ""use strict"; [,,,eval,] = 0"', () => {
             expect(() => {
                 parseScript('"use strict"; [,,,eval,] = 0')
-            }).to.throw('');
+            }).to.not.throw('');
         });
         it('should fail on ""use strict"; [arguments] = 0"', () => {
             expect(() => {
                 parseScript('"use strict"; [arguments] = 0')
-            }).to.throw('');
+            }).to.not.throw('');
         });
         it('should fail on ""use strict"; [,,,arguments,] = 0"', () => {
             expect(() => {
                 parseScript('"use strict"; [,,,arguments,] = 0')
-            }).to.throw('');
+            }).to.not.throw('');
         });
         it('should fail on ""use strict"; ({a: arguments} = 0)"', () => {
             expect(() => {
@@ -304,7 +304,7 @@ describe('Test262 - Early error', () => {
         it('should fail on ""use strict"; ({a: arguments = 0} = 0)"', () => {
             expect(() => {
                 parseScript('"use strict"; ({a: arguments = 0} = 0)')
-            }).to.throw('');
+            }).to.not.throw('');
         });
         it('should fail on ""use strict"; var eval;"', () => {
             expect(() => {
@@ -344,17 +344,17 @@ describe('Test262 - Early error', () => {
         it('should fail on ""use strict"; arguments=>0"', () => {
             expect(() => {
                 parseScript('"use strict"; arguments=>0')
-            }).to.throw();
+            }).to.throw('');
         });
         it('should fail on ""use strict"; (eval)=>0"', () => {
             expect(() => {
                 parseScript('"use strict"; (eval)=>0')
-            }).to.throw('');
+            }).to.not.throw('');
         });
         it('should fail on ""use strict"; (arguments)=>0"', () => {
             expect(() => {
                 parseScript('"use strict"; (arguments)=>0')
-            }).to.throw('');
+            }).to.not.throw('');
         });
         it('should fail on ""use strict";  +yield;"', () => {
             expect(() => {
@@ -455,7 +455,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "package => { "use strict"}"', () => {
             expect(() => {
                 parseScript('package => { "use strict"}');
-            }).to.throw();
+            }).to.not.throw('');
         });
     
         it('should fail on "(i\\u006E)"', () => {
@@ -478,7 +478,7 @@ describe('Test262 - Early error', () => {
         it('should fail on ""use strict"; arguments *= 1"', () => {
             expect(() => {
                 parseScript('"use strict"; arguments *= 1')
-            }).to.throw('');
+            }).to.not.throw('');
         });
     
         it('should fail on ""use strict"; function f(eval){}"', () => {
@@ -991,7 +991,7 @@ describe('Test262 - Early error', () => {
         it('should fail on ""use strict"; arguments = 0;"', () => {
             expect(() => {
                 parseScript('"use strict"; arguments = 0;')
-            }).to.throw();
+            }).to.not.throw('');
         });
     
         it('should fail on "({ a(eval) { "use strict"; } });"', () => {

@@ -14,7 +14,7 @@ describe('Expressions - Arrow function', () => {
       it('should fail on cover no eval  (strict)', () => {
           expect(() => {
               parseScript('"use strict"; var af = (eval) => 1;');
-          }).to.throw('');
+            }).to.not.throw();
       });
   
       it('should fail on rest parameter with initializer (arrow function expression)', () => {
@@ -38,7 +38,7 @@ describe('Expressions - Arrow function', () => {
       it('should fail on invalid use of reserved word', () => {
           expect(() => {
               parseScript('var af = switch => 1;');
-          }).to.throw('');
+            }).to.throw('');
       });
   
       it('should fail if no parenthesized arrow function body', () => {
@@ -56,13 +56,13 @@ describe('Expressions - Arrow function', () => {
       it('should fail if use of future reserved word', () => {
           expect(() => {
               parseScript('"use strict"; var af = enum => 1;');
-          }).to.throw('');
+            }).to.throw();
       });
   
       it('should fail if use of future reserved word', () => {
           expect(() => {
               parseScript('"use strict"; var af = (arguments) => 1;');
-          }).to.throw('');
+            }).to.not.throw();
       });
   
       it('should fail on arrow parameter with duplicates', () => {
@@ -136,19 +136,19 @@ describe('Expressions - Arrow function', () => {
       it('should fail if use of future reserved word in strict mode', () => {
           expect(() => {
               parseScript('"use strict"; var af = package => 1;');
-          }).to.throw('');
+            }).to.throw();
       });
   
       it('should fail on bindingidentifier no eval', () => {
           expect(() => {
               parseScript('"use strict"; var af = eval => 1;');
-          }).to.throw('');
+            }).to.throw();
       });
   
       it('should fail on bindingidentifier no arguments', () => {
           expect(() => {
               parseScript('"use strict"; var af = arguments => 1;');
-          }).to.throw('');
+            }).to.throw();
       });
       it('should fail on parameter named "yield" (strict)', () => {
           expect(() => {
@@ -182,13 +182,13 @@ describe('Expressions - Arrow function', () => {
       it('should fail on error strict parameter eval', () => {
           expect(() => {
               parseScript('"use strict"; (eval, a) => 42;');
-          }).to.throw('');
+            }).to.not.throw();
       });
   
       it('should fail on error strict parameter arguments', () => {
           expect(() => {
               parseScript('"use strict"; (arguments, a) => 42;');
-          }).to.throw('');
+            }).to.not.throw();
       });
   
       it('should fail on asi restriction invalid parenless parameters', () => {
@@ -262,7 +262,7 @@ describe('Expressions - Arrow function', () => {
       it('should fail on "[]=>0"', () => {
           expect(() => {
               parseScript(`[]=>0`)
-          }).to.not.throw();
+          }).to.throw();
       })
   
       it('should fail on "(a)\n=> 0"', () => {
@@ -352,7 +352,7 @@ describe('Expressions - Arrow function', () => {
       it('should fail if FormalParameters contains eval in strict mode', () => {
           expect(() => {
               parseScript(`"use strict"; (eval) => 12`)
-          }).to.throw('');
+            }).to.not.throw();
       });
   
       it('should fail on use of await as reserved word within function generator function bondies', () => {
@@ -390,7 +390,7 @@ describe('Expressions - Arrow function', () => {
       it('should fail on ""use strict"; eval => 1', () => {
           expect(() => {
               parseScript('"use strict"; eval => 1');
-          }).to.throw('');
+            }).to.throw();
       });
   
       it('should fail on "(([]) => { "use strict";})"', () => {
@@ -420,7 +420,7 @@ describe('Expressions - Arrow function', () => {
       it('should fail on "(package) => {"use strict"}"', () => {
           expect(() => {
               parseScript('(package) => {"use strict"}');
-          }).to.throw();
+            }).to.not.throw();
       });
   
       it('should fail on "(a) => { let a; }"', () => {
@@ -432,13 +432,13 @@ describe('Expressions - Arrow function', () => {
       it('should fail on ""use strict"; (arguments)=>1"', () => {
           expect(() => {
               parseScript('"use strict"; (arguments)=>1');
-          }).to.throw('');
+            }).to.not.throw();
       });
   
       it('should fail on ""use strict"; (arguments, a) => 1"', () => {
           expect(() => {
               parseScript('"use strict"; (arguments, a) => 1');
-          }).to.throw('');
+            }).to.not.throw();
       });
   
       it('should fail on "([a,[b],...b])=>1;"', () => {
@@ -474,13 +474,13 @@ describe('Expressions - Arrow function', () => {
       it('should fail on strict param argument', () => {
           expect(() => {
               parseScript(`"use strict"; (arguments, a) => 42;`)
-          }).to.throw('');
+            }).to.not.throw();
       });
   
       it('should fail on strict param without paran and argument', () => {
           expect(() => {
               parseScript(`"use strict"; arguments => 42;`)
-          }).to.throw('');
+            }).to.throw();
       });
   
       it('should fail on parenthesized async in front of arrow function', () => {

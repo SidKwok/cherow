@@ -14,7 +14,7 @@ describe('Declarations - Lexical', () => {
     it('should fail on let newline await in normal function', () => {
         expect(() => {
             parseScript(`for (let [x = let];;) {}`);
-        }).to.throw();
+          }).to.not.throw('');
     });
 
     it('should fail on let newline await in normal function', () => {

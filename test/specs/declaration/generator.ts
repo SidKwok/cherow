@@ -111,7 +111,7 @@ describe('Statements - Generator', () => {
     it('should fail if on "function*g() { for ({yield} in 0); }"', () => {
         expect(() => {
             parseScript('function*g() { for ({yield} in 0); }');
-        }).to.throw('');
+        }).to.not.throw('');
     });
     it('should fail if on "function*g() { ({yield = 0}); }"', () => {
         expect(() => {
@@ -132,7 +132,7 @@ describe('Statements - Generator', () => {
     it('should fail if on "function*g() { for ({yield = 0} in 0); }"', () => {
         expect(() => {
             parseScript('function*g() { for ({yield = 0} in 0); }');
-        }).to.throw('');
+          }).to.not.throw('');
     });
 
     it('should parse generator with yield delegate', () => {

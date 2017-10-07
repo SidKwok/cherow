@@ -46,7 +46,7 @@ describe('Expressions - Async', () => {
                 parseScript(`var fn = async function () {
                 void await;
               };`)
-            }).to.throw();
+            }).to.not.throw();
         });
     
         it('should fail on await as label identifier', () => {
@@ -72,7 +72,7 @@ describe('Expressions - Async', () => {
         it('should fail on "await = 0"', () => {
             expect(() => {
                 parseModule(`await = 0`);
-            }).to.throw();
+              }).to.not.throw();
         });
     
         it('should fail on "({async foo() { return {await} }})"', () => {

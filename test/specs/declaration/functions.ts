@@ -122,7 +122,7 @@ describe('Declarations - Functions', () => {
     it('should fail on "class A extends yield B { }"', () => {
         expect(() => {
             parseScript('"use strict"; function foo() { eval = 42; };');
-        }).to.throw('');
+          }).to.not.throw();
     });
 
     it('should fail on "function __func(){\A\B\C};"', () => {

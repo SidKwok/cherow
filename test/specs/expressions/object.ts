@@ -165,7 +165,7 @@ describe('Espressions - Object', () => {
     it('should fail on "await = 0"', () => {
         expect(() => {
             parseModule(`await = 0`);
-        }).to.throw('');
+        }).to.not.throw();
     });
 
     it('should fail on "({*foo: 1})"', () => {

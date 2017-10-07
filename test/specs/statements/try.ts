@@ -158,12 +158,12 @@ describe('Statements - Try', () => {
         it(`should fail if execution of "catch" with no "try" fails`, () => {
             expect(() => {
                 parseScript(`catch`)
-            }).to.throw();
+              }).to.throw();
         });
         it(`should fail if execution of "finally" with no "try" fails`, () => {
             expect(() => {
                 parseScript(`finally`)
-            }).to.throw();
+              }).to.throw();
         });
         it(`should fail if pure "try" syntax construction passes`, () => {
             expect(() => {
