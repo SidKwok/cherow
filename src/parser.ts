@@ -3052,12 +3052,12 @@ export class Parser {
             // If the parent has the 'yield' mask, and the func decl name is 'yield' we have to throw an decent error message
             if (parentHasYield && this.token === Token.YieldKeyword) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
             if (context & Context.Strict && this.isEvalOrArguments(name)) this.error(Errors.UnexpectedStrictReserved);
-
             if (context & Context.Statement && !(context & Context.AnnexB)) {
-                if (!this.initBlockScope() && name in this.blockScope) {
-                    if (this.blockScope[name] === ScopeMasks.NonShadowable || this.blockScope !== this.functionScope) {
-                        this.error(Errors.DuplicateIdentifier, name);
-                    }
+                if (!this.initBlockScope() && (
+                    this.blockScope !== this.functionScope && this.blockScope[name] ||
+                    this.blockScope[name] === ScopeMasks.NonShadowable
+                )) {
+                    this.error(Errors.DuplicateIdentifier, name);
                 }
                 this.blockScope[name] = ScopeMasks.Shadowable;
             }
