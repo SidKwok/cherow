@@ -776,27 +776,16 @@ export class Parser {
     private skipComments(state: ScannerState) {
 
         const start = this.index;
-        let closed = false;
-        let type: any = 'SingleLineComment';
 
-        if (!(state & ScannerState.MultiLine)) closed = true;
+        // It's only pre-closed for shebang and single line comments
+        if (!(state & ScannerState.MultiLine)) state |= ScannerState.Closed;
 
         loop:
             while (this.hasNext()) {
                 const ch = this.nextChar();
 
                 switch (ch) {
-
-                    // '*'
-                    case Chars.Asterisk:
-                        this.advance();
-                        if (this.consume(Chars.Slash)) {
-                            closed = true;
-                            type = 'MultiLineComment';
-                            break loop;
-                        }
-                        break;
-                        // Line Terminators
+                    // Line Terminators
                     case Chars.CarriageReturn:
                     case Chars.LineSeparator:
                     case Chars.ParagraphSeparator:
@@ -805,17 +794,26 @@ export class Parser {
                         if (this.hasNext() && this.nextChar() === Chars.LineFeed) this.index++;
                         if (!(state & ScannerState.MultiLine)) break loop;
                         break;
+                    case Chars.Asterisk:
+                        this.advance();
+                        if (this.consume(Chars.Slash)) {
+                            state |= ScannerState.Closed;
+                            break loop;
+                        }
+                        break;
+
                     default:
                         this.advance();
                 }
             }
 
-        if (!closed) this.error(Errors.UnterminatedComment);
+        if (!(state & ScannerState.Closed)) this.error(Errors.UnterminatedComment);
 
         if (state & ScannerState.Collectable && this.flags & Flags.OptionsOnComment) {
-            let index = this.index;
-            if (state & ScannerState.MultiLine) index = this.index - 2;
-            this.collectComment(type, this.source.slice(start, index), this.startPos, this.index);
+            this.collectComment(
+                state & ScannerState.MultiLine ? 'MultiLineComment' : 'SingleLineComment',
+                this.source.slice(start, state & ScannerState.MultiLine ? this.index - 2 : this.index),
+                this.startPos, this.index);
         }
     }
 

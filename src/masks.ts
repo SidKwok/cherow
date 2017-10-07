@@ -91,6 +91,7 @@ export const enum ScannerState {
     None = 0,
     MultiLine  = 1 << 0,
     SingleLine = 1 << 1,
+    Closed  = 1 << 2,
     Collectable = SingleLine | MultiLine
 }
 
