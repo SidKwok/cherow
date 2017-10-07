@@ -155,7 +155,7 @@ describe('Keyword', () => {
         }).to.not.throw();
     });
 
-    it.skip('should parse "var le\\u0074"', () => {
+    it('should parse "var le\\u0074"', () => {
         expect(parseScript('function *a(){({yi\\u0065ld: 0})}', {
             ranges: true
         })).to.eql({

@@ -4,197 +4,197 @@ const expect = chai.expect;
 
 describe('Statement - If', () => {
 
-    it.skip("should fail if the if statement is not enclosed in braces (false)", () => {
+    it("should fail if the if statement is not enclosed in braces (false)", () => {
         expect(() => {
             parseScript(`if false`)
         }).to.throw();
     });
 
-    it.skip('should fail on async generator declaration in statement position', () => {
+    it('should fail on async generator declaration in statement position', () => {
         expect(() => {
             parseScript(`if (false) ; else function* g() {  }`)
         }).to.throw();
     });
 
-    it.skip('should not allow to create class in single-statements', () => {
+    it('should not allow to create class in single-statements', () => {
         expect(() => {
             parseScript('if(1)class A{}')
         }).to.throw();
     });
 
-    it.skip('should fail on async generator declaration in statement position', () => {
+    it('should fail on async generator declaration in statement position', () => {
         expect(() => {
             parseScript(`if (false) label1: label2: function foo() {}`)
         }).to.not.throw();
     });
 
-    it.skip('should fail on async generator declaration in statement position', () => {
+    it('should fail on async generator declaration in statement position', () => {
         expect(() => {
             parseScript(`if (true) async function* f() {  } else async function* _f() {}`)
         }).to.throw();
     });
 
-    it.skip('should fail on async generator declaration in statement position', () => {
+    it('should fail on async generator declaration in statement position', () => {
         expect(() => {
             parseScript(`if (true) async function* f() {  } else async function* _f() {}`, {
                 next: true
             })
-        }).to.throw();
+        }).to.not.throw();
     });
 
-    it.skip('should fail on AsyncFunctionDeclaration in statement position', () => {
+    it('should fail on AsyncFunctionDeclaration in statement position', () => {
         expect(() => {
             parseScript(`'use strict'; if (true) async function f() {  }`, {
                 next: true
             })
-        }).to.throw();
+        }).to.not.throw();
     });
 
-    it.skip('should fail if class declaration are in statement position', () => {
+    it('should fail if class declaration are in statement position', () => {
         expect(() => {
             parseScript(`if (true) class C {} else ;`)
         }).to.throw();
     });
 
-    it.skip('should fail if AnnexB extension are honored in strict mode', () => {
+    it('should fail if AnnexB extension are honored in strict mode', () => {
         expect(() => {
             parseScript(`'use strict'; if (true) function f() {} else function _f() {}`)
         }).to.throw();
     });
 
-    it.skip('should fail if lexical declaration (const) are allowed in statement position', () => {
+    it('should fail if lexical declaration (const) are allowed in statement position', () => {
         expect(() => {
             parseModule(`if (false) ; else const x = null;`)
         }).to.throw();
     });
 
-    it.skip('should fail if AsyncFunctionDeclaration are allowed in statement position', () => {
+    it('should fail if AsyncFunctionDeclaration are allowed in statement position', () => {
         expect(() => {
             parseModule(`if (false) ; else async function f() {  }`)
-        }).to.throw();
+        }).to.not.throw();
     });
 
-    it.skip('should fail on \'if (true) function* g() {  } else function* _g() {}', () => {
+    it('should fail on \'if (true) function* g() {  } else function* _g() {}', () => {
         expect(() => {
             parseScript(`if (true) function* g() {  } else function* _g() {}`)
         }).to.throw();
     });
 
-    it.skip('should fail on \'if (true) async function* g() {  } else function* _g() {}', () => {
+    it('should fail on \'if (true) async function* g() {  } else function* _g() {}', () => {
         expect(() => {
             parseScript(`if (true) async function* g() {  } else function* _g() {}`)
         }).to.throw();
     });
 
-    it.skip('should fail on "function f(a){ super.b }"', () => {
+    it('should fail on "function f(a){ super.b }"', () => {
         expect(() => {
             parseScript(`function f(a){ super.b }`)
         }).to.throw();
     });
 
-    it.skip("should fail on \"if (true) let x;", () => {
+    it("should fail on \"if (true) let x;", () => {
         expect(() => {
             parseScript(`if (true) let x;`)
         }).to.throw();
     });
 
-    it.skip('should fail on "if(0) break"', () => {
+    it('should fail on "if(0) break"', () => {
         expect(() => {
             parseScript(`if(0) break`)
         }).to.throw();
     });
 
-    it.skip("should fail on \"if (false) ; else const x = null;", () => {
+    it("should fail on \"if (false) ; else const x = null;", () => {
         expect(() => {
             parseScript(`if (false) ; else const x = null;`)
         }).to.throw();
     });
 
-    it.skip("should fail on \"if (false) label1: label2: function test262() {}", () => {
+    it("should fail on \"if (false) label1: label2: function test262() {}", () => {
         expect(() => {
             parseScript(`if (false) label1: label2: function test262() {}`)
         }).to.not.throw();
     });
 
-    it.skip("should fail if class declaration is in statement position", () => {
+    it("should fail if class declaration is in statement position", () => {
         expect(() => {
             parseScript(`if (true) class C {} else class D {}`)
         }).to.throw();
     });
 
-    it.skip("should fail if Generator declaration in statement position", () => {
+    it("should fail if Generator declaration in statement position", () => {
         expect(() => {
             parseScript(`if (true) function* g() {  } else function* _g() {}`)
         }).to.throw();
     });
 
-    it.skip("should fail if Generator declaration in statement position", () => {
+    it("should fail if Generator declaration in statement position", () => {
         expect(() => {
             parseScript(`"use strict"; if (false) ; else function f() {}`)
         }).to.throw();
     });
 
-    it.skip("should fail if  Lexical declaration (let)  in statement position", () => {
+    it("should fail if  Lexical declaration (let)  in statement position", () => {
         expect(() => {
             parseScript(`if (false) ; else let x;`)
         }).to.throw();
     });
 
-    it.skip("should fail if lexical declaration (const) is in statement position", () => {
+    it("should fail if lexical declaration (const) is in statement position", () => {
         expect(() => {
             parseScript(`if (true) const x = null; else ;`)
         }).to.throw();
     });
 
-    it.skip("should fail if lexical declaration (const) is in statement position", () => {
+    it("should fail if lexical declaration (const) is in statement position", () => {
         expect(() => {
             parseScript(`if (true) const x = null;`)
         }).to.throw();
     });
 
-    it.skip("should fail if lexical declaration (let) is in statement position", () => {
+    it("should fail if lexical declaration (let) is in statement position", () => {
         expect(() => {
             parseScript(`if (true) let x; else let y;`)
         }).to.throw();
     });
 
-    it.skip("should fail if lexical declaration (let) allowed in statement position", () => {
+    it("should fail if lexical declaration (let) allowed in statement position", () => {
         expect(() => {
             parseScript(`if (true) let x;`)
         }).to.throw();
     });
 
-    it.skip("should fail if AsyncFunctionDeclaration is in statement position", () => {
+    it("should fail if AsyncFunctionDeclaration is in statement position", () => {
         expect(() => {
             parseScript(`if (true) async *function f() {  } else async function _f() {}`)
         }).to.throw();
     });
 
-    it.skip("should fail if AsyncFunctionDeclaration is in statement position", () => {
+    it("should fail if AsyncFunctionDeclaration is in statement position", () => {
         expect(() => {
             parseScript(`if (false) label1: label2: function test262() {} else ;`)
         }).to.not.throw();
     });
 
-    it.skip("should fail if  AnnexB extension are honored in strict mode (IfStatement without an else clause in the global scope)", () => {
+    it("should fail if  AnnexB extension are honored in strict mode (IfStatement without an else clause in the global scope)", () => {
         expect(() => {
             parseScript(`"use strict"; if (true) function f() {  }`)
         }).to.throw();
     });
 
-    it.skip("should fail if  AnnexB extension are honored in strict mode (IfStatement with a declaration in both statement positions in the global scope)", () => {
+    it("should fail if  AnnexB extension are honored in strict mode (IfStatement with a declaration in both statement positions in the global scope)", () => {
         expect(() => {
             parseScript(`"use strict"; if (true) function f() {} else function _f() {}`)
         }).to.throw();
     });
 
-    it.skip("should fail if  AnnexB extension are honored in strict mode (IfStatement with a declaration in the first statement position in the global scope)", () => {
+    it("should fail if  AnnexB extension are honored in strict mode (IfStatement with a declaration in the first statement position in the global scope)", () => {
         expect(() => {
             parseScript(`"use strict"; if (true) function f() {} else ;`)
         }).to.throw();
     });
 
-    it.skip('"should fail if execution of "if({1})" fails', () => {
+    it('"should fail if execution of "if({1})" fails', () => {
         expect(() => {
             parseScript(`if({1})
       {
@@ -206,25 +206,25 @@ describe('Statement - If', () => {
         }).to.throw();
     });
 
-    it.skip("should fail if the if statement is not enclosed in braces (true)", () => {
+    it("should fail if the if statement is not enclosed in braces (true)", () => {
         expect(() => {
             parseScript(`if true`)
         }).to.throw();
     });
 
-    it.skip("should fail if the if statement is not enclosed in braces (false)", () => {
+    it("should fail if the if statement is not enclosed in braces (false)", () => {
         expect(() => {
             parseScript(`if false`)
         }).to.throw();
     });
 
-    it.skip('expect "if (b,...a, );" to throw', () => {
+    it('expect "if (b,...a, );" to throw', () => {
         expect(() => {
             parseScript('if (b,...a, );');
         }).to.throw();
     });
 
-    it.skip('expect "if (b,...a, );" to throw', () => {
+    it('expect "if (b,...a, );" to throw', () => {
         expect(() => {
             parseScript('"use strict"; if (x) function f() {}');
         }).to.throw();
@@ -726,7 +726,7 @@ describe('Statement - If', () => {
         });
     });
 
-    it.skip('should parse nested if with try catah', () => {
+    it('should parse nested if with try catah', () => {
         expect(parseScript(`(function(a) {
                 if (b === c) {
                     if (d) {

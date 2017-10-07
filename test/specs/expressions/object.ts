@@ -349,12 +349,6 @@ describe('Espressions - Object', () => {
 
     });
 
-    it("should fail on pattern shorthand props with reserved words", () => {
-        expect(() => {
-            parseScript(`({ get, this, if });`)
-        }).to.throw();
-    });
-
     it('expect "({ obj:20 }) = 42" to fail', () => {
         expect(() => {
             parseScript('({ obj:20 }) = 42');

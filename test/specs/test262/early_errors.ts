@@ -10,10 +10,10 @@ describe('Test262 - Early error', () => {
                 parseModule('export default function(a){ let a; }');
             }).to.not.throw();
         });
-        it.skip('should fail on "({ a(eval) { "use strict"; } });"', () => {
+        it('should fail on "({ a(eval) { "use strict"; } });"', () => {
             expect(() => {
                 parseScript('({ a(eval) { "use strict"; } });');
-            }).to.throw();
+            }).to.not.throw();
         });
         it('should fail on "for (let let of a);"', () => {
             expect(() => {

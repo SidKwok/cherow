@@ -179,7 +179,7 @@ describe('Statements - Try', () => {
             }).to.throw();
         });
     
-        it.skip('should fail on "try {} catch (a) { for (var a of l) break;}"', () => {
+        it('should fail on "try {} catch (a) { for (var a of l) break;}"', () => {
             expect(() => {
                 parseScript(`try {} catch (a) { for (var a of l) break;}`)
             }).to.not.throw();
@@ -202,7 +202,7 @@ describe('Statements - Try', () => {
                 parseScript(`try {} catch (foo) { { let foo; } }`)
             }).to.throw();
         });
-        it.skip('should fail on "try {} catch (foo) { function x(foo) {} }"', () => {
+        it('should fail on "try {} catch (foo) { function x(foo) {} }"', () => {
             expect(() => {
                 parseScript(`try {} catch (foo) { function x(foo) {} }`)
             }).to.not.throw();
@@ -231,7 +231,7 @@ describe('Statements - Try', () => {
             }).to.throw();
         });
 
-        it.skip('should parse "try {} catch (foo) { function x(foo) {} }"', () => {
+        it('should parse "try {} catch (foo) { function x(foo) {} }"', () => {
           expect(parseScript('try {} catch (foo) { function x(foo) {} }', {
               ranges: true,
               raw: true,
@@ -404,7 +404,7 @@ describe('Statements - Try', () => {
           });
         });
 
-      it.skip('should parse "try {} catch (foo) { function x() { var foo; } }"', () => {
+      it('should parse "try {} catch (foo) { function x() { var foo; } }"', () => {
         expect(parseScript('try {} catch (foo) { function x() { var foo; } }', {
             ranges: true,
             raw: true,
@@ -611,7 +611,7 @@ describe('Statements - Try', () => {
         });
       });
 
-      it.skip('should parse "try {} catch (foo) { function x() { var foo; } }"', () => {
+      it('should parse "try {} catch (foo) { function x() { var foo; } }"', () => {
         expect(parseScript('try {} catch (foo) { function x() { var foo; } }', {
             ranges: true,
             raw: true,
@@ -818,7 +818,7 @@ describe('Statements - Try', () => {
       });
       });
 
-        it.skip('should parse "try {} catch (a) { if(1) function a(){} }"', () => {
+        it('should parse "try {} catch (a) { if(1) function a(){} }"', () => {
             expect(parseScript('try {} catch (a) { if(1) function a(){} }', {
                 ranges: true,
                 raw: true
@@ -896,7 +896,7 @@ describe('Statements - Try', () => {
                 });
         });
 
-        it.skip('should parse "try { throw b||false; } catch (e) { }"', () => {
+        it('should parse "try { throw b||false; } catch (e) { }"', () => {
             expect(parseScript('"use strict"; let foo = function foo() {}', {
                 ranges: true,
                 raw: true,
@@ -962,7 +962,7 @@ describe('Statements - Try', () => {
               });
         });
     
-        it.skip('should parse "try { throw b||false; } catch (e) { }"', () => {
+        it('should parse "try { throw b||false; } catch (e) { }"', () => {
             expect(parseScript('try { throw b||false; } catch (e) { }', {
                 ranges: true,
                 raw: true
@@ -1026,7 +1026,7 @@ describe('Statements - Try', () => {
             });
         });
     
-        it.skip('should parse "try { c1+=1; y; } catch (e) { c1*=2; }"', () => {
+        it('should parse "try { c1+=1; y; } catch (e) { c1*=2; }"', () => {
             expect(parseScript('try { c1+=1; y; } catch (e) { c1*=2; }', {
                 ranges: true,
                 raw: true,
@@ -1291,7 +1291,7 @@ describe('Statements - Try', () => {
               });
         });
     
-        it.skip('should parse "try { throw "ex2"; } catch (e) { if (er2!=="ex2")  throw "ex1"; }"', () => {
+        it('should parse "try { throw "ex2"; } catch (e) { if (er2!=="ex2")  throw "ex1"; }"', () => {
             expect(parseScript('try { throw "ex2"; } catch (e) { if (er2!=="ex2")  throw "ex1"; }', {
                 raw: true,
                 locations: true,
@@ -1526,7 +1526,7 @@ describe('Statements - Try', () => {
               });
         });
     
-        it.skip('should parse "1; try { throw null; } catch (err) { }"', () => {
+        it('should parse "1; try { throw null; } catch (err) { }"', () => {
             expect(parseScript('1; try { throw null; } catch (err) { }', {
                 ranges: true,
                 raw: true,
@@ -1695,7 +1695,7 @@ describe('Statements - Try', () => {
               });
         });
     
-        it.skip('should parse "try { throw null; } catch (err) { 7; } finally { 8; }"', () => {
+        it('should parse "try { throw null; } catch (err) { 7; } finally { 8; }"', () => {
             expect(parseScript('try { throw null; } catch (err) { 7; } finally { 8; }', {
                 raw: true
             })).to.eql({
@@ -1747,7 +1747,7 @@ describe('Statements - Try', () => {
             });
         });
     
-        it.skip('should parse "try { throw [,]; } catch ([x = 23]) { }"', () => {
+        it('should parse "try { throw [,]; } catch ([x = 23]) { }"', () => {
             expect(parseScript('try { throw [,]; } catch ([x = 23]) { }', {
                 raw: true
             })).to.eql({
@@ -1794,7 +1794,7 @@ describe('Statements - Try', () => {
             });
         });
     
-        it.skip('should parse "try { throw []; } catch ([fn = function () {}, xFn = function x() {}]) {}"', () => {
+        it('should parse "try { throw []; } catch ([fn = function () {}, xFn = function x() {}]) {}"', () => {
             expect(parseScript('try { throw []; } catch ([fn = function () {}, xFn = function x() {}]) { }', {
                 raw: true,
                 locations: true,
@@ -2080,7 +2080,7 @@ describe('Statements - Try', () => {
               } );
         });
     
-        it.skip('should parse "try { throw throw [null, 0, false, ""]; } catch ([w = counter(), x = counter(), y = counter(), z = counter()]) { }"', () => {
+        it('should parse "try { throw throw [null, 0, false, ""]; } catch ([w = counter(), x = counter(), y = counter(), z = counter()]) { }"', () => {
             expect(parseScript('try { throw [null, 0, false, ""]; } catch ([w = counter(), x = counter(), y = counter(), z = counter()]) { }', {
                 raw: true,
                 ranges: true,
@@ -2538,7 +2538,7 @@ describe('Statements - Try', () => {
               });
         });
     
-        it.skip('should parse "try { throw [undefined]; } catch ([x = 23]) { }"', () => {
+        it('should parse "try { throw [undefined]; } catch ([x = 23]) { }"', () => {
             expect(parseScript('try { throw [undefined]; } catch ([x = 23]) { }', {
                 raw: true
             })).to.eql({
@@ -2586,7 +2586,7 @@ describe('Statements - Try', () => {
             });
         });
     
-        it.skip('should parse "try { throw g(); } catch ([...[,]]) { }"', () => {
+        it('should parse "try { throw g(); } catch ([...[,]]) { }"', () => {
             expect(parseScript('try { throw g(); } catch ([...[,]]) { }', {
                 raw: true
             })).to.eql({
@@ -2632,7 +2632,7 @@ describe('Statements - Try', () => {
             });
         });
     
-        it.skip('should parse "try { throw [1, 2, 3]; } catch ([x, y, z]) { }"', () => {
+        it('should parse "try { throw [1, 2, 3]; } catch ([x, y, z]) { }"', () => {
             expect(parseScript('try { throw [1, 2, 3]; } catch ([x, y, z]) { }', {
                 raw: true
             })).to.eql({
@@ -2693,7 +2693,7 @@ describe('Statements - Try', () => {
             });
         });
     
-        it.skip('should parse "try { } catch (e) { }"', () => {
+        it('should parse "try { } catch (e) { }"', () => {
     
             expect(parseScript('try { } catch (e) { }')).to.eql({
                 "type": "Program",
@@ -2721,7 +2721,7 @@ describe('Statements - Try', () => {
         });
     
     
-        it.skip('should parse "try { } catch (eval) { }', () => {
+        it('should parse "try { } catch (eval) { }', () => {
     
             expect(parseScript('try { } catch (eval) { }')).to.eql({
                 "type": "Program",
@@ -2747,7 +2747,7 @@ describe('Statements - Try', () => {
                 "sourceType": "script"
             });
         });
-        it.skip('should parse "try { } catch (arguments) { }" in sloppy mode', () => {
+        it('should parse "try { } catch (arguments) { }" in sloppy mode', () => {
             expect(parseScript('try { } catch (arguments) { }')).to.eql({
                 "type": "Program",
                 "body": [{
@@ -2773,7 +2773,7 @@ describe('Statements - Try', () => {
             });
         });
     
-        it.skip('should parse "try { } catch (e) { let a; }"', () => {
+        it('should parse "try { } catch (e) { let a; }"', () => {
             expect(parseScript('try { } catch (e) { let a; }')).to.eql({
                 "type": "Program",
                 "body": [{
@@ -2810,7 +2810,7 @@ describe('Statements - Try', () => {
             });
         });
     
-        it.skip('should parse "try{}catch(a){}finally{}"', () => {
+        it('should parse "try{}catch(a){}finally{}"', () => {
             expect(parseScript('try{}catch(a){}finally{}')).to.eql({
                 "type": "Program",
                 "body": [{
@@ -2838,7 +2838,7 @@ describe('Statements - Try', () => {
                 "sourceType": "script"
             });
         });
-        it.skip('should parse "try { throw []; } catch ([ x = unresolvableReference ]) {}"', () => {
+        it('should parse "try { throw []; } catch ([ x = unresolvableReference ]) {}"', () => {
             expect(parseScript('try { doThat(); } catch (e) { say(e) } finally { cleanup(stuff) }')).to.eql({
                 "type": "Program",
                 "body": [{
@@ -2904,7 +2904,7 @@ describe('Statements - Try', () => {
         });
     
     
-        it.skip('should parse "try { throw []; } catch ([ x = unresolvableReference ]) {}"', () => {
+        it('should parse "try { throw []; } catch ([ x = unresolvableReference ]) {}"', () => {
     
             expect(parseScript('try { throw []; } catch ([ x = unresolvableReference ]) {}')).to.eql({
                 "type": "Program",
@@ -2947,7 +2947,7 @@ describe('Statements - Try', () => {
             });
         });
     
-        it.skip('should parse "try { } catch (e) { say(e) }"', () => {
+        it('should parse "try { } catch (e) { say(e) }"', () => {
             expect(parseScript('try { } catch (e) { say(e) }')).to.eql({
                 "type": "Program",
                 "body": [{

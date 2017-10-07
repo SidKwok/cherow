@@ -293,7 +293,7 @@ describe('Miscellaneous - comments', () => {
           });
     });
 
-    it.skip('should parse a single "switch (answer) { case 42: bingo() /* perfect */ }"', () => {
+    it('should parse a single "switch (answer) { case 42: bingo() /* perfect */ }"', () => {
         expect(parseScript('switch (answer) { case 42: bingo() /* perfect */ }', {
             ranges: true,
             raw: true
@@ -479,7 +479,7 @@ describe('Miscellaneous - comments', () => {
           });
     });
 
-    it.skip('should parse a single "use\\x20strict"', () => {
+    it('should parse a single "use\\x20strict"', () => {
         expect(parseScript(`while (true) {
             /**
              * comments in empty block

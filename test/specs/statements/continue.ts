@@ -5,7 +5,7 @@ const expect = chai.expect;
 
 describe('Statement - Continue', () => {
 
-    it.skip('should fail if appearing of continue without an iteration statement', () => {
+    it('should fail if appearing of continue without an iteration statement', () => {
         expect(() => {
             parseScript(`var x=1;
             continue;
@@ -13,7 +13,7 @@ describe('Statement - Continue', () => {
         }).to.throw();
     });
 
-    it.skip('should parse labeled continue', () => {
+    it('should parse labeled continue', () => {
         expect(parseScript(`label: for (let x = 0; x < 10;) {
             while (true) {
               x++;
@@ -350,7 +350,7 @@ describe('Statement - Continue', () => {
         });
     });
 
-    it.skip('should parse nested let bound for loops inner contunue', () => {
+    it('should parse nested let bound for loops inner contunue', () => {
         expect(parseScript(`for (let x = 0; x < 10;) {
             x++;
             for (let y = 0; y < 2;) {
@@ -789,7 +789,7 @@ describe('Statement - Continue', () => {
         });
     });
 
-    it.skip('should parse nested let bound for loops outer continue', () => {
+    it('should parse nested let bound for loops outer continue', () => {
         expect(parseScript(`for (let x = 0; x < 10;) {
             x++;
             for (let y = 0; y < 2;) {
@@ -1228,7 +1228,7 @@ describe('Statement - Continue', () => {
         });
     });
 
-    it.skip('should parse no label continue', () => {
+    it('should parse no label continue', () => {
         expect(parseScript(`for (let x = 0; x < 10;) {
             x++;
             continue;
@@ -1327,7 +1327,7 @@ describe('Statement - Continue', () => {
         });
     });
 
-    it.skip('should shadowing loop variable in same scope as continue', () => {
+    it('should shadowing loop variable in same scope as continue', () => {
         expect(parseScript(`for (let x = 0; x < 10;) {
             x++;
             {
@@ -1462,7 +1462,7 @@ describe('Statement - Continue', () => {
         });
     });
 
-    it.skip('should parse while (true) { continue; }', () => {
+    it('should parse while (true) { continue; }', () => {
         expect(parseScript('while (true) { continue; }', {
             ranges: true,
             raw: true
@@ -1497,7 +1497,7 @@ describe('Statement - Continue', () => {
         });
     });
 
-    it.skip('should parse done: while (true) { continue done }', () => {
+    it('should parse done: while (true) { continue done }', () => {
         expect(parseScript('done: while (true) { continue done }', {
             ranges: true,
             raw: true
@@ -1549,7 +1549,7 @@ describe('Statement - Continue', () => {
     });
 
 
-    it.skip('should parse "a: do continue a; while(1);"', () => {
+    it('should parse "a: do continue a; while(1);"', () => {
       expect(parseScript('a: do continue a; while(1);', {
           ranges: true,
           raw: true
@@ -1597,7 +1597,7 @@ describe('Statement - Continue', () => {
       });
     });
 
-    it.skip('should parse "a: while (0) { continue \r b; }"', () => {
+    it('should parse "a: while (0) { continue \r b; }"', () => {
       expect(parseScript('a: while (0) { continue \r b; }', {
           ranges: true,
           raw: true
@@ -1658,7 +1658,7 @@ describe('Statement - Continue', () => {
         });
     });
 
-    it.skip('should parse "a: while (0) { continue /*\r*/ b; }"', () => {
+    it('should parse "a: while (0) { continue /*\r*/ b; }"', () => {
       expect(parseScript('a: while (0) { continue /*\r*/ b; }', {
           ranges: true,
           raw: true
@@ -1719,7 +1719,7 @@ describe('Statement - Continue', () => {
         });
     });
 
-    it.skip('should parse "a: while (0) { continue /*\u2028*/ b; }"', () => {
+    it('should parse "a: while (0) { continue /*\u2028*/ b; }"', () => {
       expect(parseScript('a: while (0) { continue /*\u2028*/ b; }', {
           ranges: true,
           raw: true
@@ -1780,7 +1780,7 @@ describe('Statement - Continue', () => {
         });
     });
 
-    it.skip('should parse __proto__: while (true) { continue __proto__; }', () => {
+    it('should parse __proto__: while (true) { continue __proto__; }', () => {
         expect(parseScript('__proto__: while (true) { continue __proto__; }', {
             ranges: true,
             raw: true

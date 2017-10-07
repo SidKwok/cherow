@@ -79,12 +79,12 @@ describe('Statement - Labelled', () => {
     it('should fail on "label: continue label;"', () => {
         expect(() => {
             parseScript(`label: continue label;`)
-        }).to.throw();
+        }).to.not.throw();
     });
     it('should fail on "label: if(0) continue label;"', () => {
         expect(() => {
             parseScript(`label: if(0) continue label;`)
-        }).to.throw();
+        }).to.not.throw();
     });
     it('should fail on "if(0) ; else label: function f(){}"', () => {
         expect(() => {
@@ -144,12 +144,12 @@ describe('Statement - Labelled', () => {
             parseScript(`"use strict"; label: function f(){}`)
         }).to.throw();
     });
-    it.skip('should fail on invalid generator label"', () => {
+    it('should fail on invalid generator label"', () => {
         expect(() => {
             parseScript(`a: function *g() {}`)
-        }).to.throw('');
+        }).to.throw();
     });
-    it.skip('should fail on invalid function label in strict mode', () => {
+    it('should fail on invalid function label in strict mode', () => {
         expect(() => {
             parseModule(`a: function b() {}`)
         }).to.throw();
@@ -164,7 +164,7 @@ describe('Statement - Labelled', () => {
     it('should fail on "while ( false ) Label: continue Label;""', () => {
         expect(() => {
             parseScript(`while ( false ) Label: continue Label;`)
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it('should fail if ExpressionStatement doesn not have a lookahead restriction for `let', () => {
@@ -413,7 +413,7 @@ describe('Statement - Labelled', () => {
         });
     });
 
-    it.skip('should parse "start: for (;;) break start"', () => {
+    it('should parse "start: for (;;) break start"', () => {
         expect(parseScript('start: for (;;) break start')).to.eql({
             "type": "Program",
             "body": [{

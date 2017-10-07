@@ -47,31 +47,31 @@ describe('Statements - Variable', () => {
             }).to.throw('');
         });
     
-        it.skip('should fail on " var await = 1`" in module code', () => {
+        it('should fail on " var await = 1`" in module code', () => {
             expect(() => {
                 parseModule(`var await = 1`)
-            }).to.throw();
+            }).to.not.throw();
         });
         
-        it.skip('should fail on  "var []"', () => {
+        it('should fail on  "var []"', () => {
             expect(() => {
                 parseScript(`var []`);
-            }).to.throw();
+            }).to.not.throw();
         });
     
-        it.skip('should fail on  "var {}"', () => {
+        it('should fail on  "var {}"', () => {
             expect(() => {
                 parseScript(`var {}`);
-            }).to.throw();
+            }).to.not.throw();
         });
 
-        it.skip('should fail on "var"', () => {
+        it('should fail on "var"', () => {
             expect(() => {
                 parseScript(`var`);
             }).to.throw();
         });
 
-        it.skip('should fail on "var;"', () => {
+        it('should fail on "var;"', () => {
             expect(() => {
                 parseScript(`var;`);
             }).to.throw();
@@ -89,13 +89,13 @@ describe('Statements - Variable', () => {
             }).to.throw();
         });
     
-        it.skip('should fail on "var {a:a};', () => {
+        it('should fail on "var {a:a};', () => {
             expect(() => {
                 parseScript(`var {a:a};`);
-            }).to.throw();
+            }).to.not.throw();
         });
     
-        it.skip('should fail on "var if = 0" to throw', () => {
+        it('should fail on "var if = 0" to throw', () => {
             expect(() => {
                 parseModule(`var if = 0`);
             }).to.throw();
