@@ -281,20 +281,14 @@ export class Parser {
 
             switch (first) {
                 case Chars.CarriageReturn:
-                    state |= ScannerState.LastIsCR;
                     this.advanceNewline();
-                    break;
-                case Chars.LineFeed:
-                    this.advanceNewline();
-                    if ((state & ScannerState.LastIsCR) !== 0) {
+                    if (this.nextChar() === Chars.LineFeed) {
                         this.index++;
                     }
-                    state = state & ~ScannerState.LastIsCR;
                     continue;
-                    // 0x7F > chars
+                case Chars.LineFeed:
                 case Chars.LineSeparator:
                 case Chars.ParagraphSeparator:
-                    state = state & ~ScannerState.LastIsCR;
                     this.advanceNewline();
                     continue;
 
@@ -319,7 +313,6 @@ export class Parser {
                 case Chars.MathematicalSpace:
                 case Chars.IdeographicSpace:
                 case Chars.ZeroWidthNoBreakSpace:
-                    state = state & ~ScannerState.LastIsCR;
                     this.advance();
                     continue;
 
@@ -794,27 +787,24 @@ export class Parser {
                 switch (this.nextChar()) {
                     // Line Terminators
                     case Chars.CarriageReturn:
-                        state |= ScannerState.LastIsCR;
                         this.advanceNewline();
+                        if (this.nextChar() === Chars.LineFeed) {
+                            this.index++;
+                        }
                         if (!(state & ScannerState.MultiLine)) break loop;
                         break;
                     case Chars.LineFeed:
                         this.index++;
-                        if ((state & ScannerState.LastIsCR) === 0) {
-                            this.column = 0;
-                            this.line++;
-                        }
-                        state = state & ~ScannerState.LastIsCR;
+                        this.column = 0;
+                        this.line++;
                         if (!(state & ScannerState.MultiLine)) break loop;
                         break;
                     case Chars.LineSeparator:
                     case Chars.ParagraphSeparator:
-                        state = state & ~ScannerState.LastIsCR;
                         this.advanceNewline();
                         break;
                     case Chars.Asterisk:
                         this.advance();
-                        state &= ~ScannerState.LastIsCR;
                         if (this.consume(Chars.Slash)) {
                             state |= ScannerState.Closed;
                             break loop;
@@ -822,7 +812,6 @@ export class Parser {
                         break;
 
                     default:
-                        state &= ~ScannerState.LastIsCR;
                         this.advance();
                 }
             }

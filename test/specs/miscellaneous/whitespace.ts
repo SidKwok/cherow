@@ -1226,4 +1226,90 @@ describe('Whitespace', () => {
                   "type": "Program"
                 })
         });
+        
+        it('should keep locations correct after CRLF', () => {
+            expect(parseScript(`a\r\nb`, {
+                ranges: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "Identifier",
+                            "name": "a",
+                            "start": 0,
+                            "end": 1,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 1
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 1,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 1
+                            }
+                        }
+                    },
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "Identifier",
+                            "name": "b",
+                            "start": 3,
+                            "end": 4,
+                            "loc": {
+                                "start": {
+                                    "line": 2,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 2,
+                                    "column": 1
+                                }
+                            }
+                        },
+                        "start": 3,
+                        "end": 4,
+                        "loc": {
+                            "start": {
+                                "line": 2,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 2,
+                                "column": 1
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 4,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 2,
+                        "column": 1
+                    }
+                }
+            });
+        });
 });
