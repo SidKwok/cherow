@@ -1757,6 +1757,9 @@ export class Parser {
             if ((t & Token.Reserved) === Token.Reserved) this.error(Errors.UnexpectedStrictReserved);
             return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual;
         }
+
+        if (context & Context.Async && this.token === Token.AwaitKeyword) this.error(Errors.Unexpected);
+
         return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual || (t & Token.FutureReserved) === Token.FutureReserved;
     }
 
@@ -1814,12 +1817,13 @@ export class Parser {
             case Token.FunctionKeyword:
                 return this.parseFunctionDeclaration(context);
                 // VariableStatement[?Yield]
-            case Token.ConstKeyword:
-                return this.parseVariableStatement(context | (Context.DisallowFor | Context.Const));
-                // VariableStatement[?Yield]
             case Token.LetKeyword:
                 // If let follows identifier on the same line, it is an declaration. Parse it as a variable statement
                 if (this.isLexical(context)) return this.parseVariableStatement(context |= (Context.DisallowFor | Context.Let));
+                return this.parseStatement(context);
+            case Token.ConstKeyword:
+                return this.parseVariableStatement(context | (Context.DisallowFor | Context.Const));
+                // VariableStatement[?Yield]
             case Token.ClassKeyword:
                 return this.parseClassDeclaration(context);
 
@@ -3074,9 +3078,9 @@ export class Parser {
             if (context & Context.Strict && this.isEvalOrArguments(name)) this.error(Errors.UnexpectedStrictReserved);
             if (context & Context.Statement && !(context & Context.AnnexB)) {
                 if (!this.initBlockScope() && (
-                    this.blockScope !== this.functionScope && this.blockScope[name] ||
-                    this.blockScope[name] === ScopeMasks.NonShadowable
-                )) {
+                        this.blockScope !== this.functionScope && this.blockScope[name] ||
+                        this.blockScope[name] === ScopeMasks.NonShadowable
+                    )) {
                     this.error(Errors.DuplicateIdentifier, name);
                 }
                 this.blockScope[name] = ScopeMasks.Shadowable;
@@ -3654,7 +3658,13 @@ export class Parser {
                 return this.parseAssignmentElementList(context);
             case Token.LeftBrace:
                 return this.ObjectAssignmentPattern(context, pos);
+            case Token.LetKeyword:
+                if (context & Context.Lexical) this.error(Errors.LetInLexicalBinding);
+                // falls through
+            case Token.YieldKeyword:
+                if (context & Context.Strict) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
             default:
+                if (!this.isIdentifier(context, this.token)) this.error(Errors.Unexpected);
                 return this.parseBindingIdentifier(context);
         }
     }
@@ -3666,17 +3676,12 @@ export class Parser {
         const name = this.tokenValue;
         const token = this.token;
 
-        if (!this.isIdentifier(context, token)) this.error(Errors.Unexpected);
-
         if (context & Context.Strict && this.isEvalOrArguments(name)) this.error(Errors.StrictLHSAssignment);
 
-        if (context & Context.Async && token === Token.AwaitKeyword) {
-            this.error(Errors.UnexpectedToken, tokenDesc(token));
-        }
+        if (context & Context.Async && token === Token.AwaitKeyword)  this.error(Errors.UnexpectedToken, tokenDesc(token));
 
         if (this.flags & Flags.HasUnicode && this.token === Token.YieldKeyword) this.error(Errors.InvalidEscapedReservedWord);
-
-        this.addVarOrBlock(context, name);
+        if (this.token === Token.Identifier) this.addVarOrBlock(context, name);
 
         this.nextToken(context);
 

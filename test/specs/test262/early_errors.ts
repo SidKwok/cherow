@@ -173,7 +173,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "let a, let = 1;"', () => {
             expect(() => {
                 parseScript('let a, let = 1;');
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "__proto__: __proto__: 1;"', () => {
             expect(() => {
@@ -218,7 +218,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "let a, let;"', () => {
             expect(() => {
                 parseScript('let a, let;');
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "for(const [a, a] = 1;;);"', () => {
             expect(() => {
@@ -248,7 +248,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "let a, b, c, let = 1;"', () => {
             expect(() => {
                 parseScript('let a, b, c, let = 1;');
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "!class extends (eval = null) { };"', () => {
             expect(() => {
@@ -585,12 +585,12 @@ describe('Test262 - Early error', () => {
         it('should fail on "let a, let;"', () => {
             expect(() => {
                 parseScript('let a, let;')
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "let a, let = 0;"', () => {
             expect(() => {
                 parseScript('let a, let = 0;')
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "const a;"', () => {
             expect(() => {
