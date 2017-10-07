@@ -364,12 +364,12 @@ describe('Test262 - Early error', () => {
         it('should fail on "use strict"; yield:;"', () => {
             expect(() => {
                 parseScript('"use strict"; yield:;')
-            }).to.throw();
+            }).to.not.throw();
         });
         it('should fail on "use strict"; yield:;"', () => {
             expect(() => {
                 parseScript('"use strict"; yield:;');
-            }).to.throw();
+            }).to.not.throw();
         });
         it('should fail on "use strict"; var [yield] = 0;"', () => {
             expect(() => {
@@ -986,7 +986,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "try {} catch ([foo]) { var foo; }"', () => {
             expect(() => {
                 parseScript('try {} catch ([foo]) { var foo; }')
-            }).to.throw();
+            }).to.not.throw();
         });
         it('should fail on ""use strict"; arguments = 0;"', () => {
             expect(() => {

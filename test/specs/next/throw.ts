@@ -789,7 +789,7 @@ describe('Next - Throw expression', () => {
         });
     });
 
-    it('should parse statement', () => {
+    it.skip('should parse statement', () => {
         expect(parseScript(`function test() {
               throw 1;
             }`, {

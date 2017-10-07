@@ -1826,7 +1826,6 @@ export class Parser {
                 // VariableStatement[?Yield]
             case Token.ClassKeyword:
                 return this.parseClassDeclaration(context);
-
             case Token.ImportKeyword:
                 // We must be careful not to parse a 'import()'
                 // expression or 'import.meta' as an import declaration.
@@ -1838,7 +1837,7 @@ export class Parser {
         }
     }
 
-    private parseStatement(context: Context): any {
+    private parseStatement(context: Context): ESTree.Statement {
         switch (this.token) {
             case Token.LeftParen:
                 return this.parseExpressionStatement(context);
@@ -1857,6 +1856,53 @@ export class Parser {
                 // [+Return] ReturnStatement[?Yield]
             case Token.ReturnKeyword:
                 return this.parseReturnStatement(context);
+                // IfStatement[?Yield, ?Return]
+            case Token.IfKeyword:
+                return this.parseIfStatement(context);
+
+                // BreakStatement[?Yield]
+            case Token.BreakKeyword:
+                return this.parseBreakStatement(context);
+
+            // case Token.ForKeyword:
+            //     return this.parseForStatement(context);
+
+                // DebuggerStatement
+            case Token.DebuggerKeyword:
+                return this.parseDebuggerStatement(context);
+                // BreakableStatement[?Yield, ?Return]
+                //
+                // BreakableStatement[Yield, Return]:
+                //   IterationStatement[?Yield, ?Return]
+                //   SwitchStatement[?Yield, ?Return]
+            case Token.DoKeyword:
+                return this.parseDoWhileStatement(context);
+
+            case Token.WhileKeyword:
+                return this.parseWhileStatement(context);
+
+                // WithStatement[?Yield, ?Return]
+            case Token.WithKeyword:
+                return this.parseWithStatement(context);
+
+            case Token.SwitchKeyword:
+                return this.parseSwitchStatement(context | Context.Statement);
+
+                // ThrowStatement[?Yield]
+            case Token.ThrowKeyword:
+                return this.parseThrowStatement(context);
+
+                // TryStatement[?Yield, ?Return]
+            case Token.TryKeyword:
+                return this.parseTryStatement(context);
+
+                // Both 'class' and 'function' are forbidden by lookahead restriction.
+            case Token.ClassKeyword:
+            case Token.FunctionKeyword:
+                this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
+
+            case Token.YieldKeyword:
+                    return this.parseLabelledStatement(context);
             case Token.AsyncKeyword:
                 if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
                     return this.parseFunctionDeclaration(context);
@@ -1934,6 +1980,358 @@ export class Parser {
         return this.finishNode(pos, {
             type: 'BlockStatement',
             body
+        });
+    }
+
+    private parseTryStatement(context: Context): ESTree.TryStatement {
+
+        const pos = this.getLocations();
+
+        this.expect(context, Token.TryKeyword);
+
+        const block = this.parseBlockStatement(context);
+
+        let handler: ESTree.CatchClause | null = null;
+        let finalizer: ESTree.BlockStatement | null = null;
+
+        if (this.token === Token.CatchKeyword) {
+            handler = this.parseCatchClause(context);
+        }
+
+        if (this.parseOptional(context, Token.FinallyKeyword)) {
+            finalizer = this.parseBlockStatement(context);
+        }
+
+        if (!handler && !finalizer) this.error(Errors.NoCatchOrFinally);
+
+        return this.finishNode(pos, {
+            type: 'TryStatement',
+            block,
+            handler,
+            finalizer
+        });
+    }
+
+    private parseCatchClause(context: Context): ESTree.CatchClause {
+        const pos = this.getLocations();
+        this.expect(context, Token.CatchKeyword);
+
+        // Create a lexical scope node around the whole catch clause
+        const blockScope = this.blockScope;
+        const parentScope = this.parentScope;
+
+        if (blockScope !== undefined) this.parentScope = blockScope;
+
+        this.blockScope = undefined;
+
+        let param = null;
+
+        if (!(this.flags & Flags.OptionsNext) || this.token === Token.LeftParen) {
+            this.expect(context, Token.LeftParen);
+            if (!hasMask(this.token, Token.BindingPattern)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+            this.addCatchArg(this.tokenValue, ScopeMasks.Shadowable);
+            param = this.parseBindingPatternOrIdentifier(context, pos);
+            this.expect(context, Token.RightParen);
+        }
+
+        const body = this.parseBlockStatement(context | Context.IfClause);
+
+        this.blockScope = blockScope;
+
+        if (blockScope !== undefined) this.parentScope = parentScope;
+
+        return this.finishNode(pos, {
+            type: 'CatchClause',
+            param,
+            body
+        });
+    }
+
+    private parseThrowStatement(context: Context): ESTree.ThrowStatement {
+
+        const pos = this.getLocations();
+
+        this.expect(context, Token.ThrowKeyword);
+
+        if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterThrow);
+
+        const argument: ESTree.Expression = this.parseExpression(context, pos);
+
+        this.consumeSemicolon(context);
+
+        return this.finishNode(pos, {
+            type: 'ThrowStatement',
+            argument
+        });
+    }
+
+    private parseWithStatement(context: Context): ESTree.WithStatement {
+        const pos = this.getLocations();
+
+        // Invalid `"use strict"; with ({}) { }`
+        if (context & Context.Strict) this.error(Errors.StrictModeWith);
+
+        this.expect(context, Token.WithKeyword);
+        this.expect(context, Token.LeftParen);
+        const object = this.parseExpression(context, pos);
+        this.expect(context, Token.RightParen);
+        const body = this.parseStatement(context);
+        return this.finishNode(pos, {
+            type: 'WithStatement',
+            object,
+            body
+        });
+    }
+
+    private parseWhileStatement(context: Context): ESTree.WhileStatement {
+        const pos = this.getLocations();
+
+        this.expect(context, Token.WhileKeyword);
+        this.expect(context, Token.LeftParen);
+
+        const test = this.parseExpression(context, pos);
+
+        this.expect(context, Token.RightParen);
+
+        const savedFlag = this.flags;
+
+        if (!(this.flags & Flags.Break)) this.flags |= (Flags.Continue | Flags.Break);
+
+        const body = this.parseStatement(context);
+        this.flags = savedFlag;
+
+        return this.finishNode(pos, {
+            type: 'WhileStatement',
+            test,
+            body
+        });
+    }
+
+    private parseDoWhileStatement(context: Context): ESTree.DoWhileStatement {
+
+        const pos = this.getLocations();
+
+        this.expect(context, Token.DoKeyword);
+
+        const savedFlag = this.flags;
+
+        if (!(this.flags & Flags.Break)) this.flags |= (Flags.Continue | Flags.Break);
+
+        const body = this.parseStatement(context);
+
+        this.flags = savedFlag;
+
+        this.expect(context, Token.WhileKeyword);
+        this.expect(context, Token.LeftParen);
+
+        const test = this.parseExpression(context, pos);
+
+        this.expect(context, Token.RightParen);
+        this.parseOptional(context, Token.Semicolon);
+
+        return this.finishNode(pos, {
+            type: 'DoWhileStatement',
+            body,
+            test
+        });
+    }
+
+    private parseContinueStatement(context: Context): ESTree.ContinueStatement {
+        const pos = this.getLocations();
+        this.expect(context, Token.ContinueKeyword);
+
+        let label: ESTree.Identifier | null = null;
+
+        if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
+            label = this.parseIdentifier(context);
+            if (!hasOwn.call(this.labelSet, '@' + label.name)) this.error(Errors.UnknownLabel, label.name);
+        }
+
+        if (!(this.flags & Flags.Continue) && !label) this.error(Errors.BadContinue);
+
+        this.consumeSemicolon(context);
+
+        return this.finishNode(pos, {
+            type: 'ContinueStatement',
+            label
+        });
+    }
+
+    private parseBreakStatement(context: Context): ESTree.BreakStatement {
+
+        const pos = this.getLocations();
+
+        this.expect(context, Token.BreakKeyword);
+
+        if (this.parseOptional(context, Token.Semicolon)) {
+
+            if (!(this.flags & (Flags.Continue | Flags.Switch))) this.error(Errors.Unexpected);
+
+            return this.finishNode(pos, {
+                type: 'BreakStatement',
+                label: null
+            });
+        }
+
+        let label: ESTree.Identifier | null = null;
+
+        if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
+            label = this.parseIdentifier(context);
+            if (!hasOwn.call(this.labelSet, '@' + label.name)) this.error(Errors.UnknownLabel, label.name);
+        }
+
+        if (!(this.flags & (Flags.Break | Flags.Switch)) && !label) this.error(Errors.IllegalBreak);
+
+        this.consumeSemicolon(context);
+
+        return this.finishNode(pos, {
+            type: 'BreakStatement',
+            label
+        });
+    }
+    private parseIfStatementChild(context: Context): ESTree.Statement {
+        // Annex B.3.4 says that unbraced FunctionDeclarations under if/else in
+        // non-strict code act as if they were braced: '(if (x) function f() {})'
+        // parses as '(if (x) { function f() {} })'.
+        //
+        if (this.token === Token.FunctionKeyword) {
+            if (context & Context.Strict) this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
+
+            // Pass the 'AnnexB' mask
+            return this.parseFunctionDeclaration(context | Context.AnnexB);
+        }
+
+        return this.parseStatement(context | Context.Statement);
+    }
+
+    private parseIfStatement(context: Context): ESTree.IfStatement {
+        const pos = this.getLocations();
+        this.expect(context, Token.IfKeyword);
+        this.expect(context, Token.LeftParen);
+        // An IF node has three kids: test, alternate, and optional else
+        const test = this.parseExpression(context | Context.AllowIn, pos);
+
+        this.expect(context, Token.RightParen);
+        const savedFlag = this.flags;
+
+        const consequent: ESTree.Statement = this.parseIfStatementChild(context);
+
+        let alternate: ESTree.Statement | null = null;
+
+        if (this.parseOptional(context, Token.ElseKeyword)) alternate = this.parseIfStatementChild(context);
+
+        this.flags = savedFlag;
+
+        return this.finishNode(pos, {
+            type: 'IfStatement',
+            test,
+            alternate,
+            consequent
+        });
+    }
+    private parseForStatement(context: Context): any {}
+
+    private parseDebuggerStatement(context: Context): ESTree.DebuggerStatement {
+        const pos = this.getLocations();
+        this.expect(context, Token.DebuggerKeyword);
+        this.consumeSemicolon(context);
+        return this.finishNode(pos, {
+            type: 'DebuggerStatement'
+        });
+    }
+
+    private parseSwitchStatement(context: Context): ESTree.SwitchStatement {
+
+        const pos = this.getLocations();
+
+        this.expect(context, Token.SwitchKeyword);
+        this.expect(context, Token.LeftParen);
+
+        const discriminant = this.parseExpression(context, pos);
+
+        this.expect(context, Token.RightParen);
+        this.expect(context, Token.LeftBrace);
+
+        const cases: ESTree.SwitchCase[] = [];
+
+        let seenDefault = false;
+
+        const SavedFlag = this.flags;
+
+        if (!(this.flags & Flags.Break)) this.flags |= (Flags.Break | Flags.Switch);
+
+        while (this.token !== Token.RightBrace) {
+
+            const clause = this.parseSwitchCase(context);
+
+            if (clause.test === null) {
+                // Error on duplicate 'default' clauses
+                if (seenDefault) this.error(Errors.MultipleDefaultsInSwitch);
+
+                seenDefault = true;
+            }
+            cases.push(clause);
+        }
+
+        this.flags = SavedFlag;
+
+        this.expect(context, Token.RightBrace);
+
+        return this.finishNode(pos, {
+            type: 'SwitchStatement',
+            discriminant,
+            cases
+        });
+    }
+
+    private parseSwitchCase(context: Context): ESTree.SwitchCase {
+
+        const pos = this.getLocations();
+
+        let test: ESTree.Expression | null = null;
+
+        switch (this.token) {
+
+            // 'case'
+            case Token.CaseKeyword:
+                this.nextToken(context);
+                test = this.parseExpression(context, pos);
+                break;
+
+                // 'default'
+            case Token.DefaultKeyword:
+                this.nextToken(context);
+                break;
+
+            default: // ignore
+        }
+
+        this.expect(context, Token.Colon);
+
+        const consequent: ESTree.Statement[] = [];
+
+        loop:
+            while (true) {
+                switch (this.token) {
+
+                    // '}'
+                    case Token.RightBrace:
+
+                        // 'default'
+                    case Token.DefaultKeyword:
+
+                        // 'case'
+                    case Token.CaseKeyword:
+                        break loop;
+                    default:
+                        consequent.push(this.parseStatementListItem(context));
+                }
+            }
+
+        return this.finishNode(pos, {
+            type: 'SwitchCase',
+            test,
+            consequent,
         });
     }
 
@@ -3678,7 +4076,7 @@ export class Parser {
 
         if (context & Context.Strict && this.isEvalOrArguments(name)) this.error(Errors.StrictLHSAssignment);
 
-        if (context & Context.Async && token === Token.AwaitKeyword)  this.error(Errors.UnexpectedToken, tokenDesc(token));
+        if (context & Context.Async && token === Token.AwaitKeyword) this.error(Errors.UnexpectedToken, tokenDesc(token));
 
         if (this.flags & Flags.HasUnicode && this.token === Token.YieldKeyword) this.error(Errors.InvalidEscapedReservedWord);
         if (this.token === Token.Identifier) this.addVarOrBlock(context, name);

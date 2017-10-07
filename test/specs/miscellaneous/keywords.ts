@@ -14,7 +14,7 @@ describe('Keyword', () => {
     it('should fail on invalid use of do in binding context', () => {
         expect(() => {
             parseScript(`do = 1;`);
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on invalid use of in in binding context', () => {
@@ -128,7 +128,7 @@ describe('Keyword', () => {
     it('should fail on "\\u0069\\u{66} (1) {}"', () => {
         expect(() => {
             parseModule(`\\u0069\\u{66} (1) {}`);
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it('should fail on "var i\\u0066"', () => {
