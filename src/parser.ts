@@ -281,18 +281,20 @@ export class Parser {
 
             switch (first) {
                 case Chars.CarriageReturn:
+                    state |= ScannerState.LastIsCR;
+                    this.advanceNewline();
+                    break;
                 case Chars.LineFeed:
                     this.advanceNewline();
-                    if (this.hasNext() &&
-                        first === Chars.CarriageReturn &&
-                        this.nextChar() === Chars.LineFeed) {
+                    if ((state & ScannerState.LastIsCR) !== 0) {
                         this.index++;
                     }
+                    state = state & ~ScannerState.LastIsCR;
                     continue;
-
                     // 0x7F > chars
                 case Chars.LineSeparator:
                 case Chars.ParagraphSeparator:
+                    state = state & ~ScannerState.LastIsCR;
                     this.advanceNewline();
                     continue;
 
@@ -317,6 +319,7 @@ export class Parser {
                 case Chars.MathematicalSpace:
                 case Chars.IdeographicSpace:
                 case Chars.ZeroWidthNoBreakSpace:
+                    state = state & ~ScannerState.LastIsCR;
                     this.advance();
                     continue;
 
