@@ -773,6 +773,11 @@ export class Parser {
         return Token.EndOfSource;
     }
 
+    /**
+     * Skips single line, shebang and multiline comments
+     *
+     * @param state ScannerState
+     */
     private skipComments(state: ScannerState) {
 
         const start = this.index;
@@ -782,20 +787,31 @@ export class Parser {
 
         loop:
             while (this.hasNext()) {
-                const ch = this.nextChar();
 
-                switch (ch) {
+                switch (this.nextChar()) {
                     // Line Terminators
                     case Chars.CarriageReturn:
+                        state |= ScannerState.LastIsCR;
+                        this.advanceNewline();
+                        if (!(state & ScannerState.MultiLine)) break loop;
+                        break;
+                    case Chars.LineFeed:
+                        this.index++;
+                        if ((state & ScannerState.LastIsCR) === 0) {
+                            this.column = 0;
+                            this.line++;
+                        }
+                        state = state & ~ScannerState.LastIsCR;
+                        if (!(state & ScannerState.MultiLine)) break loop;
+                        break;
                     case Chars.LineSeparator:
                     case Chars.ParagraphSeparator:
-                    case Chars.LineFeed:
+                        state = state & ~ScannerState.LastIsCR;
                         this.advanceNewline();
-                        if (this.hasNext() && this.nextChar() === Chars.LineFeed) this.index++;
-                        if (!(state & ScannerState.MultiLine)) break loop;
                         break;
                     case Chars.Asterisk:
                         this.advance();
+                        state &= ~ScannerState.LastIsCR;
                         if (this.consume(Chars.Slash)) {
                             state |= ScannerState.Closed;
                             break loop;
@@ -803,6 +819,7 @@ export class Parser {
                         break;
 
                     default:
+                        state &= ~ScannerState.LastIsCR;
                         this.advance();
                 }
             }

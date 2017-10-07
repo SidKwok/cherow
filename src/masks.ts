@@ -89,9 +89,13 @@ export const enum ObjectState {
 
 export const enum ScannerState {
     None = 0,
-    MultiLine  = 1 << 0,
-    SingleLine = 1 << 1,
-    Closed  = 1 << 2,
+    LastIsCR        = 1 << 0,
+    LineTerminator  = 1 << 1,
+    MultiLine       = 1 << 2,
+    SingleLine      = 1 << 3,
+    Closed          = 1 << 4,
+
+    // Collectable comments - single and multiline
     Collectable = SingleLine | MultiLine
 }
 
