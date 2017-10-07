@@ -87,6 +87,13 @@ export const enum ObjectState {
     Modifiers = Accessors | Method | Yield
 }
 
+export const enum ScannerState {
+    None = 0,
+    MultiLine  = 1 << 0,
+    SingleLine = 1 << 1,
+    Collectable = SingleLine | MultiLine
+}
+
 // Regular expression scanning
 export const enum RegExpState {
     Empty = 0,
