@@ -136,11 +136,6 @@ export class Parser {
         throw createError(type, this.trackErrorLocation(), ...params);
     }
 
-    private throwError(type: Errors, ...params: string[]): void {
-        const loc: any = this.errorLocation;
-        throw createError(type, this.errorLocation, ...params);
-    }
-
     private trackErrorLocation(): ErrorLocation {
         return {
             index: this.index,

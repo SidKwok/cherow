@@ -447,12 +447,6 @@ Parser.prototype.error = function error (type) {
 
     throw createError.apply(void 0, [ type, this.trackErrorLocation() ].concat( params ));
 };
-Parser.prototype.throwError = function throwError (type) {
-        var params = [], len = arguments.length - 1;
-        while ( len-- > 0 ) params[ len ] = arguments[ len + 1 ];
-
-    throw createError.apply(void 0, [ type, this.errorLocation ].concat( params ));
-};
 Parser.prototype.trackErrorLocation = function trackErrorLocation () {
     return {
         index: this.index,
