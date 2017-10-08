@@ -2251,6 +2251,7 @@ export class Parser {
         this.expect(context, Token.LeftParen);
 
         if (this.token !== Token.Semicolon) {
+
             if (hasMask(this.token, Token.VarDeclStart)) {
 
                 const startPos = this.getLocations();
@@ -2293,7 +2294,7 @@ export class Parser {
                     if (!isValidDestructuringAssignmentTarget(init)) this.error(Errors.InvalidLHSInForLoop);
                 }
 
-                const right = this.parseAssignmentExpression(context | Context.AllowIn);
+                const right = this.parseAssignmentExpression(context);
 
                 this.expect(context, Token.RightParen);
 
@@ -2326,7 +2327,7 @@ export class Parser {
                     this.reinterpretAsPattern(context, init);
                 }
 
-                test = this.parseExpression(context | Context.AllowIn, pos);
+                test = this.parseExpression(context, pos);
 
                 this.expect(context, Token.RightParen);
 
@@ -2352,12 +2353,12 @@ export class Parser {
                 this.expect(context, Token.Semicolon);
 
                 if (this.token !== Token.Semicolon && this.token !== Token.RightParen) {
-                    test = this.parseExpression(context | Context.AllowIn, pos);
+                    test = this.parseExpression(context, pos);
                 }
 
                 this.expect(context, Token.Semicolon);
 
-                if (this.token !== Token.RightParen) update = this.parseExpression(context | Context.AllowIn, pos);
+                if (this.token !== Token.RightParen) update = this.parseExpression(context, pos);
 
                 this.expect(context, Token.RightParen);
 
@@ -2581,7 +2582,6 @@ export class Parser {
 
     private parseExpression(context: Context, pos: Location): ESTree.Expression {
         const expr = this.parseAssignmentExpression(context);
-
         if (this.token !== Token.Comma) return expr;
 
         const expressions: ESTree.Expression[] = [expr];
@@ -2926,7 +2926,7 @@ export class Parser {
                 case Token.Period:
                     {
                         this.expect(context, Token.Period);
-                        if (!this.isIdentifierOrKeyword(this.token)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                    //    if (!this.isIdentifierOrKeyword(this.token)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                         const property = this.parseIdentifier(context);
                         expr = this.finishNode(pos, {
                             type: 'MemberExpression',
@@ -2942,7 +2942,7 @@ export class Parser {
                     {
                         this.expect(context, Token.LeftBracket);
                         const start = this.getLocations();
-                        const property = this.parseExpression(context, start);
+                        const property = this.parseExpression(context | Context.AllowIn, start);
                         this.expect(context, Token.RightBracket);
                         expr = this.finishNode(pos, {
                             type: 'MemberExpression',
@@ -3990,8 +3990,9 @@ export class Parser {
                 }
                 elements.push(element);
             } else {
-                elements.push(this.parseAssignmentExpression(context));
+                elements.push(this.parseAssignmentExpression(context  | Context.AllowIn));
                 if (this.token !== Token.RightBracket) {
+
                     this.expect(context, Token.Comma);
                 }
             }
@@ -4221,6 +4222,7 @@ export class Parser {
 
     private parseComputedPropertyName(context: Context): ESTree.Expression {
         this.expect(context, Token.LeftBracket);
+        if (context & Context.Yield && context & Context.inParameter)  context &= ~Context.Yield;
         const expression = this.parseAssignmentExpression(context | Context.AllowIn);
         this.expect(context, Token.RightBracket);
         return expression;

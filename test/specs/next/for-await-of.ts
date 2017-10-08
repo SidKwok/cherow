@@ -69,7 +69,7 @@ describe('Next - For await of', () => {
         }).to.throw();
     });
 
-    it.skip('should parse statement in an async function declaration', () => {
+    it('should parse statement in an async function declaration', () => {
         expect(parseScript(`async function fn() {
             for await ([ x = 'x' in {} ] of [[]]) {
             }
@@ -172,7 +172,7 @@ describe('Next - For await of', () => {
     });
 
     
-    it.skip('should parse array elem nested obj undefined hole', () => {
+    it('should parse array elem nested obj undefined hole', () => {
         expect(parseScript(`async function fn() {
             for await ([{ x }] of [[ , ]]) {
             }
@@ -274,7 +274,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse func decl dstr array elem nested obj', () => {
+    it('should parse func decl dstr array elem nested obj', () => {
         expect(parseScript(`async function fn() {
             for await ([{ x }] of [[{ x: 2 }]]) {
             }
@@ -405,7 +405,7 @@ describe('Next - For await of', () => {
     });
 
     
-    it.skip('should parse array elem put const', () => {
+    it('should parse array elem put const', () => {
         expect(parseScript(`async function fn() {
             for await ([ c ] of [[1]]) {
             }
@@ -491,7 +491,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse array rest iteration', () => {
+    it('should parse array rest iteration', () => {
         expect(parseScript(`async function fn() {
             for await ([...x] of [g()]) {
             }
@@ -581,7 +581,7 @@ describe('Next - For await of', () => {
     });
 
     
-    it.skip('should parse array nested object null', () => {
+    it('should parse array nested object null', () => {
         expect(parseScript(`async function fn() {
             for await ([...{ 0: x, length }] of [[null]]) {
             }
@@ -716,7 +716,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse function name arrow', () => {
+    it('should parse function name arrow', () => {
         expect(parseScript(`async function fn() {
             for await ({ arrow = () => {} } of [{}]) {
             }
@@ -776,7 +776,7 @@ describe('Next - For await of', () => {
                                                     },
                                                     "generator": false,
                                                     "expression": false,
-                                                    "async": false,
+                                                    "async": true,
                                                     "start": 55,
                                                     "end": 63
                                                 },
@@ -831,7 +831,7 @@ describe('Next - For await of', () => {
     });
 
     
-    it.skip('should parse object property elem init yield identifier', () => {
+    it('should parse object property elem init yield identifier', () => {
         expect(parseScript(`async function fn() {
             for await ({ x: x = yield } of [{}]) {
             }
@@ -935,7 +935,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse object property nested array', () => {
+    it('should parse object property nested array', () => {
         expect(parseScript(`async function fn() {
             for await ({ x: [y] } of [{ x: [321] }]) {
             }
@@ -1064,7 +1064,7 @@ describe('Next - For await of', () => {
             "end": 102
         });
     });
-    it.skip('should parse array element nesed array undefined', () => {
+    it('should parse array element nesed array undefined', () => {
         expect(parseScript(`async function * fn() {
             for await ([[ x ]] of [[undefined]]) {
             }
@@ -1157,7 +1157,7 @@ describe('Next - For await of', () => {
     });
 
 
-    it.skip('should parse array elision value array', () => {
+    it('should parse array elision value array', () => {
         expect(parseScript(`async function * fn() {
             for await ([,] of [[]
           ]) {
@@ -1259,7 +1259,7 @@ describe('Next - For await of', () => {
     });
 
 
-    it.skip('should parse object empty num', () => {
+    it('should parse object empty num', () => {
         expect(parseScript(`async function * fn() {
             for await ({} of [0
           ]) {
@@ -1333,7 +1333,7 @@ describe('Next - For await of', () => {
     });
 
     
-    it.skip('should parse const async object pattern prop id', () => {
+    it('should parse const async object pattern prop id', () => {
         expect(parseScript(`async function fn() {
             for await (const { x: y } of asyncIter) {
             }
@@ -1435,7 +1435,7 @@ describe('Next - For await of', () => {
 
   
 
-    it.skip('should parse const object init null', () => {
+    it('should parse const object init null', () => {
         expect(parseScript(`async function fn() {
             for await (const {} of [null]) {
               return;
@@ -1529,7 +1529,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse array pattern rest id ellison', () => {
+    it('should parse array pattern rest id ellison', () => {
         expect(parseScript(`async function fn() {
             for await (const [ , , ...x] of [values]) {
             }
@@ -1628,7 +1628,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse  array pattern elem id init hole', () => {
+    it('should parse  array pattern elem id init hole', () => {
         expect(parseScript(`async function fn() {
             for await (const [x = 23] of [[,]]) {
             }
@@ -1734,7 +1734,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse array pattern empty', () => {
+    it('should parse array pattern empty', () => {
         expect(parseScript(`async function *fn() {
             for await (let [] of asyncIter) {
             }
@@ -1812,7 +1812,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse array pattern elem object', () => {
+    it('should parse array pattern elem object', () => {
         expect(parseScript(`async function *fn() {
             for await (let [{ x, y, z } = { x: 44, y: 55, z: 66 }] of asyncIter) {
             }
@@ -2039,7 +2039,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse single name binding assigned name to arrow functions', () => {
+    it('should parse single name binding assigned name to arrow functions', () => {
         expect(parseScript(`async function *fn() {
             for await (let [arrow = () => {}] of asyncIter) {
             }
@@ -2124,7 +2124,7 @@ describe('Next - For await of', () => {
                                                             },
                                                             "generator": false,
                                                             "expression": false,
-                                                            "async": false,
+                                                            "async": true,
                                                             "start": 59,
                                                             "end": 67,
                                                             "loc": {
@@ -2286,7 +2286,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse single name binding with normal value iteration', () => {
+    it('should parse single name binding with normal value iteration', () => {
         expect(parseScript(`async function *fn() {
             for await (let [x, y, z] of asyncIter) {
             }
@@ -2514,7 +2514,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse rest element containing an object binding pattern', () => {
+    it('should parse rest element containing an object binding pattern', () => {
         expect(parseScript(`async function *fn() {
             for await (let [...{ 0: v, 1: w, 2: x, 3: y, length: z }] of [[7, 8, 9]]) {
             }
@@ -2824,12 +2824,12 @@ describe('Next - For await of', () => {
                                                                     }
                                                                 }
                                                             ],
-                                                            "start": 54,
+                                                            "start": 51,
                                                             "end": 91,
                                                             "loc": {
                                                                 "start": {
                                                                     "line": 2,
-                                                                    "column": 31
+                                                                    "column": 28
                                                                 },
                                                                 "end": {
                                                                     "line": 2,
@@ -3054,7 +3054,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse lone rest element', () => {
+    it('should parse lone rest element', () => {
         expect(parseScript(`async function *fn() {
             for await (let [...x] of [values]) {
             }
@@ -3282,7 +3282,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse bindingElement with object binding pattern', () => {
+    it('should parse bindingElement with object binding pattern', () => {
         expect(parseScript(`async function *fn() {
             for await (let [{ x, y, z } = { x: 44, y: 55, z: 66 }] of [[{ x: 11, y: 22, z: 33 }]]) {
             }
@@ -4011,7 +4011,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse async iteration with object spread and getter', () => {
+    it('should parse async iteration with object spread and getter', () => {
         expect(parseScript(`async function *fn() {
             for await (const {...x} of [{ get v() { return 2; } }]) {
             }
@@ -4344,7 +4344,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse binding as specified via property name and identifier', () => {
+    it('should parse binding as specified via property name and identifier', () => {
         expect(parseScript(`async function *fn() {
             for await (const { x: y } of [{ x: 23 }]) {
             }
@@ -4645,7 +4645,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse object binding pattern with object coercible (null)', () => {
+    it('should parse object binding pattern with object coercible (null)', () => {
         expect(parseScript(`async function * gen() {
             for await (const {} of [null]) {
               return;
@@ -4860,7 +4860,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse array element nested array undefined', () => {
+    it('should parse array element nested array undefined', () => {
         expect(parseScript(`async function fn() {
             for await ([[ x ]] of [[]]) {
             }

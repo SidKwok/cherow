@@ -2357,7 +2357,7 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
                 if (!isValidDestructuringAssignmentTarget(init))
                     { this.error(35 /* InvalidLHSInForLoop */); }
             }
-            var right = this.parseAssignmentExpression(context | 16 /* AllowIn */);
+            var right = this.parseAssignmentExpression(context);
             this.expect(context, 16 /* RightParen */);
             this.flags |= (32 /* Continue */ | 128 /* Break */);
             body = this.parseStatement(context | 2097152 /* DisallowFor */);
@@ -2382,7 +2382,7 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
             else {
                 this.reinterpretAsPattern(context, init);
             }
-            test = this.parseExpression(context | 16 /* AllowIn */, pos);
+            test = this.parseExpression(context, pos);
             this.expect(context, 16 /* RightParen */);
             this.flags |= (32 /* Continue */ | 128 /* Break */);
             body = this.parseStatement(context | 2097152 /* DisallowFor */);
@@ -2399,11 +2399,11 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
             var update = null;
             this.expect(context, 17 /* Semicolon */);
             if (this.token !== 17 /* Semicolon */ && this.token !== 16 /* RightParen */) {
-                test = this.parseExpression(context | 16 /* AllowIn */, pos);
+                test = this.parseExpression(context, pos);
             }
             this.expect(context, 17 /* Semicolon */);
             if (this.token !== 16 /* RightParen */)
-                { update = this.parseExpression(context | 16 /* AllowIn */, pos); }
+                { update = this.parseExpression(context, pos); }
             this.expect(context, 16 /* RightParen */);
             this.flags |= (32 /* Continue */ | 128 /* Break */);
             body = this.parseStatement(context | 2097152 /* DisallowFor */);
@@ -2880,8 +2880,7 @@ Parser.prototype.parseMemberExpression = function parseMemberExpression (context
             case 13 /* Period */:
                 {
                     this$1.expect(context, 13 /* Period */);
-                    if (!this$1.isIdentifierOrKeyword(this$1.token))
-                        { this$1.error(1 /* UnexpectedToken */, tokenDesc(this$1.token)); }
+                    //if (!this.isIdentifierOrKeyword(this.token)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                     var property = this$1.parseIdentifier(context);
                     expr = this$1.finishNode(pos, {
                         type: 'MemberExpression',
@@ -2896,7 +2895,7 @@ Parser.prototype.parseMemberExpression = function parseMemberExpression (context
                 {
                     this$1.expect(context, 393235 /* LeftBracket */);
                     var start = this$1.getLocations();
-                    var property$1 = this$1.parseExpression(context, start);
+                    var property$1 = this$1.parseExpression(context | 16 /* AllowIn */, start);
                     this$1.expect(context, 20 /* RightBracket */);
                     expr = this$1.finishNode(pos, {
                         type: 'MemberExpression',
@@ -3819,7 +3818,7 @@ Parser.prototype.parseArrayExpression = function parseArrayExpression (context) 
             elements.push(element);
         }
         else {
-            elements.push(this$1.parseAssignmentExpression(context));
+            elements.push(this$1.parseAssignmentExpression(context | 16 /* AllowIn */));
             if (this$1.token !== 20 /* RightBracket */) {
                 this$1.expect(context, 18 /* Comma */);
             }
@@ -4018,6 +4017,8 @@ Parser.prototype.parseFunctionBody = function parseFunctionBody (context) {
 };
 Parser.prototype.parseComputedPropertyName = function parseComputedPropertyName (context) {
     this.expect(context, 393235 /* LeftBracket */);
+    if (context & 64 /* Yield */ && context & 131072 /* inParameter */)
+        { context &= ~64 /* Yield */; }
     var expression = this.parseAssignmentExpression(context | 16 /* AllowIn */);
     this.expect(context, 20 /* RightBracket */);
     return expression;
