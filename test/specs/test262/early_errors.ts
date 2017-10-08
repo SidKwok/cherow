@@ -13,7 +13,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "({ a(eval) { "use strict"; } });"', () => {
             expect(() => {
                 parseScript('({ a(eval) { "use strict"; } });');
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "for (let let of a);"', () => {
             expect(() => {
@@ -163,7 +163,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "function* a(){ (b = yield* c) => 1; }"', () => {
             expect(() => {
                 parseScript('function* a(){ (b = yield* c) => 1; }');
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "switch(1) { case 2: let a; default: var a; }"', () => {
             expect(() => {
@@ -183,7 +183,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "function *a() { ({b = yield}) => {} }"', () => {
             expect(() => {
                 parseScript('function *a() { ({b = yield}) => {} }');
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "function a(){ var b; let b; }"', () => {
             expect(() => {
@@ -258,7 +258,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "function* a(){ ({[yield]: b}) => 1; }"', () => {
             expect(() => {
                 parseScript('function* a(){ ({[yield]: b}) => 1; }');
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "({ set __proto__(a){}, "__proto__": null, __proto__: null, })"', () => {
             expect(() => {
@@ -496,7 +496,13 @@ describe('Test262 - Early error', () => {
         it('should fail on "!function (eval){ \'use strict\'; }', () => {
             expect(() => {
                 parseScript('!function (eval){ \'use strict\'; }')
-            }).to.not.throw();
+            }).to.throw();
+        });
+
+        it('should fail on "!function (isiah, eval){ \'use strict\'; }', () => {
+            expect(() => {
+                parseScript('!function (isiah, eval){ \'use strict\'; }')
+            }).to.throw();
         });
     
         it('should fail on ""use strict"; function* f(eval){}', () => {
@@ -508,13 +514,13 @@ describe('Test262 - Early error', () => {
         it('should fail on "!function* (eval){ "use strict"; }', () => {
             expect(() => {
                 parseScript('!function* (eval){ "use strict";}')
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail on "function a(yield){ \'use strict\'; }', () => {
             expect(() => {
                 parseScript('function a(yield){ "use strict"; }')
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail on "function a(){ \'use strict\'; function a(a=yield){}}', () => {
@@ -886,42 +892,42 @@ describe('Test262 - Early error', () => {
         it('should fail on "function* g(){ (a = yield) => 0; }"', () => {
             expect(() => {
                 parseScript('function* g(){ (a = yield) => 0; }')
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "function* g(){ (a = yield b) => 0; }"', () => {
             expect(() => {
                 parseScript('function* g(){ (a = yield b) => 0; }')
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "function* g(){ (a = yield* b) => 0; }"', () => {
             expect(() => {
                 parseScript('function* g(){ (a = yield* b) => 0; }')
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "function* g(){ (a = x + f(yield)) => 0; }"', () => {
             expect(() => {
                 parseScript('function* g(){ (a = x + f(yield)) => 0; }')
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "function* g(){ ({[yield]: a}) => 0; }"', () => {
             expect(() => {
                 parseScript('function* g(){ ({[yield]: a}) => 0; }')
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "function* g(){ ({a = yield}) => 0; }"', () => {
             expect(() => {
                 parseScript('function* g(){ ({a = yield}) => 0; }')
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "function* g(){ ([a = yield]) => 0; }"', () => {
             expect(() => {
                 parseScript('function* g(){ ([a = yield]) => 0; }')
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "function* g(){ (...{a = yield}) => 0; }', () => {
             expect(() => {
                 parseScript('function* g(){ (...{a = yield}) => 0; }')
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail on "(a, a) => { let a; }', () => {
@@ -958,17 +964,17 @@ describe('Test262 - Early error', () => {
         it('should fail on "function* g(){ (...{a = yield}) => 0; }', () => {
             expect(() => {
                 parseScript('function* g(){ (...{a = yield}) => 0; }')
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "function* g(){ (...{a = yield}) => 0; }', () => {
             expect(() => {
                 parseScript('function* g(){ (...{a = yield}) => 0; }')
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "function* g(){ (...{a = yield}) => 0; }', () => {
             expect(() => {
                 parseScript('function* g(){ (...{a = yield}) => 0; }')
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail on "let foo = 1; { var foo = 1; }"', () => {

@@ -1645,6 +1645,8 @@ export class Parser {
             if (!isDirective(item)) break;
             if (item.expression.value === 'use strict') {
                 if (this.flags & Flags.HasNonSimpleParameter) this.error(Errors.IllegalUseStrict);
+                // TODO! Track error location
+                if (this.flags & Flags.FirstRestricted) this.error(Errors.UnexpectedStrictReserved);
                 context |= Context.Strict;
                 break;
             }
@@ -2585,6 +2587,8 @@ export class Parser {
     private parseYieldExpression(context: Context, pos: Location): ESTree.YieldExpression {
 
         this.expect(context, Token.YieldKeyword);
+        
+        if (context & Context.InParenthesis) this.flags |= Flags.HasYield;
 
         let argument: ESTree.Expression | null = null;
         let delegate = false;
@@ -2628,7 +2632,7 @@ export class Parser {
             }
 
             this.nextToken(context);
-
+            
             const right = this.parseAssignmentExpression(context);
 
             return this.finishNode(pos, {
@@ -3794,7 +3798,7 @@ export class Parser {
             case Token.FalseKeyword:
                 return this.parseTrueOrFalseExpression(context);
             case Token.LeftParen:
-                return this.parseParenthesizedExpression(context & ~(Context.AllowCall | Context.inParameter | Context.NonSimpleParameter));
+                return this.parseParenthesizedExpression(context & ~(Context.AllowCall | Context.inParameter | Context.NonSimpleParameter) | Context.InParenthesis);
             case Token.LeftBracket:
                 return this.parseArrayExpression(context);
             case Token.FunctionKeyword:
@@ -3827,6 +3831,7 @@ export class Parser {
                     default:
                         return this.parseIdentifier(context);
                 }
+
             case Token.LetKeyword:
                 return this.parseLetIdentifier(context);
             default:
@@ -3849,7 +3854,10 @@ export class Parser {
         if (this.flags & Flags.InFunctionBody) context &= ~Context.Yield;
 
         if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
+
         this.expect(context, Token.Arrow);
+
+        if (context & Context.InParenthesis && this.flags & Flags.HasYield) this.error(Errors.InvalidArrowYieldParam);
 
         const savedScope = this.enterFunctionScope();
 
@@ -3899,7 +3907,7 @@ export class Parser {
             if (this.token === Token.Arrow) return this.parseArrowExpression(context, pos, []);
             this.error(Errors.MissingArrowAfterParentheses);
         }
-
+        
         let expr: ESTree.Expression;
 
         if (this.token === Token.Ellipsis) {
@@ -3908,7 +3916,7 @@ export class Parser {
             return this.parseArrowExpression(context, pos, [expr]);
         }
         const sequencePos = this.getLocations();
-
+                
         expr = this.parseAssignmentExpression(context | Context.AllowCall);
 
         if (this.token === Token.Comma) {
@@ -3921,7 +3929,6 @@ export class Parser {
                 } else if (this.token === Token.Ellipsis) {
                     expressions.push(this.parseRestElement(context | Context.NonSimpleParameter));
                     this.expect(context, Token.RightParen);
-
                     return this.parseArrowExpression(context, pos, expressions);
                 } else {
                     expressions.push(this.parseAssignmentExpression(context | Context.AllowCall));
@@ -4174,7 +4181,6 @@ export class Parser {
     private parseIdentifier(context: Context): ESTree.Identifier {
         const name = this.tokenValue;
         const pos = this.getLocations();
-        // if (context & Context.Strict && this.isEvalOrArguments(name)) this.error(Errors.UnexpectedStrictReserved);
         this.nextToken(context);
 
         return this.finishNode(pos, {
@@ -4247,10 +4253,11 @@ export class Parser {
             case Token.AwaitKeyword:
                 if (context & Context.Async) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 return this.parseBindingIdentifier(context);
+            case Token.YieldKeyword:
+                this.flags |= Flags.FirstRestricted;
+                if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
             case Token.LetKeyword:
                 if (context & Context.Lexical) this.error(Errors.LetInLexicalBinding);
-            case Token.YieldKeyword:
-                if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
             default:
                 if (!this.isIdentifier(context, this.token)) this.error(Errors.Unexpected);
                 return this.parseBindingIdentifier(context);
@@ -4263,8 +4270,13 @@ export class Parser {
 
         const name = this.tokenValue;
         const token = this.token;
+//if (context & Context.inParameter && this.)
 
-        if (context & Context.Strict && this.isEvalOrArguments(name)) this.error(Errors.StrictLHSAssignment);
+            if (this.isEvalOrArguments(name)) {
+              if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
+              if (context & Context.inParameter) this.flags |= Flags.FirstRestricted;
+            }
+            
         if (this.flags & Flags.HasUnicode && this.token === Token.YieldKeyword) this.error(Errors.InvalidEscapedReservedWord);
         if (this.token === Token.Identifier) this.addVarOrBlock(context, name);
 

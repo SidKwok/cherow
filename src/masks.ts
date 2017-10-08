@@ -25,11 +25,12 @@ export const enum Context {
     ParentHasYield        = 1 << 22,
     ArrowBody             = 1 << 23,   // If node was parsed in a arrow body context with concise body
     AsyncFunctionBody      = 1 << 24,
+    InParenthesis          = 1 << 25,
 
     /* Variable declaration */
-    Const                  = 1 << 25,
-    Let                    = 1 << 26,
-    Var                    = 1 << 27,
+    Const                  = 1 << 26,
+    Let                    = 1 << 27,
+    Var                    = 1 << 28,
 
 
      // An Lexical declaration can be either 'const¨' or 'let
@@ -48,23 +49,25 @@ export const enum Flags {
     Continue                     = 1 << 5,
     Switch                       = 1 << 6,
     Break                        = 1 << 7,
+    FirstRestricted              = 1 << 8,
+    HasYield                     = 1 << 9,
 
     /* Numeric */
-    Noctal                       = 1 << 8, // e.g. `0777`
-    BigInt                       = 1 << 9, // e.g. `100n`
-    Float                        = 1 << 10, // e.g. `09.01`
-    Exponent                     = 1 << 11, // e.g. `10e2`
+    Noctal                       = 1 << 10, // e.g. `0777`
+    BigInt                       = 1 << 11, // e.g. `100n`
+    Float                        = 1 << 12, // e.g. `09.01`
+    Exponent                     = 1 << 13, // e.g. `10e2`
 
     /* Options */
-    OptionsRanges                = 1 << 12,
-    OptionsLoc                   = 1 << 13,
-    OptionsSource                = 1 << 14,
-    OptionsJSX                   = 1 << 15,
-    OptionsRaw                   = 1 << 16,
-    OptionsNext                  = 1 << 17,
-    OptionsOnComment             = 1 << 18,
-    OptionsOnToken               = 1 << 19,
-    OptionsV8                    = 1 << 20,
+    OptionsRanges                = 1 << 14,
+    OptionsLoc                   = 1 << 15,
+    OptionsSource                = 1 << 16,
+    OptionsJSX                   = 1 << 17,
+    OptionsRaw                   = 1 << 18,
+    OptionsNext                  = 1 << 19,
+    OptionsOnComment             = 1 << 20,
+    OptionsOnToken               = 1 << 21,
+    OptionsV8                    = 1 << 22,
 
     // BigInt implementation can't handle either float or exponent acc. TC-39
     FloatOrExponent = Float | Exponent

@@ -37,7 +37,7 @@ describe('Espressions - Yield', () => {
       it('should fail on invalid yield arrow default', () => {
           expect(() => {
               parseScript('function* g() { (x = yield 42) => {} }');
-          }).to.not.throw();
+          }).to.throw();
       });
   
       it('should fail on invalid yield generator arrow parameter', () => {
