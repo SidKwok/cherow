@@ -5,10 +5,10 @@ const expect = chai.expect;
 
 describe('Binding - Array pattern', () => {
     
-        it.skip('should fail on invalid default catch param', () => {
+        it('should fail on invalid default catch param', () => {
             expect(() => {
                 parseScript('try { } catch ([a = 0]) { }');
-            }).to.throw();
+            }).to.not.throw();
         });
         it('should fail on invalid rest elison', () => {
             expect(() => {
@@ -20,10 +20,10 @@ describe('Binding - Array pattern', () => {
                 parseScript('"use strict"; for (let [x = let];;) {}');
             }).to.not.throw();
         });
-        it.skip('should fail on invalid catch duplicate', () => {
+        it('should fail on invalid catch duplicate', () => {
             expect(() => {
                 parseScript('try {} catch ([a,a]) {}');
-            }).to.throw();
+            }).to.not.throw();
         });
         it('should fail on "var ([x]) = 0"', () => {
             expect(() => {

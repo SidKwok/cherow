@@ -3,7 +3,7 @@ import * as chai from 'chai';
 
 const expect = chai.expect;
 
-describe.skip('Expressions - Arrow function', () => {
+describe('Expressions - Arrow function', () => {
   
       it('should fail on cover no duplicates  (strict)', () => {
           expect(() => {
@@ -26,7 +26,7 @@ describe.skip('Expressions - Arrow function', () => {
       it('should fail on cover no yield (strict)', () => {
           expect(() => {
               parseScript('"use strict"; var af = (yield) => 1;');
-          }).to.not.throw('');
+          }).to.throw('');
       });
   
       it('should fail on duplicate params', () => {
@@ -207,7 +207,7 @@ describe.skip('Expressions - Arrow function', () => {
       it('should fail if arrow parameters contain yield expressions', () => {
           expect(() => {
               parseScript('function *g() { (x = yield) => {} }\n');
-          }).to.not.throw('');
+          }).to.throw('');
       });
   
       it('should fail if Arrow parameters contain yield expressions', () => {
@@ -231,13 +231,13 @@ describe.skip('Expressions - Arrow function', () => {
       it('should fail arrow with inner paren', () => {
           expect(() => {
               parseScript(`function *g() { (x = yield) => {}; }`)
-          }).to.not.throw('');
+          }).to.throw('');
       })
   
       it('should fail arrow with inner paren', () => {
           expect(() => {
               parseScript(`"use strict"; function *g() { (x = yield) => {}; }`)
-          }).to.not.throw('');
+          }).to.throw('');
       })
   
       it('should fail arrow with inner paren', () => {
@@ -486,7 +486,7 @@ describe.skip('Expressions - Arrow function', () => {
       it('should fail on parenthesized async in front of arrow function', () => {
           expect(() => {
               parseScript(`"use strict"; (x = yield) => {};`)
-          }).to.not.throw();
+          }).to.throw();
       });
   
       it('should fail on parenthesized async in front of arrow function', () => {
