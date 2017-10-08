@@ -94,7 +94,7 @@ describe('Declarations - Class', () => {
     it('should fail on await as binding identifier', () => {
         expect(() => {
             parseScript(`class C { async method() { var await; }}`);
-        }).to.throw();
+}).to.throw();
     });
 
     it('should fail if duplicate constructor in the same class', () => {

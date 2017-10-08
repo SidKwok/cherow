@@ -14,7 +14,7 @@ describe('Espressions - Await', () => {
 it('should fail on invalid identifieri inside an async function with lineterminator', () => {
     expect(() => {
         parseScript(`async function wrap() {\nasync function await() { }\n}`)
-    }).to.throw();
+      }).to.throw();
 });
 
 it('should fail on await binding identifier nested', () => {
@@ -23,10 +23,145 @@ it('should fail on await binding identifier nested', () => {
             function await() {
             }
           }`)
-    }).to.not.throw();
+        }).to.throw();
 });
 
-    it('should parse await as identifier', () => {
+it('should fail on await binding identifier nested', () => {
+  expect(() => {
+      parseScript(`async function wrap() { async function await() { } };`)
+    }).to.throw();
+});
+
+
+it('should parse await as function name in async function bodies', () => {
+  expect(parseScript('function foo() { async function await() { } }', {
+      ranges: true,
+      raw: true,
+      locations: true
+  })).to.eql({
+    "type": "Program",
+    "start": 0,
+    "end": 45,
+    "loc": {
+      "start": {
+        "line": 1,
+        "column": 0
+      },
+      "end": {
+        "line": 1,
+        "column": 45
+      }
+    },
+    "body": [
+      {
+        "type": "FunctionDeclaration",
+        "start": 0,
+        "end": 45,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 45
+          }
+        },
+        "id": {
+          "type": "Identifier",
+          "start": 9,
+          "end": 12,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 9
+            },
+            "end": {
+              "line": 1,
+              "column": 12
+            }
+          },
+          "name": "foo"
+        },
+        "generator": false,
+        "expression": false,
+        "async": false,
+        "params": [],
+        "body": {
+          "type": "BlockStatement",
+          "start": 15,
+          "end": 45,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 15
+            },
+            "end": {
+              "line": 1,
+              "column": 45
+            }
+          },
+          "body": [
+            {
+              "type": "FunctionDeclaration",
+              "start": 17,
+              "end": 43,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 17
+                },
+                "end": {
+                  "line": 1,
+                  "column": 43
+                }
+              },
+              "id": {
+                "type": "Identifier",
+                "start": 32,
+                "end": 37,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 32
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 37
+                  }
+                },
+                "name": "await"
+              },
+              "generator": false,
+              "expression": false,
+              "async": true,
+              "params": [],
+              "body": {
+                "type": "BlockStatement",
+                "start": 40,
+                "end": 43,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 40
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 43
+                  }
+                },
+                "body": []
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "sourceType": "script"
+  });
+});
+
+it('should parse await as identifier', () => {
         expect(parseScript('await', {
             ranges: true,
             raw: true,

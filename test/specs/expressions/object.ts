@@ -41,7 +41,7 @@ describe('Espressions - Object', () => {
             parseScript(`({
                 *method(yield) {}
               });`);
-        }).to.not.throw('');
+        }).to.throw('');
     });
 
     it('should fail on const param redeclaration', () => {
@@ -108,7 +108,7 @@ describe('Espressions - Object', () => {
             parseScript(`var obj = {
                 *g(yield) {}
               };`);
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on invalid comma', () => {
@@ -147,7 +147,7 @@ describe('Espressions - Object', () => {
     it('should fail on yield used as an parameter', () => {
         expect(() => {
             parseScript(`obj = { *g(yield) {} }`);
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on "a = { set foo(...v) {} };"', () => {

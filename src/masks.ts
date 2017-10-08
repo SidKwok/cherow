@@ -23,12 +23,14 @@ export const enum Context {
     HasConstructor        = 1 << 20,
     DisallowFor           = 1 << 21,
     ParentHasYield        = 1 << 22,
-    ArrowBody           = 1 << 23,   // If node was parsed in a arrow body context with concise body
+    ArrowBody             = 1 << 23,   // If node was parsed in a arrow body context with concise body
+    AsyncFunctionBody      = 1 << 24,
 
     /* Variable declaration */
-    Const                  = 1 << 24,
-    Let                    = 1 << 25,
-    Var                    = 1 << 26,
+    Const                  = 1 << 25,
+    Let                    = 1 << 26,
+    Var                    = 1 << 27,
+
 
      // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,

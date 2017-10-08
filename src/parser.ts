@@ -1847,7 +1847,7 @@ export class Parser {
 
             case Token.ForKeyword:
                 return this.parseForStatement(context);
-                case Token.ContinueKeyword:
+            case Token.ContinueKeyword:
                 return this.parseContinueStatement(context);
                 // DebuggerStatement
             case Token.DebuggerKeyword:
@@ -3181,7 +3181,7 @@ export class Parser {
         }
 
         if (this.parseOptional(context, Token.ExtendsKeyword)) {
-            
+
             superClass = this.parseLeftHandSideExpression(context | Context.Strict, pos);
             flags |= ObjectState.Heritage;
         }
@@ -3531,8 +3531,8 @@ export class Parser {
                             if (state & ObjectState.Computed ||
                                 //this.token !== Token.AsyncKeyword && hasMask(token, Token.Contextual) ||
                                 !this.isIdentifier(context, token)) this.error(Errors.UnexpectedToken, tokenDesc(token));
-                                // Invalid: `"use strict"; for ({ eval } of [{}]) ;`
-                               if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
+                            // Invalid: `"use strict"; for ({ eval } of [{}]) ;`
+                            if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
 
                             state |= ObjectState.Shorthand;
                             value = id;
@@ -3592,12 +3592,15 @@ export class Parser {
         if (context & (Context.Async | Context.Yield)) context &= ~(Context.Async | Context.Yield);
 
         if (this.token === Token.AsyncKeyword) {
-            // use 'expect' instead of 'parseOptional' here for perf reasons when it
-            // comes to Annex B.3.4. Avoid extra CPU cycle parsing out the 'async' keyword
-            // in case this is an invalid generator function.
+
             this.expect(context, Token.AsyncKeyword);
+
             if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
+
             context |= Context.Async;
+
+            // 'await' is forbidden only in async function bodies (but not in child functions) and module code.
+            if (!(this.flags & Flags.InFunctionBody)) context |= Context.AsyncFunctionBody;
         }
 
         this.expect(context, Token.FunctionKeyword);
@@ -3627,6 +3630,11 @@ export class Parser {
 
             if (context & Context.Strict && this.isEvalOrArguments(name)) this.error(Errors.UnexpectedStrictReserved);
             if (hasMask(this.token, Token.Reserved)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+
+            if (context & Context.AsyncFunctionBody) {
+                if (this.token === Token.AwaitKeyword) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                if (!(context & Context.Async)) context &= ~Context.AsyncFunctionBody;
+            }
 
             if (context & Context.Statement && !(context & Context.AnnexB)) {
                 if (!this.initBlockScope() && (
@@ -3674,7 +3682,7 @@ export class Parser {
         if (this.token === Token.AsyncKeyword) {
             this.expect(context, Token.AsyncKeyword);
             if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
-            context |= Context.Async;
+            context |= Context.Async | Context.AsyncFunctionBody;
         }
 
         this.expect(context, Token.FunctionKeyword);
@@ -4241,13 +4249,13 @@ export class Parser {
             case Token.Identifier:
                 if (context & Context.inParameter && context & Context.Strict) this.addFunctionArg(this.tokenValue);
                 return this.parseBindingIdentifier(context);
+            case Token.AwaitKeyword:
+                if (context & Context.Async) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                return this.parseBindingIdentifier(context);
             case Token.LetKeyword:
                 if (context & Context.Lexical) this.error(Errors.LetInLexicalBinding);
-                // falls through
             case Token.YieldKeyword:
-                if (context & Context.Yield && !(context & Context.Method)) {
-                    this.error(Errors.DisallowedInContext, tokenDesc(this.token));
-                }
+                if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
             default:
                 if (!this.isIdentifier(context, this.token)) this.error(Errors.Unexpected);
                 return this.parseBindingIdentifier(context);
@@ -4262,7 +4270,6 @@ export class Parser {
         const token = this.token;
 
         if (context & Context.Strict && this.isEvalOrArguments(name)) this.error(Errors.StrictLHSAssignment);
-        if (context & Context.Async && token === Token.AwaitKeyword) this.error(Errors.UnexpectedToken, tokenDesc(token));
         if (this.flags & Flags.HasUnicode && this.token === Token.YieldKeyword) this.error(Errors.InvalidEscapedReservedWord);
         if (this.token === Token.Identifier) this.addVarOrBlock(context, name);
 
