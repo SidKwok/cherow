@@ -67,7 +67,6 @@ describe('Espressions - Object', () => {
         expect(() => {
             parseScript(`0, {
                 method(x = 0, x) {
-                  
                 }
               };`);
             }).to.not.throw('');
@@ -160,12 +159,6 @@ describe('Espressions - Object', () => {
         expect(() => {
             parseScript(`({ __proto__: 1, __proto__: 2 })`);
         }).to.throw();
-    });
-
-    it('should fail on "await = 0"', () => {
-        expect(() => {
-            parseModule(`await = 0`);
-        }).to.not.throw();
     });
 
     it('should fail on "({*foo: 1})"', () => {

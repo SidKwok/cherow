@@ -1733,12 +1733,11 @@ export class Parser {
     }
 
     private isIdentifier(context: Context, t: Token): boolean {
-        if (context & Context.Module) {
-            if (hasMask(t, Token.FutureReserved)) this.error(Errors.UnexpectedStrictReserved);
-            return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual;
-        }
         if (context & Context.Strict) {
-            if (hasMask(t, Token.Reserved)) this.error(Errors.UnexpectedStrictReserved);
+            if (context & Context.Module) {
+                if (t === Token.AwaitKeyword) this.error(Errors.UnexpectedReservedWord);
+                if ((t & Token.FutureReserved) === Token.FutureReserved) this.error(Errors.UnexpectedStrictReserved);
+            }
             return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual;
         }
         return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual || (t & Token.FutureReserved) === Token.FutureReserved;
@@ -3830,10 +3829,6 @@ export class Parser {
                 }
             case Token.LetKeyword:
                 return this.parseLetIdentifier(context);
-            case Token.YieldKeyword:
-                if (!(context & Context.Strict && context & Context.Yield)) return this.parseIdentifier(context);
-            case Token.AwaitKeyword:
-                if (!(context & (Context.Module | Context.Async))) return this.parseIdentifier(context);
             default:
                 if (this.isIdentifier(context, this.token)) return this.parseIdentifier(context);
                 this.error(Errors.UnexpectedToken, tokenDesc(this.token));

@@ -68,11 +68,17 @@ describe('Expressions - Async', () => {
                 parseScript(`* ()`);
             }).to.throw();
         });
+
+        it('should fail on "await"', () => {
+          expect(() => {
+              parseModule(`await`);
+            }).to.throw();
+      });
     
         it('should fail on "await = 0"', () => {
             expect(() => {
                 parseModule(`await = 0`);
-              }).to.not.throw();
+              }).to.throw();
         });
     
         it('should fail on "({async foo() { return {await} }})"', () => {
