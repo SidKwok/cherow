@@ -957,51 +957,65 @@ describe('Binding - Object pattern', () => {
             raw: true,
             locations: true
         })).to.eql({
-            "type": "Program",
-            "start": 0,
-            "end": 18,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
-              },
-              "end": {
-                "line": 1,
-                "column": 18
-              }
+          "type": "Program",
+          "start": 0,
+          "end": 18,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
             },
-            "body": [
-              {
-                "type": "ForInStatement",
-                "start": 0,
-                "end": 18,
+            "end": {
+              "line": 1,
+              "column": 18
+            }
+          },
+          "body": [
+            {
+              "type": "ForInStatement",
+              "start": 0,
+              "end": 18,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 18
+                }
+              },
+              "left": {
+                "type": "VariableDeclaration",
+                "start": 5,
+                "end": 11,
                 "loc": {
                   "start": {
                     "line": 1,
-                    "column": 0
+                    "column": 5
                   },
                   "end": {
                     "line": 1,
-                    "column": 18
+                    "column": 11
                   }
                 },
-                "left": {
-                  "type": "VariableDeclaration",
-                  "start": 5,
-                  "end": 11,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 5
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 9,
+                    "end": 11,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 11
+                      }
                     },
-                    "end": {
-                      "line": 1,
-                      "column": 11
-                    }
-                  },
-                  "declarations": [
-                    {
-                      "type": "VariableDeclarator",
+                    "id": {
+                      "type": "ObjectPattern",
                       "start": 9,
                       "end": 11,
                       "loc": {
@@ -1014,63 +1028,49 @@ describe('Binding - Object pattern', () => {
                           "column": 11
                         }
                       },
-                      "id": {
-                        "type": "ObjectPattern",
-                        "start": 9,
-                        "end": 11,
-                        "loc": {
-                          "start": {
-                            "line": 1,
-                            "column": 9
-                          },
-                          "end": {
-                            "line": 1,
-                            "column": 11
-                          }
-                        },
-                        "properties": []
-                      },
-                      "init": null
-                    }
-                  ],
-                  "kind": "let"
-                },
-                "right": {
-                  "type": "Literal",
-                  "start": 15,
-                  "end": 16,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 15
+                      "properties": []
                     },
-                    "end": {
-                      "line": 1,
-                      "column": 16
-                    }
+                    "init": null
+                  }
+                ],
+                "kind": "let"
+              },
+              "right": {
+                "type": "Literal",
+                "start": 15,
+                "end": 16,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 15
                   },
-                  "value": 0,
-                  "raw": "0"
+                  "end": {
+                    "line": 1,
+                    "column": 16
+                  }
                 },
-                "body": {
-                  "type": "EmptyStatement",
-                  "start": 17,
-                  "end": 18,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 17
-                    },
-                    "end": {
-                      "line": 1,
-                      "column": 18
-                    }
+                "value": 0,
+                "raw": "0"
+              },
+              "body": {
+                "type": "EmptyStatement",
+                "start": 17,
+                "end": 18,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 17
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 18
                   }
                 }
               }
-            ],
-            "sourceType": "script"
-          });
+            }
+          ],
+          "sourceType": "script"
+        });
     });
 
     it('should parse empty pattern lexical', () => {

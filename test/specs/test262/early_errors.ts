@@ -23,7 +23,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "for(([0]) in 0);"', () => {
             expect(() => {
                 parseScript('for(([0]) in 0);');
-            }).to.not.throw('');
+            }).to.throw('');
         });
         it('should fail on "for(const {a, a} of 1);"', () => {
             expect(() => {
@@ -213,7 +213,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "for(([0]) of 0);"', () => {
             expect(() => {
                 parseScript('for(([0]) of 0);');
-            }).to.not.throw('');
+            }).to.throw('');
         });
         it('should fail on "let a, let;"', () => {
             expect(() => {
@@ -228,7 +228,7 @@ describe('Test262 - Early error', () => {
         it('should fail on "for([0] of 0);"', () => {
             expect(() => {
                 parseScript('for([0] of 0);');
-            }).to.not.throw('');
+            }).to.throw('');
         });
         it('should fail on "class a { set constructor(b) {} }"', () => {
             expect(() => {

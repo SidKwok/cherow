@@ -57,7 +57,24 @@ function hasMask(mask, flags) {
 }
 // Fully qualified element name, e.g. <svg:path> returns "svg:path"
 
-
+function isValidDestructuringAssignmentTarget(expr) {
+    switch (expr.type) {
+        case 'Identifier':
+        case 'ArrayExpression':
+        case 'ArrayPattern':
+        case 'ObjectExpression':
+        case 'ObjectPattern':
+        case 'MemberExpression':
+        case 'ClassExpression':
+        case 'CallExpression':
+        case 'TemplateLiteral':
+        case 'AssignmentExpression':
+        case 'NewExpression':
+            return true;
+        default:
+            return false;
+    }
+}
 function isValidSimpleAssignmentTarget(expr) {
     switch (expr.type) {
         case 'Identifier':
@@ -2282,15 +2299,14 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
     var kind = '';
     var body;
     var test = null;
-    var isAwait = false;
     var token = this.token;
+    var state = 0;
     // Asynchronous Iteration - Stage 3 proposal
     if (context & 32 /* Async */ && this.parseOptional(context, 4526190 /* AwaitKeyword */)) {
         // Throw " Unexpected token 'await'" if the option 'next' flag isn't set
         if (!(this.flags & 524288 /* OptionsNext */))
             { this.error(1 /* UnexpectedToken */, tokenDesc(token)); }
-        // state |= IterationState.Async;
-        isAwait = true;
+        state |= 8 /* Await */;
     }
     var savedFlag = this.flags;
     this.expect(context, 262155 /* LeftParen */);
@@ -2299,15 +2315,17 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
             var startPos = this.getLocations();
             kind = tokenDesc(this.token);
             if (this.parseOptional(context, 8663112 /* VarKeyword */)) {
-                // ignore
+                state |= 1 /* Var */;
+                declarations = this.parseVariableDeclarationList(context);
             }
             else if (this.parseOptional(context, 8671305 /* LetKeyword */)) {
-                context |= 134217728 /* Let */;
+                state |= 4 /* Let */;
+                declarations = this.parseVariableDeclarationList(context | 134217728 /* Let */);
             }
             else if (this.parseOptional(context, 8663114 /* ConstKeyword */)) {
-                context |= 67108864 /* Const */;
+                state |= 2 /* Const */;
+                declarations = this.parseVariableDeclarationList(context | 67108864 /* Const */);
             }
-            declarations = this.parseVariableDeclarationList(context);
             init = this.finishNode(startPos, {
                 type: 'VariableDeclaration',
                 declarations: declarations,
@@ -2315,7 +2333,7 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
             });
         }
         else {
-            init = this.parseExpression(context & ~16 /* AllowIn */, pos);
+            init = this.parseExpression(context & ~16 /* AllowIn */ | 2097152 /* DisallowFor */, pos);
         }
     }
     this.flags = savedFlag;
@@ -2323,39 +2341,45 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
         // 'of'
         case 69747 /* OfKeyword */:
             this.parseOptional(context, 69747 /* OfKeyword */);
-            /* if (state & IterationState.Variable) {
-                 // Only a single variable declaration is allowed in a for of statement
-                 if (declarations && declarations[0].init != null) this.error(Errors.InvalidVarInitForOf);
-             } else {
-                 this.reinterpretExpressionAsPattern(context | Context.ForStatement, init);
-                 if (!isValidDestructuringAssignmentTarget(init)) this.error(Errors.InvalidLHSInForLoop);
-             }*/
+            if (state & 7 /* Variable */) {
+                // Only a single variable declaration is allowed in a for of statement
+                if (declarations && declarations[0].init != null)
+                    { this.error(34 /* InvalidVarInitForOf */); }
+            }
+            else {
+                this.reinterpretAsPattern(context, init);
+                if (!isValidDestructuringAssignmentTarget(init))
+                    { this.error(35 /* InvalidLHSInForLoop */); }
+            }
             var right = this.parseAssignmentExpression(context | 16 /* AllowIn */);
             this.expect(context, 16 /* RightParen */);
             this.flags |= (32 /* Continue */ | 128 /* Break */);
-            body = this.parseStatement(context);
+            body = this.parseStatement(context | 2097152 /* DisallowFor */);
             this.flags = savedFlag;
             return this.finishNode(pos, {
                 type: 'ForOfStatement',
                 body: body,
                 left: init,
                 right: right,
-                await: isAwait
+                await: !!(state & 8 /* Await */)
             });
         // 'in'
         case 2111281 /* InKeyword */:
-            if (isAwait)
+            if (state & 8 /* Await */)
                 { this.error(56 /* ForAwaitNotOf */); }
             this.expect(context, 2111281 /* InKeyword */);
-            /*  if (!(state & IterationState.Variable)) {
-                  this.reinterpretExpressionAsPattern(context | Context.ForStatement, init);
-              } else if (declarations && declarations.length !== 1) {
-                  this.error(Errors.Unexpected);
-              }*/
+            if (state & 7 /* Variable */) {
+                if (declarations && declarations.length !== 1) {
+                    this.error(0 /* Unexpected */);
+                }
+            }
+            else {
+                this.reinterpretAsPattern(context, init);
+            }
             test = this.parseExpression(context | 16 /* AllowIn */, pos);
             this.expect(context, 16 /* RightParen */);
             this.flags |= (32 /* Continue */ | 128 /* Break */);
-            body = this.parseStatement(context);
+            body = this.parseStatement(context | 2097152 /* DisallowFor */);
             this.flags = savedFlag;
             return this.finishNode(pos, {
                 type: 'ForInStatement',
@@ -2364,12 +2388,9 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
                 right: test
             });
         default:
-            if (isAwait)
+            if (state & 8 /* Await */)
                 { this.error(56 /* ForAwaitNotOf */); }
             var update = null;
-            // Invalid: `for (var a = ++effects in {});`
-            // Invalid: `for (var a = (++effects, -1) in stored = a, {a: 0, b: 1, c: 2}) {  ++iterations;  }`
-            //if (this.token === Token.RightParen) this.error(Errors.InvalidVarDeclInForIn);
             this.expect(context, 17 /* Semicolon */);
             if (this.token !== 17 /* Semicolon */ && this.token !== 16 /* RightParen */) {
                 test = this.parseExpression(context | 16 /* AllowIn */, pos);
@@ -2379,7 +2400,7 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
                 { update = this.parseExpression(context | 16 /* AllowIn */, pos); }
             this.expect(context, 16 /* RightParen */);
             this.flags |= (32 /* Continue */ | 128 /* Break */);
-            body = this.parseStatement(context);
+            body = this.parseStatement(context | 2097152 /* DisallowFor */);
             this.flags = savedFlag;
             return this.finishNode(pos, {
                 type: 'ForStatement',
@@ -3689,10 +3710,10 @@ Parser.prototype.parseArrowExpression = function parseArrowExpression (context, 
     var expression = false;
     var body;
     if (this.token === 393228 /* LeftBrace */) {
-        body = this.parseFunctionBody(context | 8388608 /* ArrowBody */);
+        body = this.parseFunctionBody(context | (8388608 /* ArrowBody */ | 16 /* AllowIn */));
     }
     else {
-        body = this.parseAssignmentExpression(context);
+        body = this.parseAssignmentExpression(context | 16 /* AllowIn */);
         expression = true;
     }
     this.exitFunctionScope(savedScope);
@@ -3724,6 +3745,9 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
 
     var pos = this.getLocations();
     this.expect(context, 262155 /* LeftParen */);
+    if (context & 2097152 /* DisallowFor */ && hasMask(this.token, 131072 /* BindingPattern */)) {
+        this.error(35 /* InvalidLHSInForLoop */);
+    }
     if (this.parseOptional(context, 16 /* RightParen */)) {
         if (this.token === 10 /* Arrow */)
             { return this.parseArrowExpression(context, pos, []); }

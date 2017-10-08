@@ -6505,7 +6505,7 @@ describe('Next - For await of', () => {
                                     }
                                 },
                                 "left": {
-                                    "type": "ObjectExpression",
+                                    "type": "ObjectPattern",
                                     "properties": [
                                         {
                                             "type": "Property",

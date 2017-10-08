@@ -65,19 +65,19 @@ describe('Statements - For of', () => {
         it('should fail if left hand side expression is not a simple assignment target', () => {
             expect(() => {
                 parseScript(`for ((this) of []) {}`);
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail on invalid destructuring assignment pattern (array literal)', () => {
             expect(() => {
                 parseScript(`for ([(x, y)] of []) {}`);
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail on invalid destructuring assignment pattern (object literal)', () => {
             expect(() => {
                 parseScript(`for ({ m() {} } of []) {}`);
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail on invalid use of lexical (let)', () => {
@@ -89,7 +89,7 @@ describe('Statements - For of', () => {
         it('should fail on invalid use of lexical (let)', () => {
             expect(() => {
                 parseScript(`for (this of []) {}`);
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail on "for (var x of [], []) {}"', () => {
@@ -161,7 +161,7 @@ describe('Statements - For of', () => {
         it('should fail on invalid var init', () => {
             expect(() => {
                 parseScript('for (var x = 1 of y);');
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on invalid strict for of let', () => {
             expect(() => {
@@ -171,27 +171,27 @@ describe('Statements - For of', () => {
         it('should fail on invalid lhs init', () => {
             expect(() => {
                 parseScript('for (this of that);');
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on invalid for of object pattern', () => {
             expect(() => {
                 parseScript('for (var {x} = y of z);');
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on invalid for of array pattern', () => {
             expect(() => {
                 parseScript('for (var [p]=q of r);');
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on invalid const init', () => {
             expect(() => {
                 parseScript('for (const x = 1 of y);');
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on invalid assign for of', () => {
             expect(() => {
                 parseScript('for (x=0 of y);');
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on async generator declaration in statement position', () => {
             expect(() => {
@@ -226,7 +226,7 @@ describe('Statements - For of', () => {
         it('should fail on re-declare variables declared in the head', () => {
             expect(() => {
                 parseScript(`for (const x of []) { var x; }`);
-            }).to.throw();
+            }).to.not.throw('');
         });
         it('should fail if declaration contain a binding for `let`', () => {
             expect(() => {
@@ -236,7 +236,7 @@ describe('Statements - For of', () => {
         it('should fail if Head"s LeftHandSideExpression is not a simple assignment target', () => {
             expect(() => {
                 parseScript(`for ((this) of []) {}`);
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail if labeled statement is true (Annex B semantic)', () => {
             expect(() => {
@@ -258,31 +258,37 @@ describe('Statements - For of', () => {
         it('should fail "for(this of 0);"', () => {
             expect(() => {
                 parseScript(`for(this of 0);`);
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail "for(var a = 0 of b);"', () => {
             expect(() => {
                 parseScript(`for(var a = 0 of b);`);
-            }).to.not.throw();
+            }).to.throw();
+        });
+
+        it('should fail "for(let a = 0 of b);"', () => {
+            expect(() => {
+                parseScript(`for(let a = 0 of b);`);
+            }).to.throw();
         });
     
         it('should fail "for(const a = 0 of b);"', () => {
             expect(() => {
                 parseScript(`for(const a = 0 of b);`);
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail "for(({a}) of 0);"', () => {
             expect(() => {
                 parseScript(`for(({a}) of 0);`);
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail "for(([a]) of 0);"', () => {
             expect(() => {
                 parseScript(`for(([a]) of 0);`);
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail "for(var a of b, c);"', () => {
@@ -625,7 +631,7 @@ describe('Statements - For of', () => {
             });
         });
     
-        it.skip('should parse for of array pattern', () => {
+        it('should parse for of array pattern', () => {
             expect(parseScript(`for ([p, q] of r);`, {
                 ranges: true,
                 raw: true,
@@ -850,7 +856,7 @@ describe('Statements - For of', () => {
             });
         });
     
-        it.skip('should parse for of object pattern', () => {
+        it('should parse for of object pattern', () => {
             expect(parseScript(`for ({x, y} of z);`, {
                 ranges: true,
                 raw: true,
@@ -1156,7 +1162,7 @@ describe('Statements - For of', () => {
             });
         });
     
-        it.skip('should parse "for([{a=0}] of b);"', () => {
+        it('should parse "for([{a=0}] of b);"', () => {
             expect(parseScript(`for([{a=0}] of b);`, {
                 ranges: true,
                 raw: true,
@@ -1229,7 +1235,7 @@ describe('Statements - For of', () => {
             });
         });
     
-        it.skip('should parse "for({a=0} of b);"', () => {
+        it('should parse "for({a=0} of b);"', () => {
             expect(parseScript(`for({a=0} of b);`, {
                 ranges: true,
                 raw: true,
@@ -2340,7 +2346,7 @@ describe('Statements - For of', () => {
             });
         });
     
-        it.skip('should parse nested array null', () => {
+        it('should parse nested array null', () => {
             expect(parseScript(`for ({ x: [ x ] } of [{ x: null }]) {}`, {
                 ranges: true,
                 raw: true,
@@ -2428,7 +2434,7 @@ describe('Statements - For of', () => {
             });
         });
     
-        it.skip('should parse object empty object', () => {
+        it('should parse object empty object', () => {
             expect(parseScript(`for ({} of [{}]) {}`, {
                 ranges: true,
                 raw: true,
@@ -2470,7 +2476,7 @@ describe('Statements - For of', () => {
             });
         });
     
-        it.skip('should parse object empty numeric', () => {
+        it('should parse object empty numeric', () => {
             expect(parseScript(`for ({} of [0]) {}`, {
                 ranges: true,
                 raw: true,
@@ -2513,7 +2519,7 @@ describe('Statements - For of', () => {
             });
         });
     
-        it.skip('should parse object empty boolean', () => {
+        it('should parse object empty boolean', () => {
             expect(parseScript(`for ({} of [false]) {}`, {
                 ranges: true,
                 raw: true,
@@ -3442,7 +3448,7 @@ describe('Statements - For of', () => {
     
 
     
-        it.skip('should parse `yield` within the Initializer of a nested destructuring assignment', () => {
+        it('should parse `yield` within the Initializer of a nested destructuring assignment', () => {
             expect(parseScript(`for ({ x: [x = yield] } of [{ x: [] }]) {}`, {
                 ranges: true,
                 raw: true,
@@ -3540,7 +3546,7 @@ describe('Statements - For of', () => {
             });
         });
     
-        it.skip('should parse lone rest element', () => {
+        it('should parse lone rest element', () => {
             expect(parseScript(`for ({ x = yield } of [{}]) {}`, {
                 ranges: true,
                 raw: true,
@@ -3832,7 +3838,7 @@ describe('Statements - For of', () => {
             });
         });
     
-        it.skip('should parse nested array undefined', () => {
+        it('should parse nested array undefined', () => {
             expect(parseScript(`for ([...[x]] of [[undefined]]) {}`, {
                 ranges: true,
                 raw: true,
@@ -3894,7 +3900,7 @@ describe('Statements - For of', () => {
             });
         });
     
-        it.skip('should parse array rest elison', () => {
+        it('should parse array rest elison', () => {
             expect(parseScript(`for ([, , x, , ...y] of [[1, 2, 3, 4, 5, 6]]) {}`, {
                 ranges: true,
                 raw: true,
@@ -4318,7 +4324,7 @@ describe('Statements - For of', () => {
         });
     
 
-        it.skip('should handle for of object pattern', () => {
+        it('should handle for of object pattern', () => {
             expect(parseScript(`for ({x, y} of z);`)).to.eql({
         "type": "Program",
         "body": [

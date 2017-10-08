@@ -3531,69 +3531,6 @@ describe('Statements - For', () => {
         });
     });
 
-    it.skip('should parse "for (() => { this in null };;);"', () => {
-        expect(parseScript(`for (() => { this in null };;);`, {
-            ranges: true,
-            raw: true,
-            next: true
-        })).to.eql({
-            "type": "Program",
-            "start": 0,
-            "end": 31,
-            "body": [{
-                "type": "ForStatement",
-                "start": 0,
-                "end": 31,
-                "init": {
-                    "type": "ArrowFunctionExpression",
-                    "start": 5,
-                    "end": 27,
-                    "id": null,
-                    "generator": false,
-                    "expression": false,
-                    "async": false,
-                    "params": [],
-                    "body": {
-                        "type": "BlockStatement",
-                        "start": 11,
-                        "end": 27,
-                        "body": [{
-                            "type": "ExpressionStatement",
-                            "start": 13,
-                            "end": 25,
-                            "expression": {
-                                "type": "BinaryExpression",
-                                "start": 13,
-                                "end": 25,
-                                "left": {
-                                    "type": "ThisExpression",
-                                    "start": 13,
-                                    "end": 17
-                                },
-                                "operator": "in",
-                                "right": {
-                                    "type": "Literal",
-                                    "start": 21,
-                                    "end": 25,
-                                    "value": null,
-                                    "raw": "null"
-                                }
-                            }
-                        }]
-                    }
-                },
-                "test": null,
-                "update": null,
-                "body": {
-                    "type": "EmptyStatement",
-                    "start": 30,
-                    "end": 31
-                }
-            }],
-            "sourceType": "script"
-        });
-    });
-
     it('should parse singleNameBinding does assign name to "anonymous" functions "through" cover grammar ', () => {
         expect(parseScript(`for (var [cover = (function () {}), xCover = (0, function() {})] = []; iterCount < 1; ) {}`, {
             ranges: true,

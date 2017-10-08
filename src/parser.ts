@@ -7,6 +7,16 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, CollectComments, ErrorLocation, Location } from './interface';
 
+export const enum IterationState {
+    None = 0,
+        Var = 1 << 0,
+        Const = 1 << 1,
+        Let = 1 << 2,
+        Await = 1 << 3,
+        Lexical = Const | Let,
+        Variable = Var | Const | Let,
+}
+
 export class Parser {
     private readonly source: string;
     private index: number;
@@ -2225,15 +2235,15 @@ export class Parser {
         let kind = '';
         let body;
         let test = null;
-        let isAwait = false;
         const token = this.token;
+        let tiss = false;
+        let state = IterationState.None;
 
         // Asynchronous Iteration - Stage 3 proposal
         if (context & Context.Async && this.parseOptional(context, Token.AwaitKeyword)) {
             // Throw " Unexpected token 'await'" if the option 'next' flag isn't set
             if (!(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(token));
-            // state |= IterationState.Async;
-            isAwait = true;
+            state |= IterationState.Await;
         }
 
         const savedFlag = this.flags;
@@ -2247,21 +2257,24 @@ export class Parser {
                 kind = tokenDesc(this.token);
 
                 if (this.parseOptional(context, Token.VarKeyword)) {
-                    // ignore
+                    state |= IterationState.Var;
+                    declarations = this.parseVariableDeclarationList(context);
                 } else if (this.parseOptional(context, Token.LetKeyword)) {
-                    context |= Context.Let;
+                    state |= IterationState.Let;
+                    declarations = this.parseVariableDeclarationList(context | Context.Let);
                 } else if (this.parseOptional(context, Token.ConstKeyword)) {
-                    context |= Context.Const;
-                }
-                declarations = this.parseVariableDeclarationList(context);
+                    state |= IterationState.Const;
+                    declarations = this.parseVariableDeclarationList(context | Context.Const);
 
+                }
+                tiss = true;
                 init = this.finishNode(startPos, {
                     type: 'VariableDeclaration',
                     declarations,
                     kind
                 });
             } else {
-                init = this.parseExpression(context & ~Context.AllowIn, pos);
+                init = this.parseExpression(context & ~Context.AllowIn | Context.DisallowFor, pos);
             }
         }
 
@@ -2272,13 +2285,13 @@ export class Parser {
             // 'of'
             case Token.OfKeyword:
                 this.parseOptional(context, Token.OfKeyword);
-                /* if (state & IterationState.Variable) {
-                     // Only a single variable declaration is allowed in a for of statement
-                     if (declarations && declarations[0].init != null) this.error(Errors.InvalidVarInitForOf);
-                 } else {
-                     this.reinterpretExpressionAsPattern(context | Context.ForStatement, init);
-                     if (!isValidDestructuringAssignmentTarget(init)) this.error(Errors.InvalidLHSInForLoop);
-                 }*/
+                if (state & IterationState.Variable) {
+                    // Only a single variable declaration is allowed in a for of statement
+                    if (declarations && declarations[0].init != null) this.error(Errors.InvalidVarInitForOf);
+                } else {
+                    this.reinterpretAsPattern(context, init);
+                    if (!isValidDestructuringAssignmentTarget(init)) this.error(Errors.InvalidLHSInForLoop);
+                }
 
                 const right = this.parseAssignmentExpression(context | Context.AllowIn);
 
@@ -2286,7 +2299,7 @@ export class Parser {
 
                 this.flags |= (Flags.Continue | Flags.Break);
 
-                body = this.parseStatement(context);
+                body = this.parseStatement(context | Context.DisallowFor);
 
                 this.flags = savedFlag;
 
@@ -2295,21 +2308,23 @@ export class Parser {
                     body,
                     left: init,
                     right,
-                    await: isAwait
+                    await: !!(state & IterationState.Await)
                 });
 
                 // 'in'
             case Token.InKeyword:
 
-                if (isAwait) this.error(Errors.ForAwaitNotOf);
+                if (state & IterationState.Await) this.error(Errors.ForAwaitNotOf);
 
                 this.expect(context, Token.InKeyword);
 
-                /*  if (!(state & IterationState.Variable)) {
-                      this.reinterpretExpressionAsPattern(context | Context.ForStatement, init);
-                  } else if (declarations && declarations.length !== 1) {
-                      this.error(Errors.Unexpected);
-                  }*/
+                if (state & IterationState.Variable) {
+                    if (declarations && declarations.length !== 1) {
+                        this.error(Errors.Unexpected);
+                    }
+                } else {
+                    this.reinterpretAsPattern(context, init);
+                }
 
                 test = this.parseExpression(context | Context.AllowIn, pos);
 
@@ -2317,7 +2332,7 @@ export class Parser {
 
                 this.flags |= (Flags.Continue | Flags.Break);
 
-                body = this.parseStatement(context);
+                body = this.parseStatement(context | Context.DisallowFor);
 
                 this.flags = savedFlag;
 
@@ -2330,13 +2345,9 @@ export class Parser {
 
             default:
 
-                if (isAwait) this.error(Errors.ForAwaitNotOf);
+                if (state & IterationState.Await) this.error(Errors.ForAwaitNotOf);
 
                 let update = null;
-
-                // Invalid: `for (var a = ++effects in {});`
-                // Invalid: `for (var a = (++effects, -1) in stored = a, {a: 0, b: 1, c: 2}) {  ++iterations;  }`
-                //    if (this.token === Token.RightParen) this.error(Errors.InvalidVarDeclInForIn);
 
                 this.expect(context, Token.Semicolon);
 
@@ -2352,7 +2363,7 @@ export class Parser {
 
                 this.flags |= (Flags.Continue | Flags.Break);
 
-                body = this.parseStatement(context);
+                body = this.parseStatement(context | Context.DisallowFor);
 
                 this.flags = savedFlag;
 
@@ -2587,7 +2598,7 @@ export class Parser {
     private parseYieldExpression(context: Context, pos: Location): ESTree.YieldExpression {
 
         this.expect(context, Token.YieldKeyword);
-        
+
         if (context & Context.InParenthesis) this.flags |= Flags.HasYield;
 
         let argument: ESTree.Expression | null = null;
@@ -2632,7 +2643,7 @@ export class Parser {
             }
 
             this.nextToken(context);
-            
+
             const right = this.parseAssignmentExpression(context);
 
             return this.finishNode(pos, {
@@ -3867,9 +3878,9 @@ export class Parser {
         let body: ESTree.Expression | ESTree.BlockStatement;
 
         if (this.token === Token.LeftBrace) {
-            body = this.parseFunctionBody(context | Context.ArrowBody);
+            body = this.parseFunctionBody(context | (Context.ArrowBody | Context.AllowIn));
         } else {
-            body = this.parseAssignmentExpression(context);
+            body = this.parseAssignmentExpression(context | Context.AllowIn);
             expression = true;
         }
 
@@ -3903,11 +3914,15 @@ export class Parser {
         const pos = this.getLocations();
         this.expect(context, Token.LeftParen);
 
+        if (context & Context.DisallowFor && hasMask(this.token, Token.BindingPattern)) {
+            this.error(Errors.InvalidLHSInForLoop);
+        }
+
         if (this.parseOptional(context, Token.RightParen)) {
             if (this.token === Token.Arrow) return this.parseArrowExpression(context, pos, []);
             this.error(Errors.MissingArrowAfterParentheses);
         }
-        
+
         let expr: ESTree.Expression;
 
         if (this.token === Token.Ellipsis) {
@@ -3916,7 +3931,7 @@ export class Parser {
             return this.parseArrowExpression(context, pos, [expr]);
         }
         const sequencePos = this.getLocations();
-                
+
         expr = this.parseAssignmentExpression(context | Context.AllowCall);
 
         if (this.token === Token.Comma) {
@@ -4270,13 +4285,12 @@ export class Parser {
 
         const name = this.tokenValue;
         const token = this.token;
-//if (context & Context.inParameter && this.)
 
-            if (this.isEvalOrArguments(name)) {
-              if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
-              if (context & Context.inParameter) this.flags |= Flags.FirstRestricted;
-            }
-            
+        if (this.isEvalOrArguments(name)) {
+            if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
+            if (context & Context.inParameter) this.flags |= Flags.FirstRestricted;
+        }
+
         if (this.flags & Flags.HasUnicode && this.token === Token.YieldKeyword) this.error(Errors.InvalidEscapedReservedWord);
         if (this.token === Token.Identifier) this.addVarOrBlock(context, name);
 
