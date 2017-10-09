@@ -22,7 +22,7 @@ export const enum Token {
     EndOfSource = 0, // Pseudo
 
     /* Constants/Bindings */
-    Identifier        = 1 | ExpressionStart,
+    Identifier        = 1 | ExpressionStart | BindingPattern,
     NumericLiteral    = 2 | ExpressionStart,
     StringLiteral     = 3 | ExpressionStart,
     RegularExpression = 4 | ExpressionStart,
@@ -102,61 +102,60 @@ export const enum Token {
     BitwiseAnd         = 68 | BinaryOperator  | 5 << PrecStart, // &
     BitwiseOr          = 69 | BinaryOperator  | 3 << PrecStart, // |
     BitwiseXor         = 70 | BinaryOperator  | 4 << PrecStart, // ^
-    Pipeline           = 71 | BinaryOperator  | 2 << PrecStart, // |>
 
     /* Variable declaration kinds */
-    VarKeyword   = 72 | VarDeclStart | Reserved,
-    LetKeyword   = 73 | VarDeclStart | FutureReserved,
-    ConstKeyword = 74 | VarDeclStart | Reserved,
+    VarKeyword   = 71 | VarDeclStart | Reserved,
+    LetKeyword   = 72 | VarDeclStart | FutureReserved,
+    ConstKeyword = 73 | VarDeclStart | Reserved,
 
     /* Other reserved words */
-    BreakKeyword    = 75 | Reserved,
-    CaseKeyword     = 76 | Reserved,
-    CatchKeyword    = 77 | Reserved,
-    ClassKeyword    = 78 | Reserved | ExpressionStart,
-    ContinueKeyword = 79 | Reserved,
-    DebuggerKeyword = 80 | Reserved,
-    DefaultKeyword  = 81 | Reserved,
-    DoKeyword       = 82 | Reserved,
-    ElseKeyword     = 83 | Reserved,
-    ExportKeyword   = 84 | Reserved,
-    ExtendsKeyword  = 85 | Reserved,
-    FinallyKeyword  = 86 | Reserved,
-    ForKeyword      = 87 | Reserved,
-    FunctionKeyword = 88 | Reserved | ExpressionStart,
-    IfKeyword       = 89 | Reserved,
-    ImportKeyword   = 90 | Reserved | ExpressionStart,
-    NewKeyword      = 91 | Reserved | ExpressionStart,
-    ReturnKeyword   = 92 | Reserved,
-    SuperKeyword    = 93 | Reserved | ExpressionStart,
-    SwitchKeyword   = 94 | Reserved | ExpressionStart,
-    ThisKeyword     = 95 | Reserved | ExpressionStart,
-    ThrowKeyword    = 96 | Reserved,
-    TryKeyword      = 97 | Reserved,
-    WhileKeyword    = 98 | Reserved,
-    WithKeyword     = 99 | Reserved,
+    BreakKeyword    = 74 | Reserved,
+    CaseKeyword     = 75 | Reserved,
+    CatchKeyword    = 76 | Reserved,
+    ClassKeyword    = 77 | Reserved | ExpressionStart,
+    ContinueKeyword = 78 | Reserved,
+    DebuggerKeyword = 79 | Reserved,
+    DefaultKeyword  = 80 | Reserved,
+    DoKeyword       = 81 | Reserved,
+    ElseKeyword     = 82 | Reserved,
+    ExportKeyword   = 83 | Reserved,
+    ExtendsKeyword  = 84 | Reserved,
+    FinallyKeyword  = 85 | Reserved,
+    ForKeyword      = 86 | Reserved,
+    FunctionKeyword = 87 | Reserved | ExpressionStart,
+    IfKeyword       = 88 | Reserved,
+    ImportKeyword   = 89 | Reserved | ExpressionStart,
+    NewKeyword      = 90 | Reserved | ExpressionStart,
+    ReturnKeyword   = 91 | Reserved,
+    SuperKeyword    = 92 | Reserved | ExpressionStart,
+    SwitchKeyword   = 93 | Reserved | ExpressionStart,
+    ThisKeyword     = 94 | Reserved | ExpressionStart,
+    ThrowKeyword    = 95 | Reserved,
+    TryKeyword      = 96 | Reserved,
+    WhileKeyword    = 97 | Reserved,
+    WithKeyword     = 98 | Reserved,
 
     /* Strict mode reserved words */
-    ImplementsKeyword = 100 | FutureReserved,
-    InterfaceKeyword  = 101 | FutureReserved,
-    PackageKeyword    = 102 | FutureReserved,
-    PrivateKeyword    = 103 | FutureReserved,
-    ProtectedKeyword  = 104 | FutureReserved,
-    PublicKeyword     = 105 | FutureReserved,
-    StaticKeyword     = 106 | FutureReserved,
-    YieldKeyword      = 107 | FutureReserved | ExpressionStart,
+    ImplementsKeyword = 99 | FutureReserved,
+    InterfaceKeyword  = 100 | FutureReserved,
+    PackageKeyword    = 101 | FutureReserved,
+    PrivateKeyword    = 102 | FutureReserved,
+    ProtectedKeyword  = 103 | FutureReserved,
+    PublicKeyword     = 104 | FutureReserved,
+    StaticKeyword     = 105 | FutureReserved,
+    YieldKeyword      = 106 | FutureReserved | ExpressionStart,
 
     /* Contextual keywords */
-    AsKeyword          = 108 | Contextual,
-    AsyncKeyword       = 100 | Contextual,
-    AwaitKeyword       = 110 | UnaryOperator | Contextual | ExpressionStart,
-    ConstructorKeyword = 111 | Contextual,
-    GetKeyword         = 112 | Contextual,
-    SetKeyword         = 113 | Contextual,
-    FromKeyword        = 114 | Contextual,
-    OfKeyword          = 115 | Contextual,
+    AsKeyword          = 107 | Contextual,
+    AsyncKeyword       = 108 | Contextual,
+    AwaitKeyword       = 109 | Contextual | ExpressionStart,
+    ConstructorKeyword = 110 | Contextual,
+    GetKeyword         = 111 | Contextual,
+    SetKeyword         = 112 | Contextual,
+    FromKeyword        = 113 | Contextual,
+    OfKeyword          = 114 | Contextual,
 
-    EnumKeyword        = 116 | Reserved
+    EnumKeyword        = 115 | Reserved
 }
 
 const KeywordDescTable = [
@@ -181,7 +180,7 @@ const KeywordDescTable = [
 
     /* Unary/binary operators */
     'typeof', 'delete', 'void', '!', '~', '+', '-', 'in', 'instanceof', '*', '%', '/', '**', '&&',
-    '||', '===', '!==', '==', '!=', '<=', '>=', '<', '>', '<<', '>>', '>>>', '&', '|', '^', '|>',
+    '||', '===', '!==', '==', '!=', '<=', '>=', '<', '>', '<<', '>>', '>>>', '&', '|', '^',
 
     /* Variable declaration kinds */
     'var', 'let', 'const',

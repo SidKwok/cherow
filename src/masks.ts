@@ -2,72 +2,46 @@ export const enum Context {
     None                   = 0,
     Module                 = 1 << 0,
     Strict                 = 1 << 1,
-    Assignment             = 1 << 2,
-    Pattern                = 1 << 3,
-    AllowIn                = 1 << 4,
-    Async                  = 1 << 5,
-    Yield                  = 1 << 6,
-    AllowCall              = 1 << 7,
-    NonSimpleParameter     = 1 << 8,
-    OptionalIdentifier    = 1 << 9,
-    NewExpression         = 1 << 10,
-    AnnexB                = 1 << 11,
-    Statement             = 1 << 12,
-    Method                = 1 << 13,
-    Constructor           = 1 << 14,
-    Import                = 1 << 15,
-    Export                = 1 << 16,
-    inParameter           = 1 << 17,
-    ArrowParameterList    = 1 << 18,
-    IfClause              = 1 << 19,
-    HasConstructor        = 1 << 20,
-    DisallowFor           = 1 << 21,
-    ParentHasYield        = 1 << 22,
-    ArrowBody             = 1 << 23,   // If node was parsed in a arrow body context with concise body
-    AsyncFunctionBody      = 1 << 24,
-    InParenthesis          = 1 << 25,
+    AllowIn                = 1 << 2,
+    SimpleArrow            = 1 << 3,
+    Yield                  = 1 << 4,
+    Await                  = 1 << 5,
+    AllowCall              = 1 << 6,
+    InParenthesis          = 1 << 7,
+    inParameter            = 1 << 8,
+    ArrowParameterList     = 1 << 9,
 
-    /* Variable declaration */
-    Const                  = 1 << 26,
-    Let                    = 1 << 27,
-    Var                    = 1 << 28,
+    Let                    = 1 << 10,
+    Const                  = 1 << 11,
 
-
-     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
-
-    YieldInParam = inParameter | Yield
 }
 
 export const enum Flags {
     None                         = 0,
     LineTerminator               = 1 << 0,
     HasUnicode                   = 1 << 1,
-    HasNonSimpleParameter        = 1 << 2,
-    HasPrototype                 = 1 << 3,
-    InFunctionBody               = 1 << 4,
-    Continue                     = 1 << 5,
-    Switch                       = 1 << 6,
-    Break                        = 1 << 7,
-    FirstRestricted              = 1 << 8,
-    HasYield                     = 1 << 9,
+    AllowAwait                   = 1 << 2,
+    AllowYield                   = 1 << 3,
+    DisallowCall                 = 1 << 4,
 
     /* Numeric */
-    Noctal                       = 1 << 10, // e.g. `0777`
-    BigInt                       = 1 << 11, // e.g. `100n`
-    Float                        = 1 << 12, // e.g. `09.01`
-    Exponent                     = 1 << 13, // e.g. `10e2`
+    Noctal                       = 1 << 5, // e.g. `0777`
+    BigInt                       = 1 << 6, // e.g. `100n`
+    Float                        = 1 << 7, // e.g. `09.01`
+    Exponent                     = 1 << 8, // e.g. `10e2`
 
     /* Options */
-    OptionsRanges                = 1 << 14,
-    OptionsLoc                   = 1 << 15,
-    OptionsSource                = 1 << 16,
-    OptionsJSX                   = 1 << 17,
-    OptionsRaw                   = 1 << 18,
-    OptionsNext                  = 1 << 19,
-    OptionsOnComment             = 1 << 20,
-    OptionsOnToken               = 1 << 21,
-    OptionsV8                    = 1 << 22,
+    OptionsRanges                = 1 << 9,
+    OptionsLoc                   = 1 << 10,
+    OptionsSource                = 1 << 11,
+    OptionsJSX                   = 1 << 12,
+    OptionsRaw                   = 1 << 13,
+    OptionsNext                  = 1 << 14,
+    OptionsOnComment             = 1 << 15,
+    OptionsOnToken               = 1 << 16,
+    OptionsV8                    = 1 << 17,
+    InFunctionBody               = 1 << 18,
 
     // BigInt implementation can't handle either float or exponent acc. TC-39
     FloatOrExponent = Float | Exponent
