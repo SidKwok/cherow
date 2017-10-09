@@ -4,33 +4,33 @@ import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('Expressions - Arrow function', () => {
-    
+
         it('should fail on invalid parenless parameter', () => {
             expect(() => {
                 parseScript(`foo = x
             => {};`);
             }).to.throw()
         });
-    
+
         it('should fail on ASI restricton invalid', () => {
             expect(() => {
                 parseScript(`foo = ()
             => {};`);
             }).to.throw()
         });
-    
+
         it('should fail if arrow parameter contains duplicates', () => {
             expect(() => {
                 parseScript(`af = (x, x) => 1;`);
             }).to.throw()
         });
-    
+
         it('should fail if arrow parameter cover contains duplicates (array)', () => {
             expect(() => {
                 parseScript(`af = ([x, x]) => 1;`);
             }).to.throw()
         });
-    
+
         it('should fail if arrow parameter binding identifier contain future reserved word - enum', () => {
             expect(() => {
                 parseScript(`foo = enum => 1;`);
@@ -4135,6 +4135,7 @@ describe('Expressions - Arrow function', () => {
                 "sourceType": "script"
             });
         });
+
         it('should parse arrow function with comma', () => {
             expect(parseScript(`async 
             ()`, {

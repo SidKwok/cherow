@@ -10,7 +10,8 @@ import { Options, SavedState, CollectComments, ErrorLocation, Location } from '.
 export const enum ParenthesizedState {
     None = 0,
         EvalOrArg = 1 << 0,
-        Yield = 1 << 1
+        Yield = 1 << 1,
+        Await = 1 << 2
 }
 
 export class Parser {
@@ -1647,6 +1648,7 @@ export class Parser {
             statements.push(item);
             if (!isDirective(item)) break;
             if (item.expression.value === 'use strict') {
+                if (context & Context.SimpleParameterList) this.error(Errors.Unexpected);
                 context |= Context.Strict;
                 break;
             }
@@ -1922,7 +1924,15 @@ export class Parser {
     private reinterpretAsPattern(context: Context, params: any) {
         switch (params.type) {
             case 'Identifier':
-                if (context & Context.ArrowParameterList) this.addFunctionArg(params.name);
+                if (context & Context.ArrowParameterList) {
+                    if (context & Context.Await) {
+                        // Duplicate param validation are only done in "struct mode" for
+                        // async arrow functions
+                        if (context & Context.Strict) this.addFunctionArg(params.name);
+                    } else {
+                        this.addFunctionArg(params.name);
+                    }
+                }
                 return;
 
             case 'ObjectExpression':
@@ -2234,21 +2244,67 @@ export class Parser {
                 // CoverCallExpressionAndAsyncArrowHead[Yield, Await]:
             case Token.LeftParen:
                 // This could be either a CallExpression or the head of an async arrow function
-                const args = this.parseArguments(context, pos);
-                if (this.token === Token.Arrow) {
-                    // Invalid: 'async[LineTerminator here] () => {}'
-                    if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterThrow);
-                    return this.parseArrowFunction(context | Context.Await, pos, args);
-                }
-                return this.finishNode(pos, {
-                    type: 'CallExpression',
-                    callee: id,
-                    arguments: args
-                });
+                return this.parseAsyncArguments(context | Context.SimpleParameterList, pos, id, this.flags);
             default:
                 // Async as Identifier
                 return id;
         }
+    }
+
+    private parseAsyncArguments(context: Context, pos: Location, id: ESTree.Identifier, flags: Flags): any {
+        // Modified ArgumentList production to deal with async stuff. This so we can
+        // spead up the "normal" CallExpression production. This also deal with the
+        // CoverCallExpressionAndAsyncArrowHead production directly
+        // J.K. Thomas
+
+        this.expect(context, Token.LeftParen);
+
+        const args: any[] = [];
+        let state = ParenthesizedState.None;
+        if (this.token !== Token.RightParen) {
+            while (true) {
+                if (this.token === Token.Ellipsis) {
+                    args.push(this.parseSpreadElement(context));
+                } else {
+                    if (context & Context.Strict) {
+                        if (!(state & ParenthesizedState.EvalOrArg) && this.isEvalOrArguments(this.tokenValue)) {
+                            state |= ParenthesizedState.EvalOrArg;
+                        }
+                    }
+                    if (!(state & ParenthesizedState.Await) && this.token === Token.AwaitKeyword) {
+                        state |= ParenthesizedState.Await;
+                    }
+                    args.push(this.parseAssignmentExpression(context));
+                }
+
+                if (this.token === Token.RightParen) {
+                    break;
+                }
+
+                this.expect(context, Token.Comma);
+
+                if (this.token === Token.RightParen) {
+                    break;
+                }
+            }
+        }
+        this.expect(context, Token.RightParen);
+
+        if (this.token === Token.Arrow) {
+            // async arrows cannot have a line terminator between "async" and the formals
+            if (flags & Flags.LineTerminator) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+            if (state & ParenthesizedState.EvalOrArg) this.error(Errors.StrictParamName);
+            if (state & ParenthesizedState.Await) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+            // Invalid: 'async[LineTerminator here] () => {}'
+            if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
+            return this.parseArrowFunction(context | (Context.Await | Context.SimpleParameterList), pos, args);
+        }
+
+        return this.finishNode(pos, {
+            type: 'CallExpression',
+            callee: id,
+            arguments: args
+        });
     }
 
     private parseFunctionBody(context: Context): ESTree.BlockStatement {
