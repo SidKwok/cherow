@@ -1743,16 +1743,25 @@ export class Parser {
         return t === Token.Identifier || (t & Token.Keyword) === Token.Keyword;
     }
 
+    private nextTokenIsFuncKeywordOnSameLine(context: Context): boolean {
+        this.peekToken(context);
+        return this.line === this.peekedState.line && this.peekedToken === Token.FunctionKeyword;
+    }
+
     private parseModuleItem(context: Context): any {}
 
     private parseStatementListItem(context: Context): any {
 
         switch (this.token) {
-            default: return this.parseStatement(context);
+            case Token.FunctionKeyword:
+                return this.parseFunctionDeclaration(context);
+
+            default:
+                return this.parseStatement(context);
         }
     }
 
-    private parseStatement(context: Context): ESTree.Statement {
+    private parseStatement(context: Context): any {
         switch (this.token) {
             case Token.Identifier:
                 return this.parseLabelledStatement(context);
@@ -1760,10 +1769,22 @@ export class Parser {
                 // [+Return] ReturnStatement[?Yield]
             case Token.ReturnKeyword:
                 return this.parseReturnStatement(context);
+                // AsyncFunctionDeclaration[Yield, Await, Default]
+            case Token.AsyncKeyword:
+                // Here we do a quick lookahead so we just need to parse out the
+                // 'AsyncFunctionDeclaration'. The 'parsePrimaryExpression' will do the
+                // heavy work for us. I doubt this will cause any performance loss, but
+                // if so is the case - this can be reverted later on.
+                // J.K. Thomas
+                if (this.nextTokenIsFuncKeywordOnSameLine(context)) return this.parseFunctionDeclaration(context);
+                // 'Async' is a valid contextual keyword in sloppy mode for labelled statement, so either
+                // parse out 'LabelledStatement' or an plain identifier
+                return this.parseLabelledStatement(context);
             default:
                 return this.parseExpressionStatement(context);
         }
     }
+
     private parseFunctionDeclaration(context: Context): any {}
 
     private parseReturnStatement(context: Context): ESTree.ReturnStatement {
@@ -1866,15 +1887,16 @@ export class Parser {
         }
     }
 
-    private parseAssignmentExpression(context: Context): any {
+    private parseAssignmentExpression(context: Context): ESTree.AssignmentExpression | ESTree.ArrowFunctionExpression {
         const pos = this.getLocations();
         const token = this.token;
         const tokenValue = this.tokenValue;
         const expr = this.parseConditionalExpression(context, pos);
 
+        // If that's the case - parse out a arrow function with a single un-parenthesized parameter.
+        // An async one, will be parsed out in 'parsePrimaryExpression'
         if (this.token === Token.Arrow && this.isIdentifier(context | Context.SimpleArrow, token)) {
             if (context & Context.Strict && this.isEvalOrArguments(tokenValue)) this.error(Errors.UnexpectedStrictReserved);
-            // Parse out a arrow function with a single un-parenthesized parameter ('x => ...')
             if (!(this.flags & Flags.LineTerminator)) return this.parseArrowFunction(context | Context.SimpleArrow, pos, [expr]);
         }
 
@@ -2024,7 +2046,6 @@ export class Parser {
                 right: this.parseBinaryExpression(context, newPrecedence, this.getLocations()),
                 operator: tokenDesc(binaryOperator)
             });
-
         }
 
         return expr;
@@ -2032,6 +2053,10 @@ export class Parser {
 
     // 12.5 Unary Operators
     private parseUnaryExpression(context: Context, pos: Location): any {
+
+        if (context & Context.Await && this.token === Token.AwaitKeyword) {
+            return this.parseAwaitExpression(context);
+        }
 
         let expr;
 
@@ -2050,6 +2075,16 @@ export class Parser {
         }
 
         return this.parseExponentiationExpression(context, expr, pos);
+    }
+
+    private parseAwaitExpression(context: Context): ESTree.AwaitExpression {
+        const pos = this.getLocations();
+        this.expect(context, Token.AwaitKeyword);
+        const argument = this.parseUnaryExpression(context, pos);
+        return this.finishNode(pos, {
+            type: 'AwaitExpression',
+            argument
+        });
     }
 
     // 12.6 Exponentiation Operator
@@ -2108,7 +2143,6 @@ export class Parser {
                 case Token.Period:
                     {
                         this.expect(context, Token.Period);
-                        //    if (!this.isIdentifierOrKeyword(this.token)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                         const property = this.parseIdentifier(context);
 
                         expr = this.finishNode(pos, {
@@ -2122,9 +2156,8 @@ export class Parser {
 
                     // '('
                 case Token.LeftParen:
+
                     const args = this.parseArguments(context & ~Context.inParameter, pos);
-
-
                     expr = this.finishNode(pos, {
                         type: 'CallExpression',
                         callee: expr,
@@ -2156,26 +2189,36 @@ export class Parser {
     }
 
     // 14.6 Async Function Definitions
-    private parseAsyncFunctionExpression(context: Context) {
+    private parseFunctionExpression(context: Context) {
         // async[no LineTerminator here]function(FormalParameters[~Yield, +Await]){AsyncFunctionBody}
         // async[no LineTerminator here]functionBindingIdentifier[~Yield, +Await](FormalParameters[~Yield, +Await]){AsyncFunctionBody}
     }
 
-    private AsyncFunctionExpression(
+    private parseAsyncFunctionExpression(
         context: Context,
         pos: Location
     ): ESTree.CallExpression | ESTree.ArrowFunctionExpression | ESTree.Identifier | void {
+        // Note: We are "bending" the EcmaScript specs a litle, and expand
+        // the AsyncFunctionExpression production to also deal with
+        // CoverCallExpressionAndAsyncArrowHead and AsyncArrowFunction productions.
+        // This to avoid complications with the CoverCallExpressionAndAsyncArrowHead production
+        // and ArrowFunction production where the latter has to parse out programs. like:
+        //
+        //  async a => {}
+        //  () => {}
+        //
+        // Actually this is not a direct ECMAScript spec violation, and we gain performance this way.
 
         const id = this.parseIdentifier(context);
 
         switch (this.token) {
 
-            // 'AsyncFunctionExpression'
+            // 'parseAsyncFunctionExpression'
             case Token.FunctionKeyword:
                 // The specs says "async[no LineTerminator here]", so just return an plain identifier in case
                 // we got an LineTerminator. The 'FunctionExpression' will be parsed out in 'parsePrimaryExpression'
                 if (this.flags & Flags.LineTerminator) return id;
-                return this.parseAsyncFunctionExpression(context | Context.Await);
+                return this.parseFunctionExpression(context | Context.Await);
 
                 // 'AsyncArrowFunction[In, Yield, Await]'
             case Token.YieldKeyword:
@@ -2257,10 +2300,6 @@ export class Parser {
         return args;
     }
 
-    private CoverCallExpressionAndAsyncArrowHead(context: Context, pos: Location) {
-        // CoverCallExpressionAndAsyncArrowHead[?Yield, ?Await]
-    }
-
     private parsePrimaryExpression(context: Context, pos: Location) {
 
         switch (this.token) {
@@ -2273,21 +2312,13 @@ export class Parser {
             case Token.LeftParen:
                 return this.parseParenthesizedExpression(context | Context.InParenthesis);
             case Token.AsyncKeyword:
-                return this.AsyncFunctionExpression(context, pos);
+                return this.parseAsyncFunctionExpression(context, pos);
             default:
                 if (!this.isIdentifier(context, this.token)) {
                     return this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 }
                 return this.parseIdentifier(context);
         }
-    }
-
-    private throwUnexpectedToken(): never {
-        throw createError(Errors.Unexpected, {
-            index: this.index,
-            line: this.line,
-            column: this.column
-        });
     }
 
     private parseRestElement(context: Context) {

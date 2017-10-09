@@ -10,9 +10,10 @@ export const enum Context {
     InParenthesis          = 1 << 7,
     inParameter            = 1 << 8,
     ArrowParameterList     = 1 << 9,
+    Statement              = 1 << 10,
 
-    Let                    = 1 << 10,
-    Const                  = 1 << 11,
+    Let                    = 1 << 11,
+    Const                  = 1 << 12,
 
     Lexical = Let | Const,
 }
