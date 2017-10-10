@@ -1999,6 +1999,8 @@ export class Parser {
         if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
         this.expect(context, Token.Arrow);
 
+        if (this.flags & Flags.AllowCall) this.flags &= ~Flags.AllowCall;
+
         if (this.flags & Flags.InFunctionBody && !(context & Context.Statement)) context &= ~Context.Await;
 
         const savedScope = this.enterFunctionScope();
