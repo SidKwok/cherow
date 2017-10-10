@@ -2118,7 +2118,12 @@ export class Parser {
         if (!this.parseOptional(context, Token.QuestionMark)) return expr;
     }
 
-    private parseBinaryExpression(context: Context, precedence: number, pos: Location, expr: any = this.parseUnaryExpression(context, pos)): any {
+    private parseBinaryExpression(
+        context: Context,
+        precedence: number,
+        pos: Location,
+        expr: ESTree.Expression = this.parseUnaryExpression(context)
+    ): ESTree.Expression {
 
         while (true) {
 
@@ -2147,24 +2152,27 @@ export class Parser {
     }
 
     // 12.5 Unary Operators
-    private parseUnaryExpression(context: Context, pos: Location): any {
 
+    private parseUnaryExpression(context: Context): ESTree.UnaryExpression | ESTree.Expression {
+
+        // Fast path for "await" expression
         if (context & Context.Await && this.token === Token.AwaitKeyword) {
             return this.parseAwaitExpression(context);
         }
 
-        let expr;
+        const pos = this.getLocations();
+
+        let expr: ESTree.UnaryExpression | ESTree.UpdateExpression;
 
         if (hasMask(this.token, Token.UnaryOperator)) {
-
             const token = this.token;
-            this.nextToken(context);
-            expr = this.finishNode(pos, {
-                type: 'UnaryExpression',
-                operator: tokenDesc(token),
-                argument: this.parseUnaryExpression(context, pos),
-                prefix: true
-            });
+            expr = this.parseUnaryExpressionFastPath(context);
+            // When a delete operator occurs within strict mode code, a SyntaxError is thrown if its
+            // UnaryExpression is a direct reference to a variable, function argument, or function name
+            if (context & Context.Strict && token === Token.DeleteKeyword && expr.argument.type === 'Identifier') {
+                this.error(Errors.StrictDelete);
+            }
+            if (this.token === Token.Exponentiate) this.error(Errors.Unexpected);
         } else {
             expr = this.parseUpdateExpression(context, pos);
         }
@@ -2172,48 +2180,88 @@ export class Parser {
         return this.parseExponentiationExpression(context, expr, pos);
     }
 
-    private parseAwaitExpression(context: Context): ESTree.AwaitExpression {
-        const pos = this.getLocations();
-        this.expect(context, Token.AwaitKeyword);
-        const argument = this.parseUnaryExpression(context, pos);
-        return this.finishNode(pos, {
-            type: 'AwaitExpression',
-            argument
-        });
-    }
-
     // 12.6 Exponentiation Operator
-    private parseExponentiationExpression(context: Context, expr: any, pos: Location): any {
+    private parseExponentiationExpression(context: Context, expr: ESTree.Expression, pos: Location): ESTree.Expression {
         if (this.token !== Token.Exponentiate) return expr;
         const precedence = hasMask(this.token, Token.BinaryOperator) ? this.token & Token.Precedence : 0;
         return this.parseBinaryExpression(context, precedence, pos, expr);
     }
 
-    private parseUpdateExpression(context: Context, pos: Location): any {
-        let expr: any;
+    private parseAwaitExpression(context: Context): ESTree.AwaitExpression {
+        const pos = this.getLocations();
+        this.expect(context, Token.AwaitKeyword);
+        return this.finishNode(pos, {
+            type: 'AwaitExpression',
+            argument: this.parseUnaryExpressionFastPath(context)
+        });
+    }
 
-        if (hasMask(this.token, Token.UpdateOperator)) {
+    private parseUnaryExpressionFastPath(context: Context): ESTree.UnaryExpression | ESTree.UpdateExpression {
+        const pos = this.getLocations();
+        if (hasMask(this.token, Token.UnaryOperator)) {
             const token = this.token;
             this.nextToken(context);
-            expr = this.finishNode(pos, {
-                type: 'UpdateExpression',
-                argument: this.parseUnaryExpression(context, pos),
+            return this.finishNode(pos, {
+                type: 'UnaryExpression',
                 operator: tokenDesc(token),
+                argument: this.parseUnaryExpressionFastPath(context),
                 prefix: true
             });
-        } else {
+        }
+        return this.parseUpdateExpression(context, pos);
+    }
+
+    private parseUpdateExpression(context: Context, pos: Location) {
+
+        let expr: ESTree.Expression;
+
+        if (hasMask(this.token, Token.UpdateOperator)) {
+
+            const operator = this.token;
+
+            this.nextToken(context);
 
             expr = this.parseLeftHandSideExpression(context, pos);
 
-            if (!(this.flags & Flags.LineTerminator) && hasMask(this.token, Token.UpdateOperator)) {
-                const token = this.token;
-                expr = this.finishNode(pos, {
-                    type: 'UpdateExpression',
-                    argument: expr,
-                    operator: tokenDesc(token),
-                    prefix: false
-                });
+            if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
+                this.error(Errors.StrictLHSPrefix);
+            } else if (!isValidSimpleAssignmentTarget(expr)) this.error(Errors.InvalidLHSInAssignment);
+
+            return this.finishNode(pos, {
+                type: 'UpdateExpression',
+                operator: tokenDesc(operator),
+                prefix: true,
+                argument: expr
+            });
+        }
+
+        if (this.flags & Flags.OptionsJSX && this.token === Token.LessThan) {
+            // TODO! JSX
+        }
+
+        expr = this.parseLeftHandSideExpression(context, pos);
+
+        if (hasMask(this.token, Token.UpdateOperator) && !(this.flags & Flags.LineTerminator)) {
+
+            // The identifier eval or arguments may not appear as the LeftHandSideExpression of an
+            // Assignment operator(12.15) or of a PostfixExpression or as the UnaryExpression
+            // operated upon by a Prefix Increment(12.4.6) or a Prefix Decrement(12.4.7) operator.
+            if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
+                this.error(Errors.StrictLHSPostfix);
             }
+
+            if (!isValidSimpleAssignmentTarget(expr)) this.error(Errors.InvalidLHSInAssignment);
+
+            const operator = this.token;
+
+            this.nextToken(context);
+
+            return this.finishNode(pos, {
+                type: 'UpdateExpression',
+                argument: expr,
+                operator: tokenDesc(operator),
+                prefix: false
+            });
         }
 
         return expr;
@@ -2539,8 +2587,15 @@ export class Parser {
             case Token.Identifier:
                 return this.parseIdentifier(context);
             case Token.FunctionKeyword:
-               return this.parseFunctionExpression(context | Context.InParenthesis, pos);
-                case Token.LeftParen:
+                return this.parseFunctionExpression(context | Context.InParenthesis, pos);
+            case Token.ThisKeyword:
+                return this.parseThisExpression(context);
+            case Token.NullKeyword:
+                return this.parseNullExpression(context);
+            case Token.TrueKeyword:
+            case Token.FalseKeyword:
+                return this.parseTrueOrFalseExpression(context);
+            case Token.LeftParen:
                 return this.parseParenthesizedExpression(context | Context.InParenthesis);
             case Token.LeftBracket:
                 return this.parseArrayInitializer(context);
@@ -2703,6 +2758,41 @@ export class Parser {
 
         if (this.flags & Flags.OptionsRaw) node.raw = raw;
 
+        return node;
+    }
+
+    private parseTrueOrFalseExpression(context: Context): ESTree.Literal {
+        const pos = this.getLocations();
+        const value = this.tokenValue === 'true';
+        const raw = this.tokenValue;
+        this.nextToken(context);
+        const node = this.finishNode(pos, {
+            type: 'Literal',
+            value
+        });
+
+        if (this.flags & Flags.OptionsRaw) node.raw = raw;
+
+        return node;
+    }
+
+    private parseThisExpression(context: Context): ESTree.ThisExpression {
+        const pos = this.getLocations();
+        this.nextToken(context);
+        return this.finishNode(pos, {
+            type: 'ThisExpression'
+        });
+    }
+
+    private parseNullExpression(context: Context): ESTree.Literal {
+        const pos = this.getLocations();
+        this.nextToken(context);
+        const node = this.finishNode(pos, {
+            type: 'Literal',
+            value: null
+        });
+
+        if (this.flags & Flags.OptionsRaw) node.raw = 'null';
         return node;
     }
 
