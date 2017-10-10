@@ -11,8 +11,12 @@ export const enum Context {
     ArrowParameterList     = 1 << 8,
     Statement              = 1 << 9,
     SimpleParameterList    = 1 << 10,
-    Let                    = 1 << 11,
-    Const                  = 1 << 12,
+
+    AnnexB                 = 1 << 11,
+    Export                 = 1 << 12,
+    OptionalIdentifier     = 1 << 13,
+    Let                    = 1 << 14,
+    Const                  = 1 << 15,
 
     Lexical = Let | Const,
 }

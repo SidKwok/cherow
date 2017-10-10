@@ -1749,7 +1749,7 @@ export class Parser {
 
         switch (this.token) {
             case Token.FunctionKeyword:
-                //return this.parseFunctionDeclaration(context);
+                return this.parseFunctionDeclaration(context);
 
             default:
                 return this.parseStatement(context);
@@ -1782,7 +1782,83 @@ export class Parser {
         }
     }
 
-    private parseFunctionDeclaration(context: Context): any {}
+    private parseFunctionDeclaration(context: Context): any {
+        const pos = this.getLocations();
+        const savedContext = context;
+
+        if (context & (Context.Await | Context.Yield)) context &= ~(Context.Await | Context.Yield);
+
+        if (this.token === Token.AsyncKeyword) {
+
+            this.expect(context, Token.AsyncKeyword);
+
+            if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
+
+            context |= Context.Await;
+        }
+
+        this.expect(context, Token.FunctionKeyword);
+
+        const savedFlags = this.flags;
+        const token = this.token;
+
+        if (this.token === Token.Multiply) {
+            // Annex B.3.4 doesn't allow generators functions
+            if (context & Context.AnnexB) this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
+            // If we are in the 'await' context. Check if the 'Next' option are set
+            // and allow use of async generators. Throw a decent error message if this isn't the case
+            if (context & Context.Await && !(this.flags & Flags.OptionsNext)) this.error(Errors.InvalidAsyncGenerator);
+            this.expect(context, Token.Multiply);
+            context |= Context.Yield;
+        }
+
+        // Invalid: 'export function a() {} export function a() {}'
+        if (context & Context.Export && this.token === Token.Identifier) this.addFunctionArg(this.tokenValue);
+
+        let id: ESTree.Identifier | null = null;
+
+        if (this.token !== Token.LeftParen && this.isIdentifier(context, this.token)) {
+            const name = this.tokenValue;
+            // If the parent has the 'yield' mask, and the func decl name is 'yield' we have to throw an decent error message
+            if (savedContext & Context.Yield && this.token === Token.YieldKeyword) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+
+            if (context & Context.Strict && this.isEvalOrArguments(name)) this.error(Errors.UnexpectedStrictReserved);
+            if (hasMask(this.token, Token.Reserved)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+
+            if (context & Context.Statement && !(context & Context.AnnexB)) {
+                if (!this.initBlockScope() && (
+                        this.blockScope !== this.functionScope && this.blockScope[name] ||
+                        this.blockScope[name] === ScopeMasks.NonShadowable
+                    )) {
+                    this.error(Errors.DuplicateIdentifier, name);
+                }
+                this.blockScope[name] = ScopeMasks.Shadowable;
+            }
+
+            id = this.parseBindingIdentifier(context);
+
+        } else if (!(context & Context.OptionalIdentifier)) {
+            this.error(Errors.UnNamedFunctionStmt);
+        }
+
+        const savedScope = this.enterFunctionScope();
+        const params = this.parseParameterList(context & ~(Context.Statement | Context.OptionalIdentifier) | Context.InParameter);
+        const body = this.parseFunctionBody(context & ~(Context.Statement | Context.OptionalIdentifier));
+
+        this.exitFunctionScope(savedScope);
+
+        this.flags = savedFlags;
+
+        return this.finishNode(pos, {
+            type: 'FunctionDeclaration',
+            params,
+            body,
+            async: !!(context & Context.Await),
+            generator: !!(context & Context.Yield),
+            expression: false,
+            id
+        });
+    }
 
     private parseReturnStatement(context: Context): ESTree.ReturnStatement {
         const pos = this.getLocations();
@@ -2207,10 +2283,96 @@ export class Parser {
     }
 
     // 14.6 Async Function Definitions
-    private parseFunctionExpression(context: Context) {
-        // async[no LineTerminator here]function(FormalParameters[~Yield, +Await]){AsyncFunctionBody}
-        // async[no LineTerminator here]functionBindingIdentifier[~Yield, +Await](FormalParameters[~Yield, +Await]){AsyncFunctionBody}
+    private parseFunctionExpression(context: Context, pos: Location) {
+        const savedContext = context;
+        this.expect(context, Token.FunctionKeyword);
+
+        if (this.token === Token.Multiply) {
+            // If we are in the 'await' context. Check if the 'Next' option are set
+            // and allow us to use async generators. If not, throw a decent error message if this isn't the case
+            if (context & Context.Await && !(this.flags & Flags.OptionsNext)) this.error(Errors.InvalidAsyncGenerator);
+            this.expect(context, Token.Multiply);
+            context |= Context.Yield;
+        }
+
+        let id: ESTree.Identifier | null = null;
+
+        if (this.token !== Token.LeftParen && this.isIdentifier(context, this.token)) {
+            if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) this.error(Errors.StrictLHSAssignment);
+            if ((context & (Context.Await | Context.Yield) || (context & Context.Strict && savedContext & Context.Yield)) && this.token === Token.YieldKeyword) {
+                this.error(Errors.YieldReservedWord);
+            }
+            id = this.parseIdentifier(context);
+        }
+
+        const savedScope = this.enterFunctionScope();
+        const params = this.parseParameterList(context | Context.InParameter);
+        const body = this.parseFunctionBody(context);
+
+        this.exitFunctionScope(savedScope);
+
+        return this.finishNode(pos, {
+            type: 'FunctionExpression',
+            params,
+            body,
+            async: !!(context & Context.Await),
+            generator: !!(context & Context.Yield),
+            expression: false,
+            id
+        });
     }
+
+    private parseParameterList(context: Context): ESTree.Node[] {
+        // FormalParameters [Yield,Await]: (modified)
+        //      [empty]
+        //      FormalParameterList[?Yield,Await]
+        //
+        // FormalParameter[Yield,Await]: (modified)
+        //      BindingElement[?Yield,Await]
+        //
+        // BindingElement [Yield,Await]: (modified)
+        //      SingleNameBinding[?Yield,?Await]
+        //      BindingPattern[?Yield,?Await]Initializer [In, ?Yield,?Await] opt
+        //
+        // SingleNameBinding [Yield,Await]:
+        //      BindingIdentifier[?Yield,?Await]Initializer [In, ?Yield,?Await] opt
+        this.expect(context, Token.LeftParen);
+        const result = [];
+
+        while (this.token !== Token.RightParen) {
+            if (this.token === Token.Ellipsis) {
+                result.push(this.parseRestElement(context));
+                this.parseOptional(context, Token.Comma);
+                break;
+            }
+            result.push(this.parseFormalParameter(context));
+            if (this.token !== Token.RightParen) this.expect(context, Token.Comma);
+        }
+
+        this.expect(context, Token.RightParen);
+
+        return result;
+    }
+
+    private parseFormalParameter(
+        context: Context,
+    ): ESTree.AssignmentPattern | ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.RestElement {
+        const pos = this.getLocations();
+
+        const left = this.token === Token.Ellipsis ? this.parseRestElement(context) : this.parseBindingPatternOrIdentifier(context, pos);
+
+        // Initializer[In, Yield] :
+        //     = AssignmentExpression[?In, ?Yield]
+        if (!this.parseOptional(context, Token.Assign)) return left;
+        if (context & Context.Yield && this.token === Token.YieldKeyword) this.error(Errors.Unexpected);
+        const right = this.parseAssignmentExpression(context);
+        return this.finishNode(pos, {
+            type: 'AssignmentPattern',
+            left,
+            right
+        });
+    }
+
 
     private parseAsyncFunctionExpression(
         context: Context,
@@ -2235,7 +2397,7 @@ export class Parser {
                 // The specs says "async[no LineTerminator here]", so just return an plain identifier in case
                 // we got an LineTerminator. The 'FunctionExpression' will be parsed out in 'parsePrimaryExpression'
                 if (this.flags & Flags.LineTerminator) return id;
-                return this.parseFunctionExpression(context | Context.Await);
+                return this.parseFunctionExpression(context | Context.Await, pos);
 
                 // 'AsyncArrowFunction[In, Yield, Await]'
             case Token.YieldKeyword:
@@ -2260,7 +2422,7 @@ export class Parser {
 
     private parseAsyncArguments(context: Context, pos: Location, id: ESTree.Identifier, flags: Flags): any {
         // Modified ArgumentList production to deal with async stuff. This so we can
-        // spead up the "normal" CallExpression production. This also deal with the
+        // speed up the "normal" CallExpression production. This also deal with the
         // CoverCallExpressionAndAsyncArrowHead production directly
         // J.K. Thomas
 
@@ -2376,7 +2538,9 @@ export class Parser {
             case Token.YieldKeyword:
             case Token.Identifier:
                 return this.parseIdentifier(context);
-            case Token.LeftParen:
+            case Token.FunctionKeyword:
+               return this.parseFunctionExpression(context | Context.InParenthesis, pos);
+                case Token.LeftParen:
                 return this.parseParenthesizedExpression(context | Context.InParenthesis);
             case Token.LeftBracket:
                 return this.parseArrayInitializer(context);
