@@ -1900,6 +1900,13 @@ export class Parser {
         // If that's the case - parse out a arrow function with a single un-parenthesized parameter.
         // An async one, will be parsed out in 'parsePrimaryExpression'
         if (this.token === Token.Arrow && this.isIdentifier(context | Context.SimpleArrow, token)) {
+            // Note! This is a simple arrow function with a "triple catcher" method. A "simple arrow"
+            // has no CoverParenthesizedExpressionAndArrowParameterList production.
+            //
+            // 1.) Checks reserved words
+            // 2.) Eval and arguments
+            // 3.) Invalid non-Identifier productions
+            //
             if (context & Context.Strict && this.isEvalOrArguments(tokenValue)) this.error(Errors.UnexpectedStrictReserved);
             if (expr.type !== 'Identifier') this.error(Errors.UnexpectedToken, tokenDesc(this.token));
             if (!(this.flags & Flags.LineTerminator)) return this.parseArrowFunction(context | Context.SimpleArrow, pos, [expr]);
@@ -2222,7 +2229,6 @@ export class Parser {
         //  async a => {}
         //  () => {}
         //
-        // Actually this is not a direct ECMAScript spec violation, and we gain performance this way.
 
         const id = this.parseIdentifier(context);
 
@@ -2394,6 +2400,8 @@ export class Parser {
         });
     }
 
+    // ParenthesizedExpression[Yield, Await]:
+    // CoverParenthesizedExpressionAndArrowParameterList[Yield, Await]:
     private parseParenthesizedExpression(context: Context) {
 
         const pos = this.getLocations();
