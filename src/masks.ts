@@ -37,23 +37,25 @@ export const enum Flags {
     Break                        = 1 << 4,
     Continue                     = 1 << 5,
     Switch                       = 1 << 6,
-    HasPrototype                  = 1 << 7,
+    HasPrototype                 = 1 << 7,
+    FirstRestricted              = 1 << 8,
+
     /* Numeric */
-    Noctal                       = 1 << 8, // e.g. `0777`
-    BigInt                       = 1 << 9, // e.g. `100n`
-    Float                        = 1 << 10, // e.g. `09.01`
-    Exponent                     = 1 << 11, // e.g. `10e2`
+    Noctal                       = 1 << 9, // e.g. `0777`
+    BigInt                       = 1 << 10, // e.g. `100n`
+    Float                        = 1 << 11, // e.g. `09.01`
+    Exponent                     = 1 << 12, // e.g. `10e2`
 
     /* Options */
-    OptionsRanges                = 1 << 12,
-    OptionsLoc                   = 1 << 13,
-    OptionsSource                = 1 << 14,
-    OptionsJSX                   = 1 << 15,
-    OptionsRaw                   = 1 << 16,
-    OptionsNext                  = 1 << 17,
-    OptionsOnComment             = 1 << 18,
-    OptionsOnToken               = 1 << 19,
-    OptionsV8                    = 1 << 20,
+    OptionsRanges                = 1 << 13,
+    OptionsLoc                   = 1 << 14,
+    OptionsSource                = 1 << 15,
+    OptionsJSX                   = 1 << 16,
+    OptionsRaw                   = 1 << 17,
+    OptionsNext                  = 1 << 18,
+    OptionsOnComment             = 1 << 19,
+    OptionsOnToken               = 1 << 20,
+    OptionsV8                    = 1 << 21,
 
     // BigInt implementation can't handle either float or exponent acc. TC-39
     FloatOrExponent = Float | Exponent

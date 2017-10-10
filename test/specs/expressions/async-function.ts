@@ -13,6 +13,7 @@ describe('Expressions - Async function', () => {
         }).to.not.throw()
     });
 
+
     it('should fail on invalid nested async', () => {
         expect(() => {
             parseScript(`async function wrap() {

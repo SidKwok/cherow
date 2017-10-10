@@ -4,37 +4,37 @@ import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('Expressions - Async Class', () => {
-    
+
         it('should fail on invalid async method await param', () => {
             expect(() => {
                 parseScript(`class A {async foo(await) { }};`);
             }).to.throw()
         });
-    
+
         it('should fail on invalid async constructor', () => {
             expect(() => {
                 parseScript(`class A {async constructor() { }};`);
             }).to.throw()
         });
-    
+
         it('should fail on invalid async class setter', () => {
             expect(() => {
                 parseScript(`class A {async set foo(value) { }};`);
             }).to.throw()
         });
-    
+
         it('should fail on invalid async class method await', () => {
             expect(() => {
                 parseScript(`class A {async foo() { return {await} }};`);
             }).to.throw()
         });
-    
+
         it('should fail on invalid async class method empty await', () => {
             expect(() => {
                 parseScript(`(class {async foo() { await }});`);
             }).to.throw()
         });
-    
+
         it('should fail on invalid async method await identifier', () => {
             expect(() => {
                 parseScript(`class A {async foo() { var await }};`);

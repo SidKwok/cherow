@@ -94,8 +94,8 @@ describe('Expressions - Async Arrow function', () => {
 
     it('should fail if formals body has duplicates', () => {
         expect(() => {
-            parseScript(`async(bar) => { let bar; }`);
-        }).to.not.throw()
+            parseScript(`"use strict"; async(bar) => { let bar; }`);
+        }).to.throw()
     });
 
     it('should fail if linebreak between "async" and formals', () => {
@@ -104,11 +104,11 @@ describe('Expressions - Async Arrow function', () => {
         (foo) => { }`);
         }).to.throw()
     })
-    // This need to be recorded **before* parsing out the async conextual keyword
+
     it('should fail if async contain unicode', () => {
         expect(() => {
             parseScript(`\\u0061sync () => {}`);
-        }).to.not.throw()
+        }).to.throw()
     })
 
     it('should parse async arrow parameter', () => {
