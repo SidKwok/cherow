@@ -18,10 +18,11 @@ export const enum Context {
     OptionalIdentifier     = 1 << 15,
     DisallowCall           = 1 << 16,
     Method                 = 1 << 17,
-    HasConstructor          = 1 << 18,
-    Constructor         = 1 << 19,
-    Let                    = 1 << 20,
-    Const                  = 1 << 21,
+    HasConstructor         = 1 << 18,
+    Constructor            = 1 << 19,
+    AsyncFunctionBody      = 1 << 20,
+    Let                    = 1 << 21,
+    Const                  = 1 << 22,
 
     Lexical = Let | Const,
 }

@@ -2287,6 +2287,9 @@ export class Parser {
             if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
 
             context |= Context.Await;
+
+            // 'await' is forbidden only in async function bodies (but not in child functions) and module code.
+            if (!(this.flags & Flags.InFunctionBody)) context |= Context.AsyncFunctionBody;
         }
 
         this.expect(context, Token.FunctionKeyword);
@@ -2316,7 +2319,10 @@ export class Parser {
 
             if (context & Context.Strict && this.isEvalOrArguments(name)) this.error(Errors.UnexpectedStrictReserved);
             if (hasMask(this.token, Token.Reserved)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-
+            if (context & Context.AsyncFunctionBody) {
+                if (this.token === Token.AwaitKeyword) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                if (!(context & Context.Await)) context &= ~Context.AsyncFunctionBody;
+            }
             if (context & Context.Statement && !(context & Context.AnnexB)) {
                 if (!this.initBlockScope() && (
                         this.blockScope !== this.functionScope && this.blockScope[name] ||
@@ -4179,6 +4185,12 @@ export class Parser {
             case Token.Identifier:
                 if (context & Context.InParameter && context & Context.Strict) this.addFunctionArg(this.tokenValue);
                 return this.parseBindingIdentifier(context);
+            case Token.AwaitKeyword:
+                if (context & Context.Await) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                return this.parseBindingIdentifier(context);
+            case Token.YieldKeyword:
+            //    this.flags |= Flags.FirstRestricted;
+                if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
             case Token.LetKeyword:
                 if (context & Context.Lexical) this.error(Errors.LetInLexicalBinding);
             default:
