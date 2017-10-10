@@ -79,6 +79,7 @@ export class Parser {
         if (options.locations) this.flags |= Flags.OptionsLoc;
         if (options.ranges) this.flags |= Flags.OptionsRanges;
         if (options.raw) this.flags |= Flags.OptionsRaw;
+        if (options.directives) this.flags |= Flags.OptionsDirectives;
         if (options.v8) this.flags |= Flags.OptionsV8;
 
         if (this.flags & Flags.OptionsOnComment) this.comments = options.comments;
@@ -1299,7 +1300,8 @@ export class Parser {
         this.tokenValue = ret;
 
         // raw
-        if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(rawStart, this.index);
+        // if (this.flags & Flags.OptionsRaw) 
+        this.tokenRaw = this.source.slice(rawStart, this.index);
 
         return Token.StringLiteral;
     }
@@ -1641,13 +1643,30 @@ export class Parser {
         return statements;
     }
 
+    private parseDirective(context: Context): ESTree.ExpressionStatement {
+        const pos = this.getLocations();
+        if (!(this.flags & Flags.OptionsDirectives)) return this.parseStatementListItem(context);
+        const expr = this.parseExpression(context, pos);
+        const directive = (expr.type === 'Literal') ? this.tokenRaw.slice(1, -1) : null;
+        this.consumeSemicolon(context);
+        const node = this.finishNode(pos, {
+            type: 'ExpressionStatement',
+            expression: expr,
+            directive: directive
+        });
+
+        if (directive != null) node.directive = directive;
+
+        return node;
+    }
+
     private parseStatementList(context: Context, endToken: Token): ESTree.Statement[] {
 
         const statements: ESTree.Statement[] = [];
 
         while (this.token !== endToken) {
             if (this.token !== Token.StringLiteral) break;
-            const item: ESTree.Statement = this.parseStatementListItem(context);
+            const item: ESTree.Statement = this.parseDirective(context);
             statements.push(item);
             if (!isDirective(item)) break;
             if (item.expression.value === 'use strict') {

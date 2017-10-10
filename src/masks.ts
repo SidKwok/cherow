@@ -53,9 +53,10 @@ export const enum Flags {
     OptionsJSX                   = 1 << 16,
     OptionsRaw                   = 1 << 17,
     OptionsNext                  = 1 << 18,
-    OptionsOnComment             = 1 << 19,
-    OptionsOnToken               = 1 << 20,
-    OptionsV8                    = 1 << 21,
+    OptionsDirectives            = 1 << 19,
+    OptionsOnComment             = 1 << 20,
+    OptionsOnToken               = 1 << 21,
+    OptionsV8                    = 1 << 22,
 
     // BigInt implementation can't handle either float or exponent acc. TC-39
     FloatOrExponent = Float | Exponent

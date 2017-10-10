@@ -9,6 +9,7 @@ export interface Options {
     comments?: CollectComments;
     loc?: boolean;
     raw?: boolean;
+    directives?: boolean;
     jsx?: boolean;
     source?: string;
     v8?: boolean;
