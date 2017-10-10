@@ -11,7 +11,7 @@ describe('Espressions - Unary', () => {
         }).to.throw();
       });
 
-      it.skip('should fail on ""use strict"; delete ((a));"', () => {
+      it('should fail on ""use strict"; delete ((a));"', () => {
         expect(() => {
             parseScript('(function() { "use strict"; var a; delete a; })()');
         }).to.throw();

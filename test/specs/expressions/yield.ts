@@ -748,7 +748,7 @@ describe('Espressions - Yield', () => {
           });
       });
   
-      it.skip('should parse yield expression with regular expression', () => {
+      it('should parse yield expression with regular expression', () => {
           expect(parseScript(`function* bar() { yield /re/ }`, {
               ranges: true,
               locations: true,
@@ -934,7 +934,7 @@ describe('Espressions - Yield', () => {
       });
   
   
-      it.skip('should  Distinguish ParenthesizedExpression or ArrowFunctionExpression', () => {
+      it('should  Distinguish ParenthesizedExpression or ArrowFunctionExpression', () => {
           expect(parseScript('function* wrap() {\n({a = yield b} = obj)\n}', {
               ranges: true
           })).to.eql({
@@ -1025,7 +1025,7 @@ describe('Espressions - Yield', () => {
           });
       });
   
-      it.skip('should parse yield expressions inside functions in default parameters', () => {
+      it('should parse yield expressions inside functions in default parameters', () => {
           expect(parseScript('function* foo(a = class {*bar() { yield b }}) {}', {
               ranges: true,
               raw: true,
@@ -1478,7 +1478,7 @@ describe('Espressions - Yield', () => {
           });
       });
   
-      it.skip('should parse ternary yield', () => {
+      it('should parse ternary yield', () => {
           expect(parseScript('function* g(){ x ? yield : y }', {
               ranges: true,
               raw: true,
@@ -1720,7 +1720,7 @@ describe('Espressions - Yield', () => {
           });
         });
 
-      it.skip('should parse yield arg class', () => {
+      it('should parse yield arg class', () => {
           expect(parseScript('function *g() { yield class x {} }')).to.eql({
               "type": "Program",
               "body": [{
@@ -2031,7 +2031,7 @@ describe('Espressions - Yield', () => {
           });
       });
   
-      it.skip('should parse yield arg new', () => {
+      it('should parse yield arg new', () => {
           expect(parseScript('function *g() { yield new X() }', {
               ranges: true,
               raw: true,
@@ -2123,7 +2123,7 @@ describe('Espressions - Yield', () => {
           });
       });
   
-      it.skip('should parse yield arg object', () => {
+      it('should parse yield arg object', () => {
           expect(parseScript('function *g() { yield {x} }')).to.eql({
               "type": "Program",
               "body": [{
@@ -2826,7 +2826,7 @@ describe('Espressions - Yield', () => {
           });
       });
   
-      it.skip('should parse "function* g(){ a ? yield : b; }"', () => {
+      it('should parse "function* g(){ a ? yield : b; }"', () => {
           expect(parseScript('function* g(){ a ? yield : b; }', {
               ranges: true,
               locations: true,

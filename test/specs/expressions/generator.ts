@@ -270,7 +270,7 @@ describe('Generators', () => {
           });
     });
 
-    it.skip('should parse generator declaration', () => {
+    it('should parse generator declaration', () => {
         expect(parseScript(`function* test () { yield *v };`, {
             raw: true,
             ranges: true,

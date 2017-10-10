@@ -3,7 +3,7 @@ import * as chai from 'chai';
 
 const expect = chai.expect;
 
-describe.skip('Espressions - Super', () => {
+describe('Espressions - Super', () => {
 
             it(`should fail on "!{ a() { !function* (a = super.b()){} } };"`, () => {
                 expect(() => {

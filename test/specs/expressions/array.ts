@@ -59,7 +59,7 @@ describe('Espressions - Array', () => {
           });
       });
   
-      it.skip('should parse object Spread operator following other properties"', () => {
+      it('should parse object Spread operator following other properties"', () => {
           expect(parseScript('let o = {c: 3, d: 4};', {
               ranges: true,
               locations: true,
@@ -247,7 +247,7 @@ describe('Espressions - Array', () => {
           });
       });
   
-      it.skip('should parse spread operator applied to AssignmentExpression as only element  "', () => {
+      it('should parse spread operator applied to AssignmentExpression as only element  "', () => {
           expect(parseScript('var source = [2, 3, 4];', {
               ranges: true,
               locations: true,
@@ -780,7 +780,7 @@ describe('Espressions - Array', () => {
           });
       });
   
-      it.skip('should parse spread object null', () => {
+      it('should parse spread object null', () => {
           expect(parseScript('[{...null}]', {
               ranges: true,
               next: true
@@ -818,7 +818,7 @@ describe('Espressions - Array', () => {
           });
       });
   
-      it.skip('should parse spread object undefined', () => {
+      it('should parse spread object undefined', () => {
           expect(parseScript('[{...undefined}]', {
               ranges: true,
               next: true

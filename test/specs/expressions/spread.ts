@@ -5,15 +5,15 @@ const expect = chai.expect;
 
 describe('Expressions - Spread', () => {
 
-    it.skip('should fail on invalid if', () => {
+    it('should fail on invalid if', () => {
         expect(() => { parseScript('if (b,...a, );') }).to.throw()
     });
 
-    it.skip('should fail on invalid sequence', () => {
+    it('should fail on invalid sequence', () => {
         expect(() => { parseScript('(b, ...a);') }).to.throw()
     });
 
-    it.skip('should parse multi function call', () => {
+    it('should parse multi function call', () => {
         expect(parseScript('foo(a, ...b);', {
             ranges: false,
             raw: true

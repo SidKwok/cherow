@@ -5,28 +5,28 @@ const expect = chai.expect;
 
 describe('Espressions - Update', () => {
 
-    it.skip('should fail on "eval" in strict mode - prefix', () => {
+    it('should fail on "eval" in strict mode - prefix', () => {
         expect(() => {
             expect(parseModule('--eval'))
         }).to.throw('');
 
     });
 
-    it.skip('should fail on "arguments" in strict mode - prefix', () => {
+    it('should fail on "arguments" in strict mode - prefix', () => {
         expect(() => {
             expect(parseModule('--arguments'))
         }).to.throw('');
 
     });
 
-    it.skip('should fail on "eval" in strict mode - postfix', () => {
+    it('should fail on "eval" in strict mode - postfix', () => {
         expect(() => {
             expect(parseModule('eval--'))
         }).to.throw('');
 
     });
 
-    it.skip('should fail on "arguments" in strict mode - postfix', () => {
+    it('should fail on "arguments" in strict mode - postfix', () => {
         expect(() => {
             expect(parseModule('arguments--'))
         }).to.throw('');

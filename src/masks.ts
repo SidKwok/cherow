@@ -17,8 +17,11 @@ export const enum Context {
     Export                 = 1 << 14,
     OptionalIdentifier     = 1 << 15,
     DisallowCall           = 1 << 16,
-    Let                    = 1 << 17,
-    Const                  = 1 << 18,
+    Method                 = 1 << 17,
+    HasConstructor          = 1 << 18,
+    Constructor         = 1 << 19,
+    Let                    = 1 << 20,
+    Const                  = 1 << 21,
 
     Lexical = Let | Const,
 }
@@ -33,23 +36,23 @@ export const enum Flags {
     Break                        = 1 << 4,
     Continue                     = 1 << 5,
     Switch                       = 1 << 6,
-
+    HasPrototype                  = 1 << 7,
     /* Numeric */
-    Noctal                       = 1 << 7, // e.g. `0777`
-    BigInt                       = 1 << 8, // e.g. `100n`
-    Float                        = 1 << 9, // e.g. `09.01`
-    Exponent                     = 1 << 10, // e.g. `10e2`
+    Noctal                       = 1 << 8, // e.g. `0777`
+    BigInt                       = 1 << 9, // e.g. `100n`
+    Float                        = 1 << 10, // e.g. `09.01`
+    Exponent                     = 1 << 11, // e.g. `10e2`
 
     /* Options */
-    OptionsRanges                = 1 << 11,
-    OptionsLoc                   = 1 << 12,
-    OptionsSource                = 1 << 13,
-    OptionsJSX                   = 1 << 14,
-    OptionsRaw                   = 1 << 15,
-    OptionsNext                  = 1 << 16,
-    OptionsOnComment             = 1 << 17,
-    OptionsOnToken               = 1 << 18,
-    OptionsV8                    = 1 << 19,
+    OptionsRanges                = 1 << 12,
+    OptionsLoc                   = 1 << 13,
+    OptionsSource                = 1 << 14,
+    OptionsJSX                   = 1 << 15,
+    OptionsRaw                   = 1 << 16,
+    OptionsNext                  = 1 << 17,
+    OptionsOnComment             = 1 << 18,
+    OptionsOnToken               = 1 << 19,
+    OptionsV8                    = 1 << 20,
 
     // BigInt implementation can't handle either float or exponent acc. TC-39
     FloatOrExponent = Float | Exponent

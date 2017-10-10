@@ -135,7 +135,7 @@ describe('Statements - Generator', () => {
           }).to.not.throw('');
     });
 
-    it.skip('should parse generator with yield delegate', () => {
+    it('should parse generator with yield delegate', () => {
         expect(parseScript('function *foo() { yield* 3; }', {
             raw: true,
             ranges: true
@@ -623,7 +623,7 @@ describe('Statements - Generator', () => {
         });
       });
   
-      it.skip('should parse "function* a(){({[yield]:a}=0)}"', () => {
+      it('should parse "function* a(){({[yield]:a}=0)}"', () => {
         expect(parseScript(`function* a(){({[yield]:a}=0)}`, {
             raw: true,
             ranges: true,
@@ -817,7 +817,7 @@ describe('Statements - Generator', () => {
         });
       });
 
-      it.skip('should parse "function* a(){({yield:a}=0)}"', () => {
+      it('should parse "function* a(){({yield:a}=0)}"', () => {
         expect(parseScript(`function* a(){({yield:a}=0)}`, {
             raw: true,
             ranges: true,
@@ -1317,7 +1317,7 @@ describe('Statements - Generator', () => {
         });
       });
 
-      it.skip('should parse complex nested generator declaration in sloppy mode', () => {
+      it('should parse complex nested generator declaration in sloppy mode', () => {
         expect(parseScript(`function *a(){({get(yield){yield}})}`, {
             raw: true,
             ranges: true,

@@ -1826,7 +1826,7 @@ describe('Declarations - Functions', () => {
             });
     });
 
-    it.skip('should parse "function* bar() { yield class {} }"', () => {
+    it('should parse "function* bar() { yield class {} }"', () => {
         expect(parseScript(`function* bar() { yield class {} }`, {
             ranges: false,
             raw: true

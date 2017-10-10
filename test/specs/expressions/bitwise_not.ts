@@ -223,7 +223,7 @@ describe('Espressions - bitwise not', () => {
           });
     });
 
-    it.skip('should parse "~({})"', () => {
+    it('should parse "~({})"', () => {
         expect(parseScript('~({})', {
             locations: true,
             ranges: true,

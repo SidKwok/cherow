@@ -95,7 +95,7 @@ describe('Espressions - New target', () => {
             }).to.throw();
         });
     
-        it.skip('should assign new target', () => {
+        it('should assign new target', () => {
             expect(parseScript('function f() { let x = new.target; }', {
                 ranges: true,
                 raw: true
@@ -370,7 +370,7 @@ describe('Espressions - New target', () => {
             });
         });
     
-        it.skip('should parse new target expression', () => {
+        it('should parse new target expression', () => {
             expect(parseScript('var f = function() { new.target; }')).to.eql({
                 "type": "Program",
                 "body": [{
@@ -842,7 +842,7 @@ describe('Espressions - New target', () => {
           });
         });
 
-        it.skip('should parse new.target in method param list', () => {
+        it('should parse new.target in method param list', () => {
           expect(parseScript('({ set m(a = new.target){} })', {
               ranges: true,
               raw: true,
@@ -1049,7 +1049,7 @@ describe('Espressions - New target', () => {
           });
         });
 
-        it.skip('should parse "({ m(a = new.target){} })"', () => {
+        it('should parse "({ m(a = new.target){} })"', () => {
           expect(parseScript('({ m(a = new.target){} })', {
               ranges: true,
               raw: true,

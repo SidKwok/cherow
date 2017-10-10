@@ -65,7 +65,7 @@ describe('Declarations - Const', () => {
         }).to.throw();
     });
 
-    it.skip('should parse binding as specified via property name and identifier', () => {
+    it('should parse binding as specified via property name and identifier', () => {
         expect(parseScript(`const { x: y } = { x: 23 };`, {
             ranges: true,
             raw: true,
@@ -260,7 +260,7 @@ describe('Declarations - Const', () => {
           });
     });
 
-    it.skip('should parse trailing comma following binding property list', () => {
+    it('should parse trailing comma following binding property list', () => {
         expect(parseScript(`const { x: y, } = { x: 23 };`, {
             ranges: true,
             raw: true,
@@ -455,7 +455,7 @@ describe('Declarations - Const', () => {
           });
     });
 
-    it.skip('should parse binding specified via property name, identifier, and initializer', () => {
+    it('should parse binding specified via property name, identifier, and initializer', () => {
         expect(parseScript(`const { x: y = 33 } = { };`, {
             ranges: true,
             raw: true,
@@ -629,7 +629,7 @@ describe('Declarations - Const', () => {
           });
     });
 
-    it.skip('should parse object binding pattern with "nested" array binding pattern', () => {
+    it('should parse object binding pattern with "nested" array binding pattern', () => {
         expect(parseScript(`const { w: [x, y, z] = [4, 5, 6] } = { w: [7, undefined, ] };`, {
             ranges: true,
             raw: true,
@@ -989,7 +989,7 @@ describe('Declarations - Const', () => {
           });
     });
 
-    it.skip('should parse object binding pattern with "nested" array binding pattern taking the `null` value ', () => {
+    it('should parse object binding pattern with "nested" array binding pattern taking the `null` value ', () => {
         expect(parseScript(`const { w: [x, y, z] = [4, 5, 6] } = { w: null };`, {
             ranges: true,
             raw: true,
@@ -1316,7 +1316,7 @@ describe('Declarations - Const', () => {
           });
     });
 
-    it.skip('should parse trailing comma following binding property list ', () => {
+    it('should parse trailing comma following binding property list ', () => {
         expect(parseScript(`const { x: [y], } = { x: [45] };`, {
             ranges: true,
             raw: true,
@@ -1545,7 +1545,7 @@ describe('Declarations - Const', () => {
           });
     });
 
-    it.skip('should parse singleNameBinding assigns name to "anonymous" generator functions', () => {
+    it('should parse singleNameBinding assigns name to "anonymous" generator functions', () => {
         expect(parseScript(`const { gen = function* () {}, xGen = function* x() {} } = {};`, {
             ranges: true,
             raw: true,
@@ -1855,7 +1855,7 @@ describe('Declarations - Const', () => {
           });
     });
 
-    it.skip('should parse singleNameBinding assigns name to "anonymous" functions', () => {
+    it('should parse singleNameBinding assigns name to "anonymous" functions', () => {
         expect(parseScript(`const { fn = function () {}, xFn = function x() {} } = {};`, {
             ranges: true,
             raw: true,
@@ -2165,7 +2165,7 @@ describe('Declarations - Const', () => {
           });
     });
 
-    it.skip('should parse singleNameBinding assigns `name` to "anonymous" functions "through" cover grammar', () => {
+    it('should parse singleNameBinding assigns `name` to "anonymous" functions "through" cover grammar', () => {
         expect(parseScript(`const { cover = (function () {}), xCover = (0, function() {})  } = {};`, {
             ranges: true,
             raw: true,
@@ -2494,7 +2494,7 @@ describe('Declarations - Const', () => {
           });
     });
 
-    it.skip('should parse singleNameBinding assigns `name` to arrow functions', () => {
+    it('should parse singleNameBinding assigns `name` to arrow functions', () => {
         expect(parseScript(`const { arrow = () => {} } = {};`, {
             ranges: true,
             raw: true,

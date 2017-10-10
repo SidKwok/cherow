@@ -159,7 +159,7 @@ describe('Declarations - Let', () => {
           });
     });
 
-    it.skip('should parse function name class', () => {
+    it('should parse function name class', () => {
         expect(parseScript('let xCls2 = class { static name() {} };', {
             raw: true,
             ranges: true,
