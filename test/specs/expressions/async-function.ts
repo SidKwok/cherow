@@ -45,8 +45,7 @@ describe('Expressions - Async function', () => {
             parseScript(`(async function await() { });`);
         }).to.not.throw()
     });
-
-
+  
     it('should parse await identifier math', () => {
         expect(parseScript(`async function foo() { await + 1 };`, {
             ranges: true,

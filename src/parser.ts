@@ -7,6 +7,16 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, CollectComments, ErrorLocation, Location } from './interface';
 
+export const enum IterationState {
+    None = 0,
+        Var = 1 << 0,
+        Const = 1 << 1,
+        Let = 1 << 2,
+        Await = 1 << 3,
+        Lexical = Const | Let,
+        Variable = Var | Const | Let,
+}
+
 export class Parser {
     private readonly source: string;
     private index: number;
@@ -1838,6 +1848,8 @@ export class Parser {
                 // BreakStatement[?Yield]
             case Token.BreakKeyword:
                 return this.parseBreakStatement(context);
+            case Token.ForKeyword:
+                return this.parseForStatement(context);
             case Token.ContinueKeyword:
                 return this.parseContinueStatement(context);
                 // DebuggerStatement
@@ -2138,6 +2150,160 @@ export class Parser {
 
         return this.parseStatement(context | Context.Statement);
     }
+
+    private parseForStatement(context: Context): any {
+        
+                const pos = this.getLocations();
+        
+                this.expect(context, Token.ForKeyword);
+        
+                let init = null;
+                let declarations = null;
+                let kind = '';
+                let body;
+                let test = null;
+                const token = this.token;
+                let tiss = false;
+                let state = IterationState.None;
+        
+                // Asynchronous Iteration - Stage 3 proposal
+                if (context & Context.Await && this.parseOptional(context, Token.AwaitKeyword)) {
+                    // Throw " Unexpected token 'await'" if the option 'next' flag isn't set
+                    if (!(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(token));
+                    state |= IterationState.Await;
+                }
+        
+                const savedFlag = this.flags;
+        
+                this.expect(context, Token.LeftParen);
+        
+                if (this.token !== Token.Semicolon) {
+        
+                    if (hasMask(this.token, Token.VarDeclStart)) {
+        
+                        const startPos = this.getLocations();
+                        kind = tokenDesc(this.token);
+        
+                        if (this.parseOptional(context, Token.VarKeyword)) {
+                            state |= IterationState.Var;
+                            declarations = this.parseVariableDeclarationList(context);
+                        } else if (this.parseOptional(context, Token.LetKeyword)) {
+                            state |= IterationState.Let;
+                            declarations = this.parseVariableDeclarationList(context | Context.Let);
+                        } else if (this.parseOptional(context, Token.ConstKeyword)) {
+                            state |= IterationState.Const;
+                            declarations = this.parseVariableDeclarationList(context | Context.Const);
+        
+                        }
+                        tiss = true;
+                        init = this.finishNode(startPos, {
+                            type: 'VariableDeclaration',
+                            declarations,
+                            kind
+                        });
+                    } else {
+                        init = this.parseExpression(context & ~Context.AllowIn | Context.DisallowFor, pos);
+                    }
+                }
+        
+                this.flags = savedFlag;
+        
+                switch (this.token) {
+        
+                    // 'of'
+                    case Token.OfKeyword:
+                        this.parseOptional(context, Token.OfKeyword);
+                        if (state & IterationState.Variable) {
+                            // Only a single variable declaration is allowed in a for of statement
+                            if (declarations && declarations[0].init != null) this.error(Errors.InvalidVarInitForOf);
+                        } else {
+                            this.reinterpretAsPattern(context, init);
+                            if (!isValidDestructuringAssignmentTarget(init)) this.error(Errors.InvalidLHSInForLoop);
+                        }
+        
+                        const right = this.parseAssignmentExpression(context);
+        
+                        this.expect(context, Token.RightParen);
+        
+                        this.flags |= (Flags.Continue | Flags.Break);
+        
+                        body = this.parseStatement(context | Context.DisallowFor);
+        
+                        this.flags = savedFlag;
+        
+                        return this.finishNode(pos, {
+                            type: 'ForOfStatement',
+                            body,
+                            left: init,
+                            right,
+                            await: !!(state & IterationState.Await)
+                        });
+        
+                        // 'in'
+                    case Token.InKeyword:
+        
+                        if (state & IterationState.Await) this.error(Errors.ForAwaitNotOf);
+        
+                        this.expect(context, Token.InKeyword);
+        
+                        if (state & IterationState.Variable) {
+                            if (declarations && declarations.length !== 1) {
+                                this.error(Errors.Unexpected);
+                            }
+                        } else {
+                            this.reinterpretAsPattern(context, init);
+                        }
+        
+                        test = this.parseExpression(context, pos);
+        
+                        this.expect(context, Token.RightParen);
+        
+                        this.flags |= (Flags.Continue | Flags.Break);
+        
+                        body = this.parseStatement(context | Context.DisallowFor);
+        
+                        this.flags = savedFlag;
+        
+                        return this.finishNode(pos, {
+                            type: 'ForInStatement',
+                            body,
+                            left: init,
+                            right: test
+                        });
+        
+                    default:
+        
+                        if (state & IterationState.Await) this.error(Errors.ForAwaitNotOf);
+        
+                        let update = null;
+        
+                        this.expect(context, Token.Semicolon);
+        
+                        if (this.token !== Token.Semicolon && this.token !== Token.RightParen) {
+                            test = this.parseExpression(context, pos);
+                        }
+        
+                        this.expect(context, Token.Semicolon);
+        
+                        if (this.token !== Token.RightParen) update = this.parseExpression(context, pos);
+        
+                        this.expect(context, Token.RightParen);
+        
+                        this.flags |= (Flags.Continue | Flags.Break);
+        
+                        body = this.parseStatement(context | Context.DisallowFor);
+        
+                        this.flags = savedFlag;
+        
+                        return this.finishNode(pos, {
+                            type: 'ForStatement',
+                            body,
+                            init,
+                            test,
+                            update
+                        });
+                }
+            }
 
     private parseIfStatement(context: Context): ESTree.IfStatement {
         const pos = this.getLocations();
@@ -2674,9 +2840,9 @@ export class Parser {
         let expression = false;
 
         if (this.token === Token.LeftBrace) {
-            body = this.parseFunctionBody(context);
+            body = this.parseFunctionBody(context | Context.AllowIn);
         } else {
-            body = this.parseConciseBody(context);
+            body = this.parseConciseBody(context | Context.AllowIn);
             expression = true;
         }
 
@@ -2883,6 +3049,7 @@ export class Parser {
             case Token.LeftBracket:
                 if (!(context & Context.Method)) this.error(Errors.BadSuperCall);
                 break;
+
             default:
                 this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         }
@@ -2977,7 +3144,18 @@ export class Parser {
                         });
                         break;
                     }
-
+ case Token.TemplateCont:
+                    {
+                        const quasi = this.parseTemplate(context, this.getLocations());
+                        expr = this.parseTaggedTemplateExpression(context, expr, quasi, this.getLocations());
+                        break;
+                    }
+                case Token.TemplateTail:
+                    {
+                        const quasi = this.parseTemplateTail(context, this.getLocations());
+                        expr = this.parseTaggedTemplateExpression(context, expr, quasi, pos);
+                        break;
+                    }
                 default:
                     return expr;
             }
@@ -3339,6 +3517,14 @@ export class Parser {
                 return this.parseClassExpression(context);
             case Token.LeftBrace:
                 return this.parseObjectExpression(context);
+                case Token.TemplateTail:
+                return this.parseTemplateTail(context, pos);
+            case Token.TemplateCont:
+                return this.parseTemplate(context, pos);
+                case Token.DoKeyword:
+                if (this.flags & Flags.OptionsV8) return this.parseDoExpression(context);
+            case Token.ThrowKeyword:
+                if (this.flags & Flags.OptionsNext) return this.parseThrowExpression(context);
             case Token.AsyncKeyword:
                 return this.parseAsyncFunctionExpression(context, pos);
             default:
@@ -3843,6 +4029,15 @@ export class Parser {
         });
     }
 
+    private parseThrowExpression(context: Context) {
+        const pos = this.getLocations();
+        this.nextToken(context);
+        return this.finishNode(pos, {
+            type: 'ThrowExpression',
+            expressions: this.parseUnaryExpressionFastPath(context)
+        });
+    }
+
     private parseArrayInitializer(context: Context): ESTree.ArrayExpression {
         const pos = this.getLocations();
         this.expect(context, Token.LeftBracket);
@@ -3981,6 +4176,75 @@ export class Parser {
         return node;
     }
 
+    private parseTemplateTail(context: Context, pos: Location): ESTree.TemplateLiteral {
+        const quasis = this.parseTemplateElement(context, pos);
+        return this.finishNode(pos, {
+            type: 'TemplateLiteral',
+            expressions: [],
+            quasis: [quasis]
+        });
+    }
+
+    private parseTemplateHead(context: Context, cooked: string, raw: string): ESTree.TemplateElement {
+        const pos = this.getLocations();
+        this.token = this.scanTemplateNext(context);
+        return this.finishNode(pos, {
+            type: 'TemplateElement',
+            value: {
+                cooked,
+                raw
+            },
+            tail: false
+        });
+    }
+
+    private parseTemplateElement(context: Context, pos: Location): ESTree.TemplateElement {
+        const cooked = this.tokenValue;
+        const raw = this.tokenRaw;
+        this.expect(context, Token.TemplateTail);
+        return this.finishNode(pos, {
+            type: 'TemplateElement',
+            value: {
+                cooked,
+                raw
+            },
+            tail: true
+        });
+    }
+
+    private parseTaggedTemplateExpression(context: Context, expr: ESTree.Expression, quasi: any, pos: Location): ESTree.TaggedTemplateExpression {
+        return this.finishNode(pos, {
+            type: 'TaggedTemplateExpression',
+            tag: expr,
+            quasi
+        });
+    }
+
+    private parseTemplate(context: Context, pos: Location): ESTree.TemplateLiteral {
+
+        const expressions: ESTree.Expression[] = [];
+        const quasis: ESTree.TemplateElement[] = [];
+
+        while (this.token === Token.TemplateCont) {
+            if (this.token === Token.RightBrace) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+            const cooked = this.tokenValue;
+            const raw = this.tokenRaw;
+            this.expect(context, Token.TemplateCont);
+            expressions.push(this.parseExpression(context, pos));
+            quasis.push(this.parseTemplateHead(context, cooked, raw));
+        }
+
+        while (this.token === Token.TemplateTail) {
+            quasis.push(this.parseTemplateElement(context, pos));
+        }
+
+        return this.finishNode(pos, {
+            type: 'TemplateLiteral',
+            expressions,
+            quasis
+        });
+    }
+    
     private parseBigIntLiteral(context: Context): ESTree.Literal {
         const pos = this.getLocations();
         const value = this.tokenValue;
@@ -4380,6 +4644,18 @@ export class Parser {
             value,
             method,
             shorthand
+        });
+    }
+
+     /** V8 */
+
+     private parseDoExpression(context: Context): ESTree.Expression {
+        const pos = this.getLocations();
+        this.expect(context, Token.DoKeyword);
+        const body = this.parseBlockStatement(context);
+        return this.finishNode(pos, {
+            type: 'DoExpression',
+            body
         });
     }
 }

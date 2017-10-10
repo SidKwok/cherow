@@ -3,7 +3,7 @@ import * as chai from 'chai';
 
 const expect = chai.expect;
 
-describe.skip('Espressions - Template', () => {
+describe('Espressions - Template', () => {
 
     it('should fail on invalid template end', () => {
         expect(() => {
