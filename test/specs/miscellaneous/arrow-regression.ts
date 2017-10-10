@@ -4,6 +4,7 @@ import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('Miscellaneous - Arrow regression', () => {
+ 
 
     it('should parse complex #1', () => {
         expect(parseScript(`async () => {}
@@ -29,22 +30,36 @@ describe('Miscellaneous - Arrow regression', () => {
             locations: true,
             raw: true
         })).to.eql({
-            "type": "Program",
-            "start": 0,
-            "end": 368,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
-              },
-              "end": {
-                "line": 19,
-                "column": 16
-              }
+          "type": "Program",
+          "start": 0,
+          "end": 368,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
             },
-            "body": [
-              {
-                "type": "ExpressionStatement",
+            "end": {
+              "line": 19,
+              "column": 16
+            }
+          },
+          "body": [
+            {
+              "type": "ExpressionStatement",
+              "start": 0,
+              "end": 14,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 14
+                }
+              },
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 0,
                 "end": 14,
                 "loc": {
@@ -57,45 +72,45 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 14
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 0,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": true,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 12,
                   "end": 14,
                   "loc": {
                     "start": {
                       "line": 1,
-                      "column": 0
+                      "column": 12
                     },
                     "end": {
                       "line": 1,
                       "column": 14
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": true,
-                  "params": [],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 12,
-                    "end": 14,
-                    "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 12
-                      },
-                      "end": {
-                        "line": 1,
-                        "column": 14
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 23,
+              "end": 31,
+              "loc": {
+                "start": {
+                  "line": 2,
+                  "column": 8
+                },
+                "end": {
+                  "line": 2,
+                  "column": 16
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 23,
                 "end": 31,
                 "loc": {
@@ -108,45 +123,45 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 16
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 23,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 29,
                   "end": 31,
                   "loc": {
                     "start": {
                       "line": 2,
-                      "column": 8
+                      "column": 14
                     },
                     "end": {
                       "line": 2,
                       "column": 16
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": false,
-                  "params": [],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 29,
-                    "end": 31,
-                    "loc": {
-                      "start": {
-                        "line": 2,
-                        "column": 14
-                      },
-                      "end": {
-                        "line": 2,
-                        "column": 16
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 40,
+              "end": 53,
+              "loc": {
+                "start": {
+                  "line": 3,
+                  "column": 8
+                },
+                "end": {
+                  "line": 3,
+                  "column": 21
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 40,
                 "end": 53,
                 "loc": {
@@ -159,62 +174,62 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 21
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 40,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": true,
+                "params": [
+                  {
+                    "type": "Identifier",
+                    "start": 46,
+                    "end": 47,
+                    "loc": {
+                      "start": {
+                        "line": 3,
+                        "column": 14
+                      },
+                      "end": {
+                        "line": 3,
+                        "column": 15
+                      }
+                    },
+                    "name": "b"
+                  }
+                ],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 51,
                   "end": 53,
                   "loc": {
                     "start": {
                       "line": 3,
-                      "column": 8
+                      "column": 19
                     },
                     "end": {
                       "line": 3,
                       "column": 21
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": true,
-                  "params": [
-                    {
-                      "type": "Identifier",
-                      "start": 46,
-                      "end": 47,
-                      "loc": {
-                        "start": {
-                          "line": 3,
-                          "column": 14
-                        },
-                        "end": {
-                          "line": 3,
-                          "column": 15
-                        }
-                      },
-                      "name": "b"
-                    }
-                  ],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 51,
-                    "end": 53,
-                    "loc": {
-                      "start": {
-                        "line": 3,
-                        "column": 19
-                      },
-                      "end": {
-                        "line": 3,
-                        "column": 21
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 62,
+              "end": 75,
+              "loc": {
+                "start": {
+                  "line": 4,
+                  "column": 8
+                },
+                "end": {
+                  "line": 4,
+                  "column": 21
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 62,
                 "end": 75,
                 "loc": {
@@ -227,62 +242,62 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 21
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 62,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": true,
+                "params": [
+                  {
+                    "type": "Identifier",
+                    "start": 68,
+                    "end": 69,
+                    "loc": {
+                      "start": {
+                        "line": 4,
+                        "column": 14
+                      },
+                      "end": {
+                        "line": 4,
+                        "column": 15
+                      }
+                    },
+                    "name": "b"
+                  }
+                ],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 73,
                   "end": 75,
                   "loc": {
                     "start": {
                       "line": 4,
-                      "column": 8
+                      "column": 19
                     },
                     "end": {
                       "line": 4,
                       "column": 21
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": true,
-                  "params": [
-                    {
-                      "type": "Identifier",
-                      "start": 68,
-                      "end": 69,
-                      "loc": {
-                        "start": {
-                          "line": 4,
-                          "column": 14
-                        },
-                        "end": {
-                          "line": 4,
-                          "column": 15
-                        }
-                      },
-                      "name": "b"
-                    }
-                  ],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 73,
-                    "end": 75,
-                    "loc": {
-                      "start": {
-                        "line": 4,
-                        "column": 19
-                      },
-                      "end": {
-                        "line": 4,
-                        "column": 21
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 84,
+              "end": 98,
+              "loc": {
+                "start": {
+                  "line": 5,
+                  "column": 8
+                },
+                "end": {
+                  "line": 5,
+                  "column": 22
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 84,
                 "end": 98,
                 "loc": {
@@ -295,45 +310,45 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 22
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 84,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": true,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 96,
                   "end": 98,
                   "loc": {
                     "start": {
                       "line": 5,
-                      "column": 8
+                      "column": 20
                     },
                     "end": {
                       "line": 5,
                       "column": 22
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": true,
-                  "params": [],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 96,
-                    "end": 98,
-                    "loc": {
-                      "start": {
-                        "line": 5,
-                        "column": 20
-                      },
-                      "end": {
-                        "line": 5,
-                        "column": 22
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 107,
+              "end": 121,
+              "loc": {
+                "start": {
+                  "line": 6,
+                  "column": 8
+                },
+                "end": {
+                  "line": 6,
+                  "column": 22
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 107,
                 "end": 121,
                 "loc": {
@@ -346,45 +361,45 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 22
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 107,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": true,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 119,
                   "end": 121,
                   "loc": {
                     "start": {
                       "line": 6,
-                      "column": 8
+                      "column": 20
                     },
                     "end": {
                       "line": 6,
                       "column": 22
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": true,
-                  "params": [],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 119,
-                    "end": 121,
-                    "loc": {
-                      "start": {
-                        "line": 6,
-                        "column": 20
-                      },
-                      "end": {
-                        "line": 6,
-                        "column": 22
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 130,
+              "end": 138,
+              "loc": {
+                "start": {
+                  "line": 7,
+                  "column": 8
+                },
+                "end": {
+                  "line": 7,
+                  "column": 16
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 130,
                 "end": 138,
                 "loc": {
@@ -397,45 +412,45 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 16
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 130,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 136,
                   "end": 138,
                   "loc": {
                     "start": {
                       "line": 7,
-                      "column": 8
+                      "column": 14
                     },
                     "end": {
                       "line": 7,
                       "column": 16
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": false,
-                  "params": [],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 136,
-                    "end": 138,
-                    "loc": {
-                      "start": {
-                        "line": 7,
-                        "column": 14
-                      },
-                      "end": {
-                        "line": 7,
-                        "column": 16
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 147,
+              "end": 154,
+              "loc": {
+                "start": {
+                  "line": 8,
+                  "column": 8
+                },
+                "end": {
+                  "line": 8,
+                  "column": 15
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 147,
                 "end": 154,
                 "loc": {
@@ -448,62 +463,62 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 15
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 147,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [
+                  {
+                    "type": "Identifier",
+                    "start": 147,
+                    "end": 148,
+                    "loc": {
+                      "start": {
+                        "line": 8,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 8,
+                        "column": 9
+                      }
+                    },
+                    "name": "a"
+                  }
+                ],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 152,
                   "end": 154,
                   "loc": {
                     "start": {
                       "line": 8,
-                      "column": 8
+                      "column": 13
                     },
                     "end": {
                       "line": 8,
                       "column": 15
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": false,
-                  "params": [
-                    {
-                      "type": "Identifier",
-                      "start": 147,
-                      "end": 148,
-                      "loc": {
-                        "start": {
-                          "line": 8,
-                          "column": 8
-                        },
-                        "end": {
-                          "line": 8,
-                          "column": 9
-                        }
-                      },
-                      "name": "a"
-                    }
-                  ],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 152,
-                    "end": 154,
-                    "loc": {
-                      "start": {
-                        "line": 8,
-                        "column": 13
-                      },
-                      "end": {
-                        "line": 8,
-                        "column": 15
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 163,
+              "end": 170,
+              "loc": {
+                "start": {
+                  "line": 9,
+                  "column": 8
+                },
+                "end": {
+                  "line": 9,
+                  "column": 15
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 163,
                 "end": 170,
                 "loc": {
@@ -516,62 +531,62 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 15
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 163,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [
+                  {
+                    "type": "Identifier",
+                    "start": 163,
+                    "end": 164,
+                    "loc": {
+                      "start": {
+                        "line": 9,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 9,
+                        "column": 9
+                      }
+                    },
+                    "name": "a"
+                  }
+                ],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 168,
                   "end": 170,
                   "loc": {
                     "start": {
                       "line": 9,
-                      "column": 8
+                      "column": 13
                     },
                     "end": {
                       "line": 9,
                       "column": 15
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": false,
-                  "params": [
-                    {
-                      "type": "Identifier",
-                      "start": 163,
-                      "end": 164,
-                      "loc": {
-                        "start": {
-                          "line": 9,
-                          "column": 8
-                        },
-                        "end": {
-                          "line": 9,
-                          "column": 9
-                        }
-                      },
-                      "name": "a"
-                    }
-                  ],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 168,
-                    "end": 170,
-                    "loc": {
-                      "start": {
-                        "line": 9,
-                        "column": 13
-                      },
-                      "end": {
-                        "line": 9,
-                        "column": 15
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 179,
+              "end": 193,
+              "loc": {
+                "start": {
+                  "line": 10,
+                  "column": 8
+                },
+                "end": {
+                  "line": 10,
+                  "column": 22
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 179,
                 "end": 193,
                 "loc": {
@@ -584,45 +599,45 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 22
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 179,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": true,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 191,
                   "end": 193,
                   "loc": {
                     "start": {
                       "line": 10,
-                      "column": 8
+                      "column": 20
                     },
                     "end": {
                       "line": 10,
                       "column": 22
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": true,
-                  "params": [],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 191,
-                    "end": 193,
-                    "loc": {
-                      "start": {
-                        "line": 10,
-                        "column": 20
-                      },
-                      "end": {
-                        "line": 10,
-                        "column": 22
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 202,
+              "end": 210,
+              "loc": {
+                "start": {
+                  "line": 11,
+                  "column": 8
+                },
+                "end": {
+                  "line": 11,
+                  "column": 16
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 202,
                 "end": 210,
                 "loc": {
@@ -635,45 +650,45 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 16
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 202,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 208,
                   "end": 210,
                   "loc": {
                     "start": {
                       "line": 11,
-                      "column": 8
+                      "column": 14
                     },
                     "end": {
                       "line": 11,
                       "column": 16
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": false,
-                  "params": [],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 208,
-                    "end": 210,
-                    "loc": {
-                      "start": {
-                        "line": 11,
-                        "column": 14
-                      },
-                      "end": {
-                        "line": 11,
-                        "column": 16
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 219,
+              "end": 226,
+              "loc": {
+                "start": {
+                  "line": 12,
+                  "column": 8
+                },
+                "end": {
+                  "line": 12,
+                  "column": 15
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 219,
                 "end": 226,
                 "loc": {
@@ -686,62 +701,62 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 15
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 219,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [
+                  {
+                    "type": "Identifier",
+                    "start": 219,
+                    "end": 220,
+                    "loc": {
+                      "start": {
+                        "line": 12,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 12,
+                        "column": 9
+                      }
+                    },
+                    "name": "a"
+                  }
+                ],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 224,
                   "end": 226,
                   "loc": {
                     "start": {
                       "line": 12,
-                      "column": 8
+                      "column": 13
                     },
                     "end": {
                       "line": 12,
                       "column": 15
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": false,
-                  "params": [
-                    {
-                      "type": "Identifier",
-                      "start": 219,
-                      "end": 220,
-                      "loc": {
-                        "start": {
-                          "line": 12,
-                          "column": 8
-                        },
-                        "end": {
-                          "line": 12,
-                          "column": 9
-                        }
-                      },
-                      "name": "a"
-                    }
-                  ],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 224,
-                    "end": 226,
-                    "loc": {
-                      "start": {
-                        "line": 12,
-                        "column": 13
-                      },
-                      "end": {
-                        "line": 12,
-                        "column": 15
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 235,
+              "end": 249,
+              "loc": {
+                "start": {
+                  "line": 13,
+                  "column": 8
+                },
+                "end": {
+                  "line": 13,
+                  "column": 22
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 235,
                 "end": 249,
                 "loc": {
@@ -754,45 +769,45 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 22
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 235,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": true,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 247,
                   "end": 249,
                   "loc": {
                     "start": {
                       "line": 13,
-                      "column": 8
+                      "column": 20
                     },
                     "end": {
                       "line": 13,
                       "column": 22
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": true,
-                  "params": [],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 247,
-                    "end": 249,
-                    "loc": {
-                      "start": {
-                        "line": 13,
-                        "column": 20
-                      },
-                      "end": {
-                        "line": 13,
-                        "column": 22
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 258,
+              "end": 266,
+              "loc": {
+                "start": {
+                  "line": 14,
+                  "column": 8
+                },
+                "end": {
+                  "line": 14,
+                  "column": 16
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 258,
                 "end": 266,
                 "loc": {
@@ -805,45 +820,45 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 16
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 258,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 264,
                   "end": 266,
                   "loc": {
                     "start": {
                       "line": 14,
-                      "column": 8
+                      "column": 14
                     },
                     "end": {
                       "line": 14,
                       "column": 16
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": false,
-                  "params": [],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 264,
-                    "end": 266,
-                    "loc": {
-                      "start": {
-                        "line": 14,
-                        "column": 14
-                      },
-                      "end": {
-                        "line": 14,
-                        "column": 16
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 275,
+              "end": 289,
+              "loc": {
+                "start": {
+                  "line": 15,
+                  "column": 8
+                },
+                "end": {
+                  "line": 15,
+                  "column": 22
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 275,
                 "end": 289,
                 "loc": {
@@ -856,45 +871,45 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 22
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 275,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": true,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 287,
                   "end": 289,
                   "loc": {
                     "start": {
                       "line": 15,
-                      "column": 8
+                      "column": 20
                     },
                     "end": {
                       "line": 15,
                       "column": 22
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": true,
-                  "params": [],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 287,
-                    "end": 289,
-                    "loc": {
-                      "start": {
-                        "line": 15,
-                        "column": 20
-                      },
-                      "end": {
-                        "line": 15,
-                        "column": 22
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 298,
+              "end": 305,
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 8
+                },
+                "end": {
+                  "line": 16,
+                  "column": 15
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 298,
                 "end": 305,
                 "loc": {
@@ -907,62 +922,62 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 15
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 298,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [
+                  {
+                    "type": "Identifier",
+                    "start": 298,
+                    "end": 299,
+                    "loc": {
+                      "start": {
+                        "line": 16,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 16,
+                        "column": 9
+                      }
+                    },
+                    "name": "a"
+                  }
+                ],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 303,
                   "end": 305,
                   "loc": {
                     "start": {
                       "line": 16,
-                      "column": 8
+                      "column": 13
                     },
                     "end": {
                       "line": 16,
                       "column": 15
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": false,
-                  "params": [
-                    {
-                      "type": "Identifier",
-                      "start": 298,
-                      "end": 299,
-                      "loc": {
-                        "start": {
-                          "line": 16,
-                          "column": 8
-                        },
-                        "end": {
-                          "line": 16,
-                          "column": 9
-                        }
-                      },
-                      "name": "a"
-                    }
-                  ],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 303,
-                    "end": 305,
-                    "loc": {
-                      "start": {
-                        "line": 16,
-                        "column": 13
-                      },
-                      "end": {
-                        "line": 16,
-                        "column": 15
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 314,
+              "end": 328,
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 8
+                },
+                "end": {
+                  "line": 17,
+                  "column": 22
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 314,
                 "end": 328,
                 "loc": {
@@ -975,45 +990,45 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 22
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 314,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": true,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 326,
                   "end": 328,
                   "loc": {
                     "start": {
                       "line": 17,
-                      "column": 8
+                      "column": 20
                     },
                     "end": {
                       "line": 17,
                       "column": 22
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": true,
-                  "params": [],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 326,
-                    "end": 328,
-                    "loc": {
-                      "start": {
-                        "line": 17,
-                        "column": 20
-                      },
-                      "end": {
-                        "line": 17,
-                        "column": 22
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 337,
+              "end": 351,
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 8
+                },
+                "end": {
+                  "line": 18,
+                  "column": 22
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 337,
                 "end": 351,
                 "loc": {
@@ -1026,45 +1041,45 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 22
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 337,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": true,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 349,
                   "end": 351,
                   "loc": {
                     "start": {
                       "line": 18,
-                      "column": 8
+                      "column": 20
                     },
                     "end": {
                       "line": 18,
                       "column": 22
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": true,
-                  "params": [],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 349,
-                    "end": 351,
-                    "loc": {
-                      "start": {
-                        "line": 18,
-                        "column": 20
-                      },
-                      "end": {
-                        "line": 18,
-                        "column": 22
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 360,
+              "end": 368,
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 8
+                },
+                "end": {
+                  "line": 19,
+                  "column": 16
                 }
               },
-              {
-                "type": "ExpressionStatement",
+              "expression": {
+                "type": "ArrowFunctionExpression",
                 "start": 360,
                 "end": 368,
                 "loc": {
@@ -1077,46 +1092,32 @@ describe('Miscellaneous - Arrow regression', () => {
                     "column": 16
                   }
                 },
-                "expression": {
-                  "type": "ArrowFunctionExpression",
-                  "start": 360,
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 366,
                   "end": 368,
                   "loc": {
                     "start": {
                       "line": 19,
-                      "column": 8
+                      "column": 14
                     },
                     "end": {
                       "line": 19,
                       "column": 16
                     }
                   },
-                  "id": null,
-                  "generator": false,
-                  "expression": false,
-                  "async": false,
-                  "params": [],
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 366,
-                    "end": 368,
-                    "loc": {
-                      "start": {
-                        "line": 19,
-                        "column": 14
-                      },
-                      "end": {
-                        "line": 19,
-                        "column": 16
-                      }
-                    },
-                    "body": []
-                  }
+                  "body": []
                 }
               }
-            ],
-            "sourceType": "script"
-          });
+            }
+          ],
+          "sourceType": "script"
+        });
     });
 
     it('should parse complex #2', () => {
@@ -9468,4 +9469,653 @@ cherow(1,2,3)`, {
           raw: true
       })).to.eql({});
     });
+
+    it('should parse complex #10', () => {
+      expect(parseScript(`async () => {}
+      async () => {}`, {
+          ranges: true,
+          locations: true,
+          raw: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 35,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 2,
+            "column": 20
+          }
+        },
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "start": 0,
+            "end": 14,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 14
+              }
+            },
+            "expression": {
+              "type": "ArrowFunctionExpression",
+              "start": 0,
+              "end": 14,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 14
+                }
+              },
+              "id": null,
+              "generator": false,
+              "expression": false,
+              "async": true,
+              "params": [],
+              "body": {
+                "type": "BlockStatement",
+                "start": 12,
+                "end": 14,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 12
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 14
+                  }
+                },
+                "body": []
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "start": 21,
+            "end": 35,
+            "loc": {
+              "start": {
+                "line": 2,
+                "column": 6
+              },
+              "end": {
+                "line": 2,
+                "column": 20
+              }
+            },
+            "expression": {
+              "type": "ArrowFunctionExpression",
+              "start": 21,
+              "end": 35,
+              "loc": {
+                "start": {
+                  "line": 2,
+                  "column": 6
+                },
+                "end": {
+                  "line": 2,
+                  "column": 20
+                }
+              },
+              "id": null,
+              "generator": false,
+              "expression": false,
+              "async": true,
+              "params": [],
+              "body": {
+                "type": "BlockStatement",
+                "start": 33,
+                "end": 35,
+                "loc": {
+                  "start": {
+                    "line": 2,
+                    "column": 18
+                  },
+                  "end": {
+                    "line": 2,
+                    "column": 20
+                  }
+                },
+                "body": []
+              }
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
+    });
+
+    it('should parse complex #11', () => {
+      expect(parseScript(`async () => {}
+      () => {}`, {
+          ranges: true,
+          locations: true,
+          raw: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 29,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 2,
+            "column": 14
+          }
+        },
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "start": 0,
+            "end": 14,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 14
+              }
+            },
+            "expression": {
+              "type": "ArrowFunctionExpression",
+              "start": 0,
+              "end": 14,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 14
+                }
+              },
+              "id": null,
+              "generator": false,
+              "expression": false,
+              "async": true,
+              "params": [],
+              "body": {
+                "type": "BlockStatement",
+                "start": 12,
+                "end": 14,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 12
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 14
+                  }
+                },
+                "body": []
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "start": 21,
+            "end": 29,
+            "loc": {
+              "start": {
+                "line": 2,
+                "column": 6
+              },
+              "end": {
+                "line": 2,
+                "column": 14
+              }
+            },
+            "expression": {
+              "type": "ArrowFunctionExpression",
+              "start": 21,
+              "end": 29,
+              "loc": {
+                "start": {
+                  "line": 2,
+                  "column": 6
+                },
+                "end": {
+                  "line": 2,
+                  "column": 14
+                }
+              },
+              "id": null,
+              "generator": false,
+              "expression": false,
+              "async": false,
+              "params": [],
+              "body": {
+                "type": "BlockStatement",
+                "start": 27,
+                "end": 29,
+                "loc": {
+                  "start": {
+                    "line": 2,
+                    "column": 12
+                  },
+                  "end": {
+                    "line": 2,
+                    "column": 14
+                  }
+                },
+                "body": []
+              }
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
+    });
+
+    it('should parse complex #12', () => {
+      expect(parseScript(`() => { () => {} }
+      () => {}`, {
+          ranges: true,
+          locations: true,
+          raw: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 33,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 2,
+            "column": 14
+          }
+        },
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "start": 0,
+            "end": 18,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 18
+              }
+            },
+            "expression": {
+              "type": "ArrowFunctionExpression",
+              "start": 0,
+              "end": 18,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 18
+                }
+              },
+              "id": null,
+              "generator": false,
+              "expression": false,
+              "async": false,
+              "params": [],
+              "body": {
+                "type": "BlockStatement",
+                "start": 6,
+                "end": 18,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 6
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 18
+                  }
+                },
+                "body": [
+                  {
+                    "type": "ExpressionStatement",
+                    "start": 8,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "expression": {
+                      "type": "ArrowFunctionExpression",
+                      "start": 8,
+                      "end": 16,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 8
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 16
+                        }
+                      },
+                      "id": null,
+                      "generator": false,
+                      "expression": false,
+                      "async": false,
+                      "params": [],
+                      "body": {
+                        "type": "BlockStatement",
+                        "start": 14,
+                        "end": 16,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 14
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 16
+                          }
+                        },
+                        "body": []
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "start": 25,
+            "end": 33,
+            "loc": {
+              "start": {
+                "line": 2,
+                "column": 6
+              },
+              "end": {
+                "line": 2,
+                "column": 14
+              }
+            },
+            "expression": {
+              "type": "ArrowFunctionExpression",
+              "start": 25,
+              "end": 33,
+              "loc": {
+                "start": {
+                  "line": 2,
+                  "column": 6
+                },
+                "end": {
+                  "line": 2,
+                  "column": 14
+                }
+              },
+              "id": null,
+              "generator": false,
+              "expression": false,
+              "async": false,
+              "params": [],
+              "body": {
+                "type": "BlockStatement",
+                "start": 31,
+                "end": 33,
+                "loc": {
+                  "start": {
+                    "line": 2,
+                    "column": 12
+                  },
+                  "end": {
+                    "line": 2,
+                    "column": 14
+                  }
+                },
+                "body": []
+              }
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
+    });
+
+    it('should parse complex #13', () => {
+      expect(parseScript(`b => {}
+      a(b, c => 123)`, {
+          ranges: true,
+          locations: true,
+          raw: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 28,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 2,
+            "column": 20
+          }
+        },
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "start": 0,
+            "end": 7,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 7
+              }
+            },
+            "expression": {
+              "type": "ArrowFunctionExpression",
+              "start": 0,
+              "end": 7,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 7
+                }
+              },
+              "id": null,
+              "generator": false,
+              "expression": false,
+              "async": false,
+              "params": [
+                {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 1,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1
+                    }
+                  },
+                  "name": "b"
+                }
+              ],
+              "body": {
+                "type": "BlockStatement",
+                "start": 5,
+                "end": 7,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 5
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 7
+                  }
+                },
+                "body": []
+              }
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "start": 14,
+            "end": 28,
+            "loc": {
+              "start": {
+                "line": 2,
+                "column": 6
+              },
+              "end": {
+                "line": 2,
+                "column": 20
+              }
+            },
+            "expression": {
+              "type": "CallExpression",
+              "start": 14,
+              "end": 28,
+              "loc": {
+                "start": {
+                  "line": 2,
+                  "column": 6
+                },
+                "end": {
+                  "line": 2,
+                  "column": 20
+                }
+              },
+              "callee": {
+                "type": "Identifier",
+                "start": 14,
+                "end": 15,
+                "loc": {
+                  "start": {
+                    "line": 2,
+                    "column": 6
+                  },
+                  "end": {
+                    "line": 2,
+                    "column": 7
+                  }
+                },
+                "name": "a"
+              },
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "start": 16,
+                  "end": 17,
+                  "loc": {
+                    "start": {
+                      "line": 2,
+                      "column": 8
+                    },
+                    "end": {
+                      "line": 2,
+                      "column": 9
+                    }
+                  },
+                  "name": "b"
+                },
+                {
+                  "type": "ArrowFunctionExpression",
+                  "start": 19,
+                  "end": 27,
+                  "loc": {
+                    "start": {
+                      "line": 2,
+                      "column": 11
+                    },
+                    "end": {
+                      "line": 2,
+                      "column": 19
+                    }
+                  },
+                  "id": null,
+                  "generator": false,
+                  "expression": true,
+                  "async": false,
+                  "params": [
+                    {
+                      "type": "Identifier",
+                      "start": 19,
+                      "end": 20,
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 11
+                        },
+                        "end": {
+                          "line": 2,
+                          "column": 12
+                        }
+                      },
+                      "name": "c"
+                    }
+                  ],
+                  "body": {
+                    "type": "Literal",
+                    "start": 24,
+                    "end": 27,
+                    "loc": {
+                      "start": {
+                        "line": 2,
+                        "column": 16
+                      },
+                      "end": {
+                        "line": 2,
+                        "column": 19
+                      }
+                    },
+                    "value": 123,
+                    "raw": "123"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
+    });
+  
 });

@@ -4,7 +4,14 @@ import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('Expressions - Arrow function', () => {
+    
+    it('should fail on invalid parenless parameter', () => {
+        expect(() => {
+            parseScript(`a () => {}`);
+        }).to.throw()
+    });
 
+    
         it('should fail on invalid parenless parameter', () => {
             expect(() => {
                 parseScript(`foo = x
@@ -28,6 +35,12 @@ describe('Expressions - Arrow function', () => {
         it('should fail if arrow parameter cover contains duplicates (array)', () => {
             expect(() => {
                 parseScript(`af = ([x, x]) => 1;`);
+            }).to.throw()
+        });
+
+        it('should fail if lone comma in cover param list', () => {
+            expect(() => {
+                parseScript(`hello = (,) => world`);
             }).to.throw()
         });
 
@@ -4136,7 +4149,116 @@ describe('Expressions - Arrow function', () => {
             });
         });
 
-        it('should parse arrow function with comma', () => {
+        it('should parse with comma dangle', () => {
+            expect(parseScript(`(a, b,) => { }`, {
+                ranges: true,
+                raw: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 14,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 14
+                  }
+                },
+                "body": [
+                  {
+                    "type": "ExpressionStatement",
+                    "start": 0,
+                    "end": 14,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 14
+                      }
+                    },
+                    "expression": {
+                      "type": "ArrowFunctionExpression",
+                      "start": 0,
+                      "end": 14,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 14
+                        }
+                      },
+                      "id": null,
+                      "generator": false,
+                      "expression": false,
+                      "async": false,
+                      "params": [
+                        {
+                          "type": "Identifier",
+                          "start": 1,
+                          "end": 2,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 1
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 2
+                            }
+                          },
+                          "name": "a"
+                        },
+                        {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 5,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 5
+                            }
+                          },
+                          "name": "b"
+                        }
+                      ],
+                      "body": {
+                        "type": "BlockStatement",
+                        "start": 11,
+                        "end": 14,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 11
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 14
+                          }
+                        },
+                        "body": []
+                      }
+                    }
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+    
+        it('should parse async arrow function where new line comes after "async"', () => {
             expect(parseScript(`async 
             ()`, {
                 ranges: true,

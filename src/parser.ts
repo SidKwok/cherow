@@ -1756,7 +1756,7 @@ export class Parser {
 
         switch (this.token) {
             case Token.FunctionKeyword:
-                return this.parseFunctionDeclaration(context);
+                //return this.parseFunctionDeclaration(context);
 
             default:
                 return this.parseStatement(context);
@@ -1778,10 +1778,12 @@ export class Parser {
                 // heavy work for us. I doubt this will cause any performance loss, but
                 // if so is the case - this can be reverted later on.
                 // J.K. Thomas
-                if (this.nextTokenIsFuncKeywordOnSameLine(context)) return this.parseFunctionDeclaration(context);
+                if (this.nextTokenIsFuncKeywordOnSameLine(context | Context.Statement)) return this.parseFunctionDeclaration(context);
                 // 'Async' is a valid contextual keyword in sloppy mode for labelled statement, so either
-                // parse out 'LabelledStatement' or an plain identifier
-                return this.parseLabelledStatement(context);
+                // parse out 'LabelledStatement' or an plain identifier. We pass down the 'Statement' mask
+                // so we can easily switch async state if needed on "TopLevel" even if we are inside
+                // the PrimaryExpression production
+                return this.parseLabelledStatement(context | Context.Statement);
             default:
                 return this.parseExpressionStatement(context);
         }
@@ -1899,6 +1901,7 @@ export class Parser {
         // An async one, will be parsed out in 'parsePrimaryExpression'
         if (this.token === Token.Arrow && this.isIdentifier(context | Context.SimpleArrow, token)) {
             if (context & Context.Strict && this.isEvalOrArguments(tokenValue)) this.error(Errors.UnexpectedStrictReserved);
+            if (expr.type !== 'Identifier') this.error(Errors.UnexpectedToken, tokenDesc(this.token));
             if (!(this.flags & Flags.LineTerminator)) return this.parseArrowFunction(context | Context.SimpleArrow, pos, [expr]);
         }
 
@@ -1996,6 +1999,8 @@ export class Parser {
         if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
         this.expect(context, Token.Arrow);
 
+        if (this.flags & Flags.InFunctionBody && !(context & Context.Statement)) context &= ~Context.Await;
+
         const savedScope = this.enterFunctionScope();
 
         if (!(context & Context.SimpleArrow)) this.parseArrowFormalList(context, params);
@@ -2004,7 +2009,6 @@ export class Parser {
         let expression = false;
 
         if (this.token === Token.LeftBrace) {
-            if (!(this.flags & Flags.DisallowCall)) this.flags |= Flags.DisallowCall;
             body = this.parseFunctionBody(context);
         } else {
             body = this.parseConciseBody(context);
@@ -2136,15 +2140,14 @@ export class Parser {
 
     // 12.3 Left-Hand-Side Expressions
 
-    private parseLeftHandSideExpression(context: Context, pos: Location, expr: any = this.parsePrimaryExpression(context, pos)): any {
+    private parseLeftHandSideExpression(context: Context, pos: Location): any {
         // LeftHandSideExpression[Yield]:
         // NewExpression[?Yield]
         // CallExpression[?Yield]
 
-        if (this.flags & Flags.DisallowCall) {
-            this.flags &= ~Flags.DisallowCall;
-            return expr;
-        }
+        let expr: any = this.parsePrimaryExpression(context, pos);
+
+        if (!(this.flags & Flags.AllowCall) && expr.type === 'ArrowFunctionExpression') return expr;
 
         while (true) {
             switch (this.token) {
@@ -2297,7 +2300,7 @@ export class Parser {
             if (state & ParenthesizedState.Await) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
             // Invalid: 'async[LineTerminator here] () => {}'
             if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
-            return this.parseArrowFunction(context | (Context.Await | Context.SimpleParameterList), pos, args);
+            return this.parseArrowFunction(context |= (Context.Await | Context.Statement | Context.SimpleParameterList), pos, args);
         }
 
         return this.finishNode(pos, {
@@ -2452,6 +2455,8 @@ export class Parser {
             });
         }
 
+        if (!(this.flags & Flags.AllowCall)) this.flags |= Flags.AllowCall;
+
         this.expect(context, Token.RightParen);
 
         if (this.token === Token.Arrow) {
@@ -2459,7 +2464,6 @@ export class Parser {
             if (state & ParenthesizedState.Yield) this.error(Errors.InvalidArrowYieldParam);
             return this.parseArrowFunction(context, pos, expr.type === 'SequenceExpression' ? expr.expressions : [expr]);
         }
-
 
         return expr;
     }
