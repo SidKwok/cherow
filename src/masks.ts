@@ -11,12 +11,14 @@ export const enum Context {
     ArrowParameterList     = 1 << 8,
     Statement              = 1 << 9,
     SimpleParameterList    = 1 << 10,
-
-    AnnexB                 = 1 << 11,
-    Export                 = 1 << 12,
-    OptionalIdentifier     = 1 << 13,
-    Let                    = 1 << 14,
-    Const                  = 1 << 15,
+    DisallowFor            = 1 << 11,
+    IfClause               = 1 << 12,
+    AnnexB                 = 1 << 13,
+    Export                 = 1 << 14,
+    OptionalIdentifier     = 1 << 15,
+    DisallowCall           = 1 << 16,
+    Let                    = 1 << 17,
+    Const                  = 1 << 18,
 
     Lexical = Let | Const,
 }
@@ -28,22 +30,26 @@ export const enum Flags {
     InFunctionBody               = 1 << 2,
     AllowCall                    = 1 << 3,
 
+    Break                        = 1 << 4,
+    Continue                     = 1 << 5,
+    Switch                       = 1 << 6,
+
     /* Numeric */
-    Noctal                       = 1 << 4, // e.g. `0777`
-    BigInt                       = 1 << 5, // e.g. `100n`
-    Float                        = 1 << 6, // e.g. `09.01`
-    Exponent                     = 1 << 7, // e.g. `10e2`
+    Noctal                       = 1 << 7, // e.g. `0777`
+    BigInt                       = 1 << 8, // e.g. `100n`
+    Float                        = 1 << 9, // e.g. `09.01`
+    Exponent                     = 1 << 10, // e.g. `10e2`
 
     /* Options */
-    OptionsRanges                = 1 << 8,
-    OptionsLoc                   = 1 << 9,
-    OptionsSource                = 1 << 10,
-    OptionsJSX                   = 1 << 11,
-    OptionsRaw                   = 1 << 12,
-    OptionsNext                  = 1 << 13,
-    OptionsOnComment             = 1 << 14,
-    OptionsOnToken               = 1 << 15,
-    OptionsV8                    = 1 << 16,
+    OptionsRanges                = 1 << 11,
+    OptionsLoc                   = 1 << 12,
+    OptionsSource                = 1 << 13,
+    OptionsJSX                   = 1 << 14,
+    OptionsRaw                   = 1 << 15,
+    OptionsNext                  = 1 << 16,
+    OptionsOnComment             = 1 << 17,
+    OptionsOnToken               = 1 << 18,
+    OptionsV8                    = 1 << 19,
 
     // BigInt implementation can't handle either float or exponent acc. TC-39
     FloatOrExponent = Float | Exponent

@@ -6,7 +6,7 @@ const expect = chai.expect;
 
 describe('Espressions - Array', () => {
   
-      it.skip('should parse simple array"', () => {
+      it('should parse simple array"', () => {
           expect(parseScript('[]', {
               ranges: true,
               locations: true
@@ -384,7 +384,7 @@ describe('Espressions - Array', () => {
           });
       });
   
-      it.skip('should parse simple array with ellison"', () => {
+      it('should parse simple array with ellison"', () => {
           expect(parseScript(' [,,,,,]', {
               ranges: true,
               locations: true
@@ -443,7 +443,7 @@ describe('Espressions - Array', () => {
           });
       });
   
-      it.skip('should parse simple array with assignment expression"', () => {
+      it('should parse simple array with assignment expression"', () => {
           expect(parseScript('[1,2,3,4,5]', {
               ranges: true
           })).to.eql({
@@ -495,7 +495,7 @@ describe('Espressions - Array', () => {
           });
       });
   
-      it.skip('should parse simple array with ellison and assignment expression"', () => {
+      it('should parse simple array with ellison and assignment expression"', () => {
           expect(parseScript('[,,,1,2]', {
               ranges: true,
               raw: true
@@ -536,7 +536,7 @@ describe('Espressions - Array', () => {
           });
       });
   
-      it.skip('should parse simple array with assignment expression and ellison', () => {
+      it('should parse simple array with assignment expression and ellison', () => {
           expect(parseScript('[4,5,,,,]', {
               ranges: true,
               raw: true
@@ -576,7 +576,7 @@ describe('Espressions - Array', () => {
           });
       });
   
-      it.skip('should parse simple array with ellison, assignment expression and ellison', () => {
+      it('should parse simple array with ellison, assignment expression and ellison', () => {
           expect(parseScript('[,,3,,,]', {
               ranges: true,
               raw: true
@@ -611,7 +611,7 @@ describe('Espressions - Array', () => {
           });
       });
   
-      it.skip('should parse simple array with AssignmentExpression, Ellison, AssignmentExpression', () => {
+      it('should parse simple array with AssignmentExpression, Ellison, AssignmentExpression', () => {
           expect(parseScript('[1,2,,4,5]', {
               ranges: true,
               raw: true
@@ -663,7 +663,7 @@ describe('Espressions - Array', () => {
           });
       });
   
-      it.skip('should parse multi dimensional array', () => {
+      it('should parse multi dimensional array', () => {
           expect(parseScript('[[1,2], [3], []]', {
               ranges: true,
               raw: true
@@ -725,7 +725,7 @@ describe('Espressions - Array', () => {
       });
   
   
-      it.skip('should parse spread multi empty', () => {
+      it('should parse spread multi empty', () => {
           expect(parseScript('[1, 2, 3, ...[]]', {
               ranges: true,
               raw: true
@@ -856,7 +856,7 @@ describe('Espressions - Array', () => {
           });
       });
   
-      it.skip('should parse "t[o][1][e]"', () => {
+      it('should parse "t[o][1][e]"', () => {
           expect(parseScript(`t[o][1][e]`, {
               raw: true,
               ranges: true
@@ -917,7 +917,7 @@ describe('Espressions - Array', () => {
       });
   
   
-      it.skip('should parse "[,,1,,,2,3,,]"', () => {
+      it('should parse "[,,1,,,2,3,,]"', () => {
           expect(parseScript(`[,,1,,,2,3,,]`, {
               raw: true,
               ranges: true,
@@ -1028,7 +1028,7 @@ describe('Espressions - Array', () => {
           });
       });
   
-      it.skip('should parse "[a, ...b=c]"', () => {
+      it('should parse "[a, ...b=c]"', () => {
           expect(parseScript(`[a, ...b=c]`, {
               raw: true,
               ranges: true,
@@ -1161,7 +1161,7 @@ describe('Espressions - Array', () => {
           });
       });
   
-      it.skip('should parse "([a, ...b=c])"', () => {
+      it('should parse "([a, ...b=c])"', () => {
           expect(parseScript(`([a, ...b=c])`, {
               raw: true,
               ranges: true,

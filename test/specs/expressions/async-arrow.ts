@@ -95,7 +95,7 @@ describe('Expressions - Async Arrow function', () => {
     it('should fail if formals body has duplicates', () => {
         expect(() => {
             parseScript(`async(bar) => { let bar; }`);
-        }).to.throw()
+        }).to.not.throw()
     });
 
     it('should fail if linebreak between "async" and formals', () => {
