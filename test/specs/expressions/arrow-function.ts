@@ -5,13 +5,25 @@ const expect = chai.expect;
 
 describe('Expressions - Arrow function', () => {
     
-    it('should fail on invalid parenless parameter', () => {
-        expect(() => {
-            parseScript(`a () => {}`);
-        }).to.throw()
-    });
+        it('should fail on invalid parenless parameter', () => {
+            expect(() => {
+                parseScript(`a () => {}`);
+            }).to.throw()
+        });
 
+        it('should fail on invalid parenthesized pattern', () => {
+            expect(() => {
+                parseScript(`f = (a, (x)) => x`);
+            }).to.throw()
+        });
+
+        it('should fail on invalid parenthesized pattern', () => {
+            expect(() => {
+                parseScript(`f = ((x)) => x`);
+            }).to.throw()
+        });
     
+
         it('should fail on invalid parenless parameter', () => {
             expect(() => {
                 parseScript(`foo = x

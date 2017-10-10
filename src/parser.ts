@@ -1,18 +1,11 @@
 import { Chars } from './chars';
 import * as ESTree from './estree';
 import { hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isValidDestructuringAssignmentTarget, isDirective, getQualifiedJSXName, isValidSimpleAssignmentTarget } from './common';
-import { Flags, Context, RegExpState, RegExpFlag, ScopeMasks, ObjectState, AsyncState, ScannerState } from './masks';
+import { Flags, Context, RegExpState, RegExpFlag, ScopeMasks, ObjectState, AsyncState, ScannerState, ParenthesizedState } from './masks';
 import { createError, Errors } from './errors';
 import { Token, tokenDesc, descKeyword } from './token';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, CollectComments, ErrorLocation, Location } from './interface';
-
-export const enum ParenthesizedState {
-    None = 0,
-        EvalOrArg = 1 << 0,
-        Yield = 1 << 1,
-        Await = 1 << 2
-}
 
 export class Parser {
     private readonly source: string;
@@ -1899,17 +1892,20 @@ export class Parser {
 
         // If that's the case - parse out a arrow function with a single un-parenthesized parameter.
         // An async one, will be parsed out in 'parsePrimaryExpression'
-        if (this.token === Token.Arrow && this.isIdentifier(context | Context.SimpleArrow, token)) {
-            // Note! This is a simple arrow function with a "triple catcher" method. A "simple arrow"
-            // has no CoverParenthesizedExpressionAndArrowParameterList production.
-            //
-            // 1.) Checks reserved words
-            // 2.) Eval and arguments
-            // 3.) Invalid non-Identifier productions
-            //
-            if (context & Context.Strict && this.isEvalOrArguments(tokenValue)) this.error(Errors.UnexpectedStrictReserved);
-            if (expr.type !== 'Identifier') this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-            if (!(this.flags & Flags.LineTerminator)) return this.parseArrowFunction(context | Context.SimpleArrow, pos, [expr]);
+        if (this.token === Token.Arrow && (this.isIdentifier(context | Context.SimpleArrow, token))) {
+            if (!(this.flags & Flags.LineTerminator)) {
+                // Note! This is a simple arrow function with no CoverParenthesizedExpressionAndArrowParameterList production.
+                //
+                // It does 3 things:
+                //
+                // 1.) Checks reserved words
+                // 2.) Eval and arguments
+                // 3.) Invalid non-Identifier productions
+                //
+                if (context & Context.Strict && this.isEvalOrArguments(tokenValue)) this.error(Errors.UnexpectedStrictReserved);
+                if (expr.type !== 'Identifier') this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                return this.parseArrowFunction(context | Context.SimpleArrow, pos, [expr]);
+            }
         }
 
         if (hasMask(this.token, Token.AssignOperator)) {
@@ -2006,9 +2002,9 @@ export class Parser {
         if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
         this.expect(context, Token.Arrow);
 
-        if (this.flags & Flags.AllowCall) this.flags &= ~Flags.AllowCall;
+        if (context & Context.InParenthesis && this.flags & Flags.InFunctionBody) context &= ~Context.Await;;
 
-        if (this.flags & Flags.InFunctionBody && !(context & Context.Statement)) context &= ~Context.Await;
+        if (this.flags & Flags.AllowCall) this.flags &= ~Flags.AllowCall;
 
         const savedScope = this.enterFunctionScope();
 
@@ -2248,7 +2244,7 @@ export class Parser {
                 // we got an LineTerminator. The 'ArrowFunctionExpression' will be parsed out in 'parseAssignmentExpression'
                 if (this.flags & Flags.LineTerminator) return id;
                 const expr = this.parseIdentifier(context);
-                if (this.token === Token.Arrow) return this.parseArrowFunction(context | Context.Await, pos, [expr]);
+                if (this.token === Token.Arrow) return this.parseArrowFunction(context & ~Context.InParenthesis | Context.Await, pos, [expr]);
                 // Invalid: 'async abc'
                 this.error(Errors.UnexpectedToken, tokenDesc(this.token));
 
@@ -2285,6 +2281,9 @@ export class Parser {
                     if (!(state & ParenthesizedState.Await) && this.token === Token.AwaitKeyword) {
                         state |= ParenthesizedState.Await;
                     }
+                    if (!(state & ParenthesizedState.Parenthesized) && this.token === Token.LeftParen) {
+                        state |= ParenthesizedState.Parenthesized;
+                    }
                     args.push(this.parseAssignmentExpression(context));
                 }
 
@@ -2305,10 +2304,11 @@ export class Parser {
             // async arrows cannot have a line terminator between "async" and the formals
             if (flags & Flags.LineTerminator) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
             if (state & ParenthesizedState.EvalOrArg) this.error(Errors.StrictParamName);
+            if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
             if (state & ParenthesizedState.Await) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
             // Invalid: 'async[LineTerminator here] () => {}'
             if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
-            return this.parseArrowFunction(context |= (Context.Await | Context.Statement | Context.SimpleParameterList), pos, args);
+            return this.parseArrowFunction(context & ~Context.InParenthesis | (Context.Await | Context.Statement | Context.SimpleParameterList), pos, args);
         }
 
         return this.finishNode(pos, {
@@ -2378,6 +2378,8 @@ export class Parser {
                 return this.parseIdentifier(context);
             case Token.LeftParen:
                 return this.parseParenthesizedExpression(context | Context.InParenthesis);
+            case Token.LeftBracket:
+                return this.parseArrayInitializer(context);
             case Token.AsyncKeyword:
                 return this.parseAsyncFunctionExpression(context, pos);
             default:
@@ -2400,6 +2402,36 @@ export class Parser {
         });
     }
 
+    private parseArrayInitializer(context: Context): ESTree.ArrayExpression {
+        const pos = this.getLocations();
+        this.expect(context, Token.LeftBracket);
+
+        const elements = [];
+
+        while (this.token !== Token.RightBracket) {
+            if (this.parseOptional(context, Token.Comma)) {
+                elements.push(null);
+            } else if (this.token === Token.Ellipsis) {
+                const element = this.parseSpreadElement(context);
+                if (this.token !== Token.RightBracket) {
+                    this.expect(context, Token.Comma);
+                }
+                elements.push(element);
+            } else {
+                elements.push(this.parseAssignmentExpression(context | Context.AllowIn));
+                if (this.token !== Token.RightBracket) {
+                    this.expect(context, Token.Comma);
+                }
+            }
+        }
+        this.expect(context, Token.RightBracket);
+
+        return this.finishNode(pos, {
+            type: 'ArrayExpression',
+            elements
+        });
+    }
+
     // ParenthesizedExpression[Yield, Await]:
     // CoverParenthesizedExpressionAndArrowParameterList[Yield, Await]:
     private parseParenthesizedExpression(context: Context) {
@@ -2410,7 +2442,7 @@ export class Parser {
         let state = ParenthesizedState.None;
 
         if (this.parseOptional(context, Token.RightParen)) {
-            if (this.token === Token.Arrow) return this.parseArrowFunction(context, pos, []);
+            if (this.token === Token.Arrow) return this.parseArrowFunction(context & ~Context.Await, pos, []);
             this.error(Errors.MissingArrowAfterParentheses);
         }
 
@@ -2419,7 +2451,7 @@ export class Parser {
         if (this.token === Token.Ellipsis) {
             expr = this.parseRestElement(context);
             this.expect(context, Token.RightParen);
-            return this.parseArrowFunction(context, pos, [expr]);
+            return this.parseArrowFunction(context & ~Context.Await, pos, [expr]);
         }
 
         const sequencePos = this.getLocations();
@@ -2431,6 +2463,11 @@ export class Parser {
             if (!(state & ParenthesizedState.Yield) && this.token === Token.YieldKeyword) {
                 state |= ParenthesizedState.Yield;
             }
+        }
+
+        if (!(state & ParenthesizedState.Parenthesized) && this.token === Token.LeftParen) {
+
+            state |= ParenthesizedState.Parenthesized;
         }
 
         expr = this.parseAssignmentExpression(context);
@@ -2455,7 +2492,11 @@ export class Parser {
                             state |= ParenthesizedState.Yield;
                         }
                     }
-                    expressions.push(this.parseAssignmentExpression(context));
+                    if (!(state & ParenthesizedState.Parenthesized) && this.token === Token.LeftParen) {
+                        state |= ParenthesizedState.Parenthesized;
+                    }
+
+                    expressions.push(this.parseAssignmentExpression(context& ~Context.Await));
                 }
             }
 
@@ -2471,6 +2512,7 @@ export class Parser {
 
         if (this.token === Token.Arrow) {
             if (state & ParenthesizedState.EvalOrArg) this.error(Errors.StrictParamName);
+            if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
             if (state & ParenthesizedState.Yield) this.error(Errors.InvalidArrowYieldParam);
             return this.parseArrowFunction(context, pos, expr.type === 'SequenceExpression' ? expr.expressions : [expr]);
         }
@@ -2666,7 +2708,157 @@ export class Parser {
         });
     }
 
-    private parseAssignmentElementList(context: Context): any {}
-    private ObjectAssignmentPattern(context: Context, pos: Location): any {}
+    private parseAssignmentRestElement(context: Context): ESTree.RestElement {
+        const pos = this.getLocations();
+        this.expect(context, Token.Ellipsis);
+        const argument = this.parseBindingPatternOrIdentifier(context, pos);
+        if (this.token === Token.Assign) this.error(Errors.DefaultRestParameter);
+        return this.finishNode(pos, {
+            type: 'RestElement',
+            argument
+        });
+    }
 
+    private parseAssignmentElementList(context: Context) {
+        const pos = this.getLocations();
+        this.expect(context, Token.LeftBracket);
+
+        const elements: (ESTree.Pattern | null)[] = [];
+        while (this.token !== Token.RightBracket) {
+            if (this.parseOptional(context, Token.Comma)) {
+                elements.push(null);
+            } else {
+                if (this.token === Token.Ellipsis) {
+                    elements.push(this.parseAssignmentRestElement(context));
+                    break;
+                }
+                elements.push(this.parseArrayAssignmentPattern(context | Context.AllowIn));
+
+                if (this.token !== Token.RightBracket) this.expect(context, Token.Comma);
+            }
+        }
+
+        this.expect(context, Token.RightBracket);
+
+        return this.finishNode(pos, {
+            type: 'ArrayPattern',
+            elements
+        });
+    }
+
+    private parseArrayAssignmentPattern(context: Context): ESTree.AssignmentPattern {
+
+        return this.parseAssignmentPattern(context);
+    }
+
+    private parsePropertyName(context: Context) {
+        switch (this.token) {
+            case Token.StringLiteral:
+            case Token.NumericLiteral:
+                return this.parseLiteral(context);
+            case Token.LeftBracket:
+                return this.parseComputedPropertyName(context);
+            default:
+                return this.parseIdentifier(context);
+        }
+    }
+
+    private parseComputedPropertyName(context: Context): ESTree.Expression {
+        this.expect(context, Token.LeftBracket);
+        if (context & Context.Yield && context & Context.inParameter) context &= ~Context.Yield;
+        const expression = this.parseAssignmentExpression(context | Context.AllowIn);
+        this.expect(context, Token.RightBracket);
+        return expression;
+    }
+
+    private ObjectAssignmentPattern(context: Context, pos: Location) {
+        const properties: (ESTree.AssignmentProperty | ESTree.RestElement)[] = [];
+
+        this.expect(context, Token.LeftBrace);
+
+        while (this.token !== Token.RightBrace) {
+            if (this.token === Token.Ellipsis) {
+                if (!(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                properties.push(this.parseRestProperty(context));
+            } else {
+                properties.push(this.parseAssignmentProperty(context));
+            }
+            if (this.token !== Token.RightBrace) this.parseOptional(context, Token.Comma);
+        }
+
+        this.expect(context, Token.RightBrace);
+
+        return this.finishNode(pos, {
+            type: 'ObjectPattern',
+            properties
+        });
+    }
+
+    private parseRestProperty(context: Context): ESTree.RestElement {
+        const pos = this.getLocations();
+        this.expect(context, Token.Ellipsis);
+
+        if (this.token !== Token.Identifier) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+        const arg = this.parseBindingPatternOrIdentifier(context, pos);
+        if (this.token === Token.Assign) this.error(Errors.DefaultRestProperty);
+
+        return this.finishNode(pos, {
+            type: 'RestElement',
+            argument: arg
+        });
+    }
+
+    private parseAssignmentProperty(context: Context): ESTree.AssignmentProperty {
+
+        let pos = this.getLocations();
+
+        let computed = false;
+        let shorthand = false;
+        const method = false;
+
+        let key;
+        let value;
+
+        if (this.isIdentifier(context, this.token)) {
+
+            pos = this.getLocations();
+            const keyToken = this.token;
+            const tokenValue = this.tokenValue;
+            key = this.parsePropertyName(context);
+            const init = this.finishNode(pos, {
+                type: 'Identifier',
+                name: tokenValue
+            });
+            if (this.token === Token.Assign) {
+                shorthand = true;
+                this.nextToken(context);
+                const expr = this.parseAssignmentExpression(context);
+                value = this.finishNode(pos, {
+                    type: 'AssignmentPattern',
+                    left: init,
+                    right: expr
+                });
+            } else if (this.parseOptional(context, Token.Colon)) {
+                value = this.parseAssignmentPattern(context);
+            } else {
+                shorthand = true;
+                value = init;
+            }
+        } else {
+            computed = this.token === Token.LeftBracket;
+            key = this.parsePropertyName(context);
+            this.expect(context, Token.Colon);
+            value = this.parseAssignmentPattern(context);
+        }
+
+        return this.finishNode(pos, {
+            type: 'Property',
+            kind: 'init',
+            key,
+            computed,
+            value,
+            method,
+            shorthand
+        });
+    }
 }

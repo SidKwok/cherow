@@ -6,15 +6,14 @@ export const enum Context {
     SimpleArrow            = 1 << 3,
     Yield                  = 1 << 4,
     Await                  = 1 << 5,
-    AllowCall              = 1 << 6,
-    InParenthesis          = 1 << 7,
-    inParameter            = 1 << 8,
-    ArrowParameterList     = 1 << 9,
-    Statement              = 1 << 10,
-    Assignment             = 1 << 11,
-    SimpleParameterList    = 1 << 12,
-    Let                    = 1 << 13,
-    Const                  = 1 << 14,
+    InParenthesis          = 1 << 6,
+    inParameter            = 1 << 7,
+    ArrowParameterList     = 1 << 8,
+    Statement              = 1 << 9,
+    Assignment             = 1 << 10,
+    SimpleParameterList    = 1 << 11,
+    Let                    = 1 << 12,
+    Const                  = 1 << 13,
 
     Lexical = Let | Const,
 }
@@ -27,26 +26,34 @@ export const enum Flags {
     AllowYield                   = 1 << 3,
 
     /* Numeric */
-    Noctal                       = 1 << 6, // e.g. `0777`
-    BigInt                       = 1 << 7, // e.g. `100n`
-    Float                        = 1 << 8, // e.g. `09.01`
-    Exponent                     = 1 << 9, // e.g. `10e2`
+    Noctal                       = 1 << 4, // e.g. `0777`
+    BigInt                       = 1 << 5, // e.g. `100n`
+    Float                        = 1 << 6, // e.g. `09.01`
+    Exponent                     = 1 << 7, // e.g. `10e2`
 
     /* Options */
-    OptionsRanges                = 1 << 10,
-    OptionsLoc                   = 1 << 11,
-    OptionsSource                = 1 << 12,
-    OptionsJSX                   = 1 << 13,
-    OptionsRaw                   = 1 << 14,
-    OptionsNext                  = 1 << 15,
-    OptionsOnComment             = 1 << 16,
-    OptionsOnToken               = 1 << 17,
-    OptionsV8                    = 1 << 18,
-    InFunctionBody               = 1 << 19,
-    AllowCall                    = 1 << 20,
+    OptionsRanges                = 1 << 8,
+    OptionsLoc                   = 1 << 9,
+    OptionsSource                = 1 << 10,
+    OptionsJSX                   = 1 << 11,
+    OptionsRaw                   = 1 << 12,
+    OptionsNext                  = 1 << 13,
+    OptionsOnComment             = 1 << 14,
+    OptionsOnToken               = 1 << 15,
+    OptionsV8                    = 1 << 16,
+    InFunctionBody               = 1 << 17,
+    AllowCall                    = 1 << 18,
 
     // BigInt implementation can't handle either float or exponent acc. TC-39
     FloatOrExponent = Float | Exponent
+}
+
+export const enum ParenthesizedState {
+    None            = 0,
+    EvalOrArg       = 1 << 0, // If (async) arrow contains eval or agruments
+    Yield           = 1 << 1, // If (async) arrow contains eval or agruments
+    Await           = 1 << 2, // If async arrow contains 'await'
+    Parenthesized   = 1 << 3, // Tracks invalid parenthesized pattern
 }
 
 export const enum AsyncState {
