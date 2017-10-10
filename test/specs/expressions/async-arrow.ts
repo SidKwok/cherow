@@ -111,9 +111,135 @@ describe('Expressions - Async Arrow function', () => {
         }).to.not.throw()
     })
 
-    
+    it('should parse async arrow parameter', () => {
+        expect(parseScript(`cherow = async => 42;`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 21,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 21
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 21,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 21
+                  }
+                },
+                "expression": {
+                  "type": "AssignmentExpression",
+                  "start": 0,
+                  "end": 20,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 20
+                    }
+                  },
+                  "operator": "=",
+                  "left": {
+                    "type": "Identifier",
+                    "start": 0,
+                    "end": 6,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 6
+                      }
+                    },
+                    "name": "cherow"
+                  },
+                  "right": {
+                    "type": "ArrowFunctionExpression",
+                    "start": 9,
+                    "end": 20,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 20
+                      }
+                    },
+                    "id": null,
+                    "generator": false,
+                    "expression": true,
+                    "async": false,
+                    "params": [
+                      {
+                        "type": "Identifier",
+                        "start": 9,
+                        "end": 14,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 9
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 14
+                          }
+                        },
+                        "name": "async"
+                      }
+                    ],
+                    "body": {
+                      "type": "Literal",
+                      "start": 18,
+                      "end": 20,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 18
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 20
+                        }
+                      },
+                      "value": 42,
+                      "raw": "42"
+                    }
+                  }
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
 
-    it('should parse with comma dangle', () => {
+ 
+
+    it('should parse arrow function wrapped in an body of two async arrows', () => {
         expect(parseScript(`async () => a
         async () => {
         

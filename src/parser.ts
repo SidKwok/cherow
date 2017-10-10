@@ -1771,7 +1771,7 @@ export class Parser {
                 // heavy work for us. I doubt this will cause any performance loss, but
                 // if so is the case - this can be reverted later on.
                 // J.K. Thomas
-                if (this.nextTokenIsFuncKeywordOnSameLine(context | Context.Statement)) return this.parseFunctionDeclaration(context);
+                if (this.nextTokenIsFuncKeywordOnSameLine(context)) return this.parseFunctionDeclaration(context);
                 // 'Async' is a valid contextual keyword in sloppy mode for labelled statement, so either
                 // parse out 'LabelledStatement' or an plain identifier. We pass down the 'Statement' mask
                 // so we can easily switch async state if needed on "TopLevel" even if we are inside
@@ -1904,13 +1904,13 @@ export class Parser {
                 //
                 if (context & Context.Strict && this.isEvalOrArguments(tokenValue)) this.error(Errors.UnexpectedStrictReserved);
                 if (expr.type !== 'Identifier') this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-                return this.parseArrowFunction(context | Context.SimpleArrow, pos, [expr]);
+                return this.parseArrowFunction(context &= ~Context.Await | Context.SimpleArrow, pos, [expr]);
             }
         }
 
         if (hasMask(this.token, Token.AssignOperator)) {
             const operator = this.token;
-            if (!(context & Context.inParameter) && this.token === Token.Assign) {
+            if (!(context & Context.InParameter) && this.token === Token.Assign) {
                 this.reinterpretAsPattern(context, expr);
             }
             this.nextToken(context);
@@ -2002,9 +2002,9 @@ export class Parser {
         if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
         this.expect(context, Token.Arrow);
 
-        if (context & Context.InParenthesis && this.flags & Flags.InFunctionBody) context &= ~Context.Await;;
-
         if (this.flags & Flags.AllowCall) this.flags &= ~Flags.AllowCall;
+
+        if (this.flags & Flags.InFunctionBody && !(context & Context.Statement)) context &= ~Context.Await;
 
         const savedScope = this.enterFunctionScope();
 
@@ -2175,7 +2175,7 @@ export class Parser {
                     // '('
                 case Token.LeftParen:
 
-                    const args = this.parseArguments(context & ~Context.inParameter, pos);
+                    const args = this.parseArguments(context & ~Context.InParameter, pos);
                     expr = this.finishNode(pos, {
                         type: 'CallExpression',
                         callee: expr,
@@ -2244,7 +2244,7 @@ export class Parser {
                 // we got an LineTerminator. The 'ArrowFunctionExpression' will be parsed out in 'parseAssignmentExpression'
                 if (this.flags & Flags.LineTerminator) return id;
                 const expr = this.parseIdentifier(context);
-                if (this.token === Token.Arrow) return this.parseArrowFunction(context & ~Context.InParenthesis | Context.Await, pos, [expr]);
+                if (this.token === Token.Arrow) return this.parseArrowFunction(context | Context.Await, pos, [expr]);
                 // Invalid: 'async abc'
                 this.error(Errors.UnexpectedToken, tokenDesc(this.token));
 
@@ -2308,7 +2308,7 @@ export class Parser {
             if (state & ParenthesizedState.Await) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
             // Invalid: 'async[LineTerminator here] () => {}'
             if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
-            return this.parseArrowFunction(context & ~Context.InParenthesis | (Context.Await | Context.Statement | Context.SimpleParameterList), pos, args);
+            return this.parseArrowFunction(context |= (Context.Await | Context.SimpleParameterList), pos, args);
         }
 
         return this.finishNode(pos, {
@@ -2482,7 +2482,7 @@ export class Parser {
                 } else if (this.token === Token.Ellipsis) {
                     expressions.push(this.parseRestElement(context));
                     this.expect(context, Token.RightParen);
-                    return this.parseArrowFunction(context, pos, expressions);
+                    return this.parseArrowFunction(context & ~Context.Await, pos, expressions);
                 } else {
                     if (context & Context.Strict) {
                         if (!(state & ParenthesizedState.EvalOrArg) && this.isEvalOrArguments(this.tokenValue)) {
@@ -2496,7 +2496,7 @@ export class Parser {
                         state |= ParenthesizedState.Parenthesized;
                     }
 
-                    expressions.push(this.parseAssignmentExpression(context& ~Context.Await));
+                    expressions.push(this.parseAssignmentExpression(context));
                 }
             }
 
@@ -2660,7 +2660,7 @@ export class Parser {
         const pattern = this.parseBindingPatternOrIdentifier(context, pos);
         if (!this.parseOptional(context, Token.Assign)) return pattern;
 
-        if (context & Context.inParameter && context & Context.Yield && this.token === Token.YieldKeyword) this.error(Errors.Unexpected);
+        if (context & Context.InParameter && context & Context.Yield && this.token === Token.YieldKeyword) this.error(Errors.Unexpected);
         const right = this.parseAssignmentExpression(context);
         return this.finishNode(pos, {
             type: 'AssignmentPattern',
@@ -2676,7 +2676,7 @@ export class Parser {
             case Token.LeftBrace:
                 return this.ObjectAssignmentPattern(context, pos);
             case Token.Identifier:
-                if (context & Context.inParameter && context & Context.Strict) this.addFunctionArg(this.tokenValue);
+                if (context & Context.InParameter && context & Context.Strict) this.addFunctionArg(this.tokenValue);
                 return this.parseBindingIdentifier(context);
             case Token.LetKeyword:
                 if (context & Context.Lexical) this.error(Errors.LetInLexicalBinding);
@@ -2765,7 +2765,7 @@ export class Parser {
 
     private parseComputedPropertyName(context: Context): ESTree.Expression {
         this.expect(context, Token.LeftBracket);
-        if (context & Context.Yield && context & Context.inParameter) context &= ~Context.Yield;
+        if (context & Context.Yield && context & Context.InParameter) context &= ~Context.Yield;
         const expression = this.parseAssignmentExpression(context | Context.AllowIn);
         this.expect(context, Token.RightBracket);
         return expression;

@@ -3,35 +3,17 @@ import * as chai from 'chai';
 
 const expect = chai.expect;
 
-describe('Expressions - Await', () => {
+describe('Expressions - Async', () => {
 
-    it('should fail on await expression outside of async function', () => {
-        expect(() => {
-            parseScript(`await a`);
-        }).to.throw()
-    });
-
-    it('should fail on await without arguments', () => {
-        expect(() => {
-            parseScript(`async () => await`);
-        }).to.throw();
-    });
-
-    it('should fail on await expression in default parameters', () => {
-        expect(() => {
-            parseScript(`async (a = await b) => {}`);
-        }).to.throw()
-    });
-
-    it('should parse call async await', () => {
-        expect(parseScript(`a = async(await);`, {
+    it('should parse call async', () => {
+        expect(parseScript(`x = async(y);`, {
             ranges: true,
             raw: true,
             locations: true
         })).to.eql({
             "type": "Program",
             "start": 0,
-            "end": 17,
+            "end": 13,
             "loc": {
               "start": {
                 "line": 1,
@@ -39,14 +21,14 @@ describe('Expressions - Await', () => {
               },
               "end": {
                 "line": 1,
-                "column": 17
+                "column": 13
               }
             },
             "body": [
               {
                 "type": "ExpressionStatement",
                 "start": 0,
-                "end": 17,
+                "end": 13,
                 "loc": {
                   "start": {
                     "line": 1,
@@ -54,13 +36,13 @@ describe('Expressions - Await', () => {
                   },
                   "end": {
                     "line": 1,
-                    "column": 17
+                    "column": 13
                   }
                 },
                 "expression": {
                   "type": "AssignmentExpression",
                   "start": 0,
-                  "end": 16,
+                  "end": 12,
                   "loc": {
                     "start": {
                       "line": 1,
@@ -68,7 +50,7 @@ describe('Expressions - Await', () => {
                     },
                     "end": {
                       "line": 1,
-                      "column": 16
+                      "column": 12
                     }
                   },
                   "operator": "=",
@@ -86,12 +68,12 @@ describe('Expressions - Await', () => {
                         "column": 1
                       }
                     },
-                    "name": "a"
+                    "name": "x"
                   },
                   "right": {
                     "type": "CallExpression",
                     "start": 4,
-                    "end": 16,
+                    "end": 12,
                     "loc": {
                       "start": {
                         "line": 1,
@@ -99,7 +81,7 @@ describe('Expressions - Await', () => {
                       },
                       "end": {
                         "line": 1,
-                        "column": 16
+                        "column": 12
                       }
                     },
                     "callee": {
@@ -122,7 +104,7 @@ describe('Expressions - Await', () => {
                       {
                         "type": "Identifier",
                         "start": 10,
-                        "end": 15,
+                        "end": 11,
                         "loc": {
                           "start": {
                             "line": 1,
@@ -130,10 +112,10 @@ describe('Expressions - Await', () => {
                           },
                           "end": {
                             "line": 1,
-                            "column": 15
+                            "column": 11
                           }
                         },
-                        "name": "await"
+                        "name": "y"
                       }
                     ]
                   }
@@ -143,4 +125,94 @@ describe('Expressions - Await', () => {
             "sourceType": "script"
           });
     });
+
+    it('should parse expression async', () => {
+        expect(parseScript(`a = async`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
+                "expression": {
+                  "type": "AssignmentExpression",
+                  "start": 0,
+                  "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 9
+                    }
+                  },
+                  "operator": "=",
+                  "left": {
+                    "type": "Identifier",
+                    "start": 0,
+                    "end": 1,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 1
+                      }
+                    },
+                    "name": "a"
+                  },
+                  "right": {
+                    "type": "Identifier",
+                    "start": 4,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "name": "async"
+                  }
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
+  
 });

@@ -7,13 +7,12 @@ export const enum Context {
     Yield                  = 1 << 4,
     Await                  = 1 << 5,
     InParenthesis          = 1 << 6,
-    inParameter            = 1 << 7,
+    InParameter            = 1 << 7,
     ArrowParameterList     = 1 << 8,
     Statement              = 1 << 9,
-    Assignment             = 1 << 10,
-    SimpleParameterList    = 1 << 11,
-    Let                    = 1 << 12,
-    Const                  = 1 << 13,
+    SimpleParameterList    = 1 << 10,
+    Let                    = 1 << 11,
+    Const                  = 1 << 12,
 
     Lexical = Let | Const,
 }
@@ -22,8 +21,8 @@ export const enum Flags {
     None                         = 0,
     LineTerminator               = 1 << 0,
     HasUnicode                   = 1 << 1,
-    AllowAwait                   = 1 << 2,
-    AllowYield                   = 1 << 3,
+    InFunctionBody               = 1 << 2,
+    AllowCall                    = 1 << 3,
 
     /* Numeric */
     Noctal                       = 1 << 4, // e.g. `0777`
@@ -41,8 +40,6 @@ export const enum Flags {
     OptionsOnComment             = 1 << 14,
     OptionsOnToken               = 1 << 15,
     OptionsV8                    = 1 << 16,
-    InFunctionBody               = 1 << 17,
-    AllowCall                    = 1 << 18,
 
     // BigInt implementation can't handle either float or exponent acc. TC-39
     FloatOrExponent = Float | Exponent

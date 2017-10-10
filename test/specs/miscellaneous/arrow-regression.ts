@@ -9440,7 +9440,7 @@ a(b, c => 123)`, {
       });
     });
 
-    it.skip('should parse complex #9', () => {
+    it('should parse complex #9', () => {
       expect(parseScript(`async ((a => a.b()))
       a (a, b, c)
             a(b, c)
