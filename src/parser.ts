@@ -589,7 +589,7 @@ export class Parser {
                         this.advance();
 
                         // Fixes '<a>= == =</a>'
-                        //  if (context & Context.JSXChild) return Token.GreaterThan;
+                        if (context & Context.JSXChild) return Token.GreaterThan;
 
                         let next = this.nextChar();
 
@@ -1787,10 +1787,358 @@ export class Parser {
         return this.line === this.peekedState.line && this.peekedToken === Token.FunctionKeyword;
     }
 
-    private parseExportDeclaration(context: Context): any {}
-    private parseImportDeclaration(context: Context): any {}
+    private parseExportDefault(context: Context, pos: Location): ESTree.ExportDefaultDeclaration {
+        //  Supports the following productions, starting after the 'default' token:
+        //    'export' 'default' HoistableDeclaration
+        //    'export' 'default' ClassDeclaration
+        //    'export' 'default' AssignmentExpression[In] ';'
+        this.expect(context, Token.DefaultKeyword);
 
-    private parseModuleItem(context: Context): ESTree.Statement {
+        let declaration: ESTree.FunctionDeclaration | ESTree.ClassDeclaration | ESTree.Expression;
+
+        switch (this.token) {
+
+            // export default HoistableDeclaration[Default]
+            case Token.FunctionKeyword:
+                declaration = this.parseFunctionDeclaration(context |= (Context.OptionalIdentifier | Context.Export));
+                break;
+
+                // export default ClassDeclaration[Default]
+            case Token.ClassKeyword:
+                declaration = this.parseClassDeclaration(context | (Context.OptionalIdentifier | Context.Export));
+                break;
+
+                // export default HoistableDeclaration[Default]
+            case Token.AsyncKeyword:
+                if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
+                    declaration = this.parseFunctionDeclaration(context | (Context.OptionalIdentifier | Context.Export));
+                    break;
+                }
+                // falls through
+            default:
+                // export default [lookahead ∉ {function, class}] AssignmentExpression[In] ;
+                declaration = this.parseAssignmentExpression(context);
+                this.consumeSemicolon(context);
+        }
+
+        return this.finishNode(pos, {
+            type: 'ExportDefaultDeclaration',
+            declaration
+        });
+    }
+
+    private parseExportDeclaration(context: Context): ESTree.ExportAllDeclaration | ESTree.ExportNamedDeclaration | ESTree.ExportDefaultDeclaration {
+        // ExportDeclaration:
+        //    'export' '*' 'from' ModuleSpecifier ';'
+        //    'export' ExportClause ('from' ModuleSpecifier)? ';'
+        //    'export' VariableStatement
+        //    'export' Declaration
+        //    'export' 'default' ... (handled in ParseExportDefault)
+        if (this.flags & Flags.InFunctionBody) this.error(Errors.ExportDeclAtTopLevel);
+
+        const pos = this.getLocations();
+        const specifiers: ESTree.ExportSpecifier[] = [];
+
+        let source = null;
+        let isExportFromIdentifier = false;
+        let declaration: ESTree.Statement | null = null;
+
+        this.expect(context, Token.ExportKeyword);
+
+        switch (this.token) {
+
+            case Token.DefaultKeyword:
+                return this.parseExportDefault(context, pos);
+
+                // export * FromClause ;
+            case Token.Multiply:
+                return this.parseExportAllDeclaration(context, pos);
+
+            case Token.LeftBrace:
+                // There are two cases here:
+                //
+                // 'export' ExportClause ';'
+                // and
+                // 'export' ExportClause FromClause ';'
+                //
+                this.expect(context, Token.LeftBrace);
+
+                while (!this.parseOptional(context, Token.RightBrace)) {
+                    if (this.token === Token.DefaultKeyword) isExportFromIdentifier = true;
+                    specifiers.push(this.parseExportSpecifier(context));
+                    // Invalid: 'export {a,,b}'
+                    if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
+                }
+
+                if (this.parseOptional(context, Token.FromKeyword)) {
+                    // export {default} from 'foo';
+                    // export {foo} from 'foo';
+                    source = this.parseModuleSpecifier(context);
+                } else if (isExportFromIdentifier) this.error(Errors.Unexpected);
+
+                this.consumeSemicolon(context);
+
+                break;
+
+                // export ClassDeclaration
+            case Token.ClassKeyword:
+                declaration = this.parseClassDeclaration(context | Context.Export);
+                break;
+
+                // export LexicalDeclaration
+            case Token.ConstKeyword:
+                declaration = this.parseVariableStatement(context |= (Context.Const | Context.RequireInitializer));
+                break;
+
+                // export LexicalDeclaration
+            case Token.LetKeyword:
+                declaration = this.parseVariableStatement(context |= (Context.Let | Context.RequireInitializer));
+                break;
+
+                // export VariableDeclaration
+            case Token.VarKeyword:
+                declaration = this.parseVariableStatement(context | Context.RequireInitializer | Context.Export);
+                break;
+
+                // export HoistableDeclaration
+            case Token.FunctionKeyword:
+                declaration = this.parseFunctionDeclaration(context | Context.Export);
+                break;
+
+                // export HoistableDeclaration
+            case Token.AsyncKeyword:
+                if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
+                    declaration = this.parseFunctionDeclaration(context | Context.Export);
+                    break;
+                }
+                // Falls through
+            default:
+                this.error(Errors.MissingMsgDeclarationAfterExport);
+        }
+
+        return this.finishNode(pos, {
+            type: 'ExportNamedDeclaration',
+            source,
+            specifiers,
+            declaration
+        });
+    }
+
+    private parseExportSpecifier(context: Context): ESTree.ExportSpecifier {
+        const pos = this.getLocations();
+
+        // Valid: `export {default} from "foo";`
+        // Invalid: '`export {with as a}`'
+        if (this.token !== Token.DefaultKeyword && this.token !== Token.Identifier) this.error(Errors.Unexpected);
+
+        const local = this.parseIdentifier(context);
+        let exported = local;
+
+        if (this.parseOptional(context, Token.AsKeyword)) {
+            // Invalid: 'export { x as arguments };'
+            // Invalid: 'export { x as eval };'
+            if (this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
+            exported = this.parseIdentifier(context);
+        }
+
+        return this.finishNode(pos, {
+            type: 'ExportSpecifier',
+            local,
+            exported
+        });
+    }
+
+    private parseExportAllDeclaration(context: Context, pos: Location): ESTree.ExportAllDeclaration {
+        this.expect(context, Token.Multiply);
+        this.expect(context, Token.FromKeyword);
+
+        // Invalid `export * from 123;`
+        if (this.token !== Token.StringLiteral) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+
+        const source = this.parseModuleSpecifier(context);
+        this.consumeSemicolon(context);
+        return this.finishNode(pos, {
+            type: 'ExportAllDeclaration',
+            source
+        });
+    }
+
+    private parseModuleSpecifier(context: Context): ESTree.Literal {
+        // ModuleSpecifier :
+        //    StringLiteral
+        if (this.token !== Token.StringLiteral) this.error(Errors.InvalidModuleSpecifier);
+        return this.parseLiteral(context);
+    }
+
+    // import {<foo as bar>} ...;
+    private parseImportSpecifier(context: Context): ESTree.ImportSpecifier {
+
+        const pos = this.getLocations();
+
+        let imported;
+        let local;
+
+        if (this.isIdentifier(context, this.token)) {
+            imported = this.parseBindingIdentifier(context);
+            local = imported;
+            // In the presence of 'as', the left-side of the 'as' can
+            // be any IdentifierName. But without 'as', it must be a valid
+            // BindingIdentifier.
+            if (this.token === Token.AsKeyword) {
+                // 'import {a \\u0061s b} from "./foo.js";'
+                if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
+                if (this.token === Token.AsKeyword) {
+                    this.expect(context, Token.AsKeyword);
+                    local = this.parseBindingPatternOrIdentifier(context, pos);
+                } else {
+                    this.error(Errors.MissingAsImportSpecifier);
+                }
+            }
+        } else {
+            imported = this.parseIdentifier(context);
+            local = imported;
+            this.expect(context, Token.AsKeyword);
+            local = this.parseBindingPatternOrIdentifier(context, pos);
+        }
+
+        return this.finishNode(pos, {
+            type: 'ImportSpecifier',
+            local,
+            imported
+        });
+    }
+
+    // {foo, bar as bas}
+    private parseNamedImports(context: Context, specifiers: (ESTree.ImportSpecifier | ESTree.ImportDefaultSpecifier | ESTree.ImportNamespaceSpecifier)[]) {
+        //  NamedImports
+        //  ImportedDefaultBinding, NameSpaceImport
+        //  ImportedDefaultBinding, NamedImports
+        this.expect(context, Token.LeftBrace);
+
+        while (!this.parseOptional(context, Token.RightBrace)) {
+            // only accepts identifiers or keywords
+            specifiers.push(this.parseImportSpecifier(context));
+            this.parseOptional(context, Token.Comma);
+        }
+    }
+
+    // import <* as foo> ...;
+    private parseImportNamespaceSpecifier(context: Context): ESTree.ImportNamespaceSpecifier {
+
+        const pos = this.getLocations();
+
+        this.expect(context, Token.Multiply);
+
+        if (this.token !== Token.AsKeyword) this.error(Errors.NoAsAfterImportNamespace);
+
+        this.nextToken(context);
+
+        if (this.token !== Token.Identifier) {
+            this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+        }
+
+        const local = this.parseIdentifier(context);
+
+        return this.finishNode(pos, {
+            type: 'ImportNamespaceSpecifier',
+            local
+        });
+    }
+
+    // import <foo> ...;
+    private parseImportDefaultSpecifier(context: Context): ESTree.ImportDefaultSpecifier {
+        return this.finishNode(this.getLocations(), {
+            type: 'ImportDefaultSpecifier',
+            local: this.parseIdentifier(context)
+        });
+    }
+
+    private parseImportDeclaration(context: Context): ESTree.ImportDeclaration {
+        // ImportDeclaration :
+        //   'import' ImportClause 'from' ModuleSpecifier ';'
+        //   'import' ModuleSpecifier ';'
+        //
+        // ImportClause :
+        //   ImportedDefaultBinding
+        //   NameSpaceImport
+        //   NamedImports
+        //   ImportedDefaultBinding ',' NameSpaceImport
+        //   ImportedDefaultBinding ',' NamedImports
+        //
+        // NameSpaceImport :
+        //   '*' 'as' ImportedBinding
+        if (this.flags & Flags.InFunctionBody) this.error(Errors.ImportDeclAtTopLevel);
+
+        const pos = this.getLocations();
+        const specifiers: (ESTree.ImportSpecifier |
+            ESTree.ImportDefaultSpecifier |
+            ESTree.ImportNamespaceSpecifier)[] = [];
+
+        this.expect(context, Token.ImportKeyword);
+
+        switch (this.token) {
+
+            // import 'foo';
+            case Token.StringLiteral:
+                {
+                    const source = this.parseModuleSpecifier(context);
+                    this.consumeSemicolon(context);
+                    return this.finishNode(pos, {
+                        type: 'ImportDeclaration',
+                        specifiers,
+                        source
+                    });
+                }
+
+            case Token.Identifier:
+                {
+                    const tokenValue = this.tokenValue;
+                    specifiers.push(this.parseImportDefaultSpecifier(context));
+                    if (this.parseOptional(context, Token.Comma)) {
+                        switch (this.token) {
+                            case Token.Multiply:
+                                // import foo, * as foo
+                                specifiers.push(this.parseImportNamespaceSpecifier(context));
+                                break;
+                            case Token.LeftBrace:
+                                // import foo, {bar}
+                                this.parseNamedImports(context, specifiers);
+                                break;
+                            default:
+                                this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                        }
+                    }
+
+                    break;
+                }
+
+                // import {bar}
+            case Token.LeftBrace:
+                this.parseNamedImports(context, specifiers);
+                break;
+
+                // import * as foo
+            case Token.Multiply:
+                specifiers.push(this.parseImportNamespaceSpecifier(context));
+                break;
+
+            default:
+                this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+        }
+
+        this.expect(context, Token.FromKeyword);
+        const src = this.parseModuleSpecifier(context);
+
+        this.consumeSemicolon(context);
+
+        return this.finishNode(pos, {
+            type: 'ImportDeclaration',
+            specifiers,
+            source: src
+        });
+    }
+
+    private parseModuleItem(context: Context): any {
         // ecma262/#prod-ModuleItem
         // ModuleItem :
         //    ImportDeclaration
@@ -3015,7 +3363,7 @@ export class Parser {
         }
 
         if (this.flags & Flags.OptionsJSX && this.token === Token.LessThan) {
-            // TODO! JSX
+            return this.parseJSXElement(context | Context.JSXChild);
         }
 
         expr = this.parseLeftHandSideExpression(context, pos);
@@ -4676,5 +5024,432 @@ export class Parser {
             type: 'DoExpression',
             body
         });
+    }
+
+     /** JSX */
+
+     private isValidJSXIdentifier(t: Token): boolean {
+        return (t & Token.Identifier) === Token.Identifier || (t & Token.Contextual) === Token.Contextual || (t & Token.Keyword) === Token.Keyword;
+    }
+
+    private parseJSXIdentifier(context: Context): ESTree.JSXIdentifier {
+        if (!(this.isValidJSXIdentifier(this.token))) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+        const name = this.tokenValue;
+        const pos = this.getLocations();
+        this.nextToken(context);
+        return this.finishNode(pos, {
+            type: 'JSXIdentifier',
+            name
+        });
+    }
+
+    private parseJSXMemberExpression(context: Context, expr: any, pos: Location): ESTree.JSXMemberExpression {
+        return this.finishNode(pos, {
+            type: 'JSXMemberExpression',
+            object: expr,
+            property: this.parseJSXIdentifier(context)
+        });
+    }
+
+    private parseJSXElementName(context: Context): ESTree.Node {
+        const pos = this.getLocations();
+
+        this.scanJSXIdentifier(context);
+        // Parse in a 'JSXChild' context to avoid edge cases
+        // like `<a>= == =</a>` where '>=' will be seen as an
+        // punctuator.
+        let expression: ESTree.JSXIdentifier | ESTree.JSXMemberExpression = this.parseJSXIdentifier(context | Context.JSXChild);
+
+        // Namespace
+        if (this.token === Token.Colon) return this.parseJSXNamespacedName(context, expression, pos);
+
+        // Member expression
+        while (this.parseOptional(context, Token.Period)) {
+            expression = this.parseJSXMemberExpression(context, expression, pos);
+        }
+
+        return expression;
+    }
+
+    private parseJSXNamespacedName(
+        context: Context,
+        namespace: ESTree.JSXIdentifier | ESTree.JSXMemberExpression,
+        pos: Location
+    ): ESTree.JSXNamespacedName {
+        this.expect(context, Token.Colon);
+        const name = this.parseJSXIdentifier(context);
+        return this.finishNode(pos, {
+            type: 'JSXNamespacedName',
+            namespace,
+            name
+        });
+    }
+
+    private parseJSXSpreadAttribute(context: Context) {
+        const pos = this.getLocations();
+        this.expect(context, Token.LeftBrace);
+        this.expect(context, Token.Ellipsis);
+        const expression = this.parseExpression(context, pos);
+        this.expect(context, Token.RightBrace);
+
+        return this.finishNode(pos, {
+            type: 'JSXSpreadAttribute',
+            argument: expression
+        });
+    }
+
+    private scanJSXString(): Token {
+        const rawStart = this.index;
+        const quote = this.nextChar();
+        this.advance();
+        let ret = '';
+        const start = this.index;
+        let ch;
+
+        while (ch !== quote) {
+            switch (ch) {
+                case Chars.CarriageReturn:
+                case Chars.LineFeed:
+                case Chars.LineSeparator:
+                case Chars.ParagraphSeparator:
+                    this.error(Errors.UnterminatedString);
+                default: // ignore
+            }
+
+            this.advance();
+            ch = this.nextChar();
+        }
+
+        // check for unterminated string
+        if (ch !== quote) this.error(Errors.UnterminatedString);
+
+        if (start !== this.index) ret += this.source.slice(start, this.index);
+
+        this.advance(); // skip the quote
+
+        this.tokenValue = ret;
+
+        // raw
+        if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(rawStart, this.index);
+
+        return Token.StringLiteral;
+    }
+
+    private scanJSXAttributeValue(context: Context): Token | undefined {
+
+        this.startPos = this.index;
+        this.startColumn = this.column;
+        this.startLine = this.line;
+
+        switch (this.nextChar()) {
+            case Chars.DoubleQuote:
+            case Chars.SingleQuote:
+                return this.scanJSXString();
+            default:
+                this.nextToken(context);
+        }
+    }
+
+    private parseJSXEmptyExpression(): ESTree.JSXEmptyExpression {
+        // For empty JSX Expressions the 'endPos' need to become
+        // the 'startPos' and the other way around
+        const pos = this.getLocations();
+        return this.finishNode(pos, {
+            type: 'JSXEmptyExpression'
+        });
+    }
+
+    private parseJSXSpreadChild(context: Context): ESTree.JSXSpreadChild {
+        const pos = this.getLocations();
+        this.expect(context, Token.Ellipsis);
+        const expression = this.parseExpression(context, pos);
+        this.expect(context, Token.RightBrace);
+        return this.finishNode(pos, {
+            type: 'JSXSpreadChild',
+            expression
+        });
+    }
+
+    private parseJSXExpressionContainer(context: Context): ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild {
+
+        const pos = this.getLocations();
+
+        this.expect(context, Token.LeftBrace);
+
+        let expression;
+
+        switch (this.token) {
+
+            // '...'
+            case Token.Ellipsis:
+                return this.parseJSXSpreadChild(context);
+
+                // '}'
+            case Token.RightBrace:
+                expression = this.parseJSXEmptyExpression();
+                break;
+
+            default:
+                expression = this.parseAssignmentExpression(context);
+        }
+
+        this.token = this.scanJSXToken();
+
+        return this.finishNode(pos, {
+            type: 'JSXExpressionContainer',
+            expression
+        });
+    }
+
+    private parseJSXExpressionAttribute(context: Context): ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild {
+
+        const pos = this.getLocations();
+
+        this.expect(context, Token.LeftBrace);
+
+        switch (this.token) {
+            case Token.RightBrace:
+                this.error(Errors.NonEmptyJSXExpression);
+            case Token.Ellipsis:
+                return this.parseJSXSpreadChild(context);
+            default: // ignore
+        }
+
+        const expression = this.parseAssignmentExpression(context);
+
+        this.expect(context, Token.RightBrace);
+
+        return this.finishNode(pos, {
+            type: 'JSXExpressionContainer',
+            expression
+        });
+    }
+
+    private parseJSXAttributeName(context: Context): ESTree.JSXIdentifier | ESTree.JSXNamespacedName {
+        const pos = this.getLocations();
+        const identifier: ESTree.JSXIdentifier = this.parseJSXIdentifier(context);
+        if (this.token !== Token.Colon) return identifier;
+        return this.parseJSXNamespacedName(context, identifier, pos);
+    }
+
+    private parseJSXAttribute(context: Context): ESTree.JSXAttribute {
+
+        const pos = this.getLocations();
+        let value = null;
+        const attrName = this.parseJSXAttributeName(context);
+
+        switch (this.token) {
+            case Token.Assign:
+                switch (this.scanJSXAttributeValue(context)) {
+                    case Token.StringLiteral:
+                        value = this.parseLiteral(context);
+                        break;
+                    default:
+                        value = this.parseJSXExpressionAttribute(context);
+                }
+            default: // ignore
+        }
+
+        return this.finishNode(pos, {
+            type: 'JSXAttribute',
+            value,
+            name: attrName
+        });
+    }
+
+    private parseJSXAttributes(context: Context): ESTree.JSXAttribute[] {
+
+        const attributes: ESTree.JSXAttribute[] = [];
+
+        loop:
+            while (this.hasNext()) {
+
+                switch (this.token) {
+
+                    // '/'
+                    case Token.Divide:
+
+                        // `>`
+                    case Token.GreaterThan:
+                        break loop;
+
+                        // `{`
+                    case Token.LeftBrace:
+                        attributes.push(this.parseJSXSpreadAttribute(context &= ~Context.JSXChild));
+                        break;
+
+                    default:
+                        attributes.push(this.parseJSXAttribute(context));
+                }
+            }
+
+        return attributes;
+    }
+
+    private scanJSXToken(): Token {
+
+        // Set 'endPos' and 'startPos' to current index
+        this.endPos = this.startPos = this.index;
+
+        if (!this.hasNext()) return Token.EndOfSource;
+
+        const next = this.nextChar();
+
+        if (next === Chars.LessThan) {
+            this.advance();
+            if (!this.consume(Chars.Slash)) return Token.LessThan;
+            return Token.JSXClose;
+        }
+
+        if (next === Chars.LeftBrace) {
+            this.advance();
+            return Token.LeftBrace;
+        }
+
+        scan:
+            while (this.hasNext()) {
+                switch (this.nextChar()) {
+                    case Chars.LeftBrace:
+                    case Chars.LessThan:
+                        break scan;
+                    default:
+                        this.advance();
+                }
+            }
+
+        return Token.Identifier;
+    }
+
+    private parseJSXOpeningElement(context: Context) {
+        const pos = this.getLocations();
+
+        this.expect(context, Token.LessThan);
+        const tagName = this.parseJSXElementName(context);
+
+        const attributes = this.parseJSXAttributes(context);
+
+        const selfClosing = this.token === Token.Divide;
+
+        switch (this.token) {
+
+            case Token.GreaterThan:
+                this.token = this.scanJSXToken();
+                break;
+
+            case Token.Divide:
+
+                this.expect(context, Token.Divide);
+
+                // Because advance() (called by nextToken() called by expect()) expects
+                // there to be a valid token after >, it needs to know whether to
+                // look for a standard JS token or an JSX text node
+                if (context & Context.JSXChild) {
+
+                    this.expect(context, Token.GreaterThan);
+                } else {
+                    this.token = this.scanJSXToken();
+                }
+
+            default: // ignore
+        }
+
+        return this.finishNode(pos, {
+            type: 'JSXOpeningElement',
+            name: tagName,
+            attributes,
+            selfClosing
+        });
+    }
+
+    private parseJSXClosingElement(context: Context) {
+
+        const pos = this.getLocations();
+        this.expect(context, Token.JSXClose);
+        const name = this.parseJSXElementName(context);
+        // Because advance() (called by nextToken() called by expect()) expects there
+        // to be a valid token after >, it needs to know whether to look for a
+        // standard JS token or an JSX text node
+        if (context & Context.JSXChild) {
+            this.expect(context, Token.GreaterThan);
+        } else {
+            this.token = this.scanJSXToken();
+        }
+
+        return this.finishNode(pos, {
+            type: 'JSXClosingElement',
+            name
+        });
+    }
+
+    private parseJSXElement(context: Context): ESTree.JSXElement {
+
+        const pos = this.getLocations();
+        const children: (ESTree.JSXText | ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild | ESTree.JSXElement | undefined)[] = [];
+        let closingElement = null;
+
+        const openingElement = this.parseJSXOpeningElement(context);
+
+        if (!openingElement.selfClosing) {
+
+            loop: while (this.hasNext()) {
+                switch (this.token) {
+                    case Token.JSXClose:
+                        break loop;
+                    default:
+                        children.push(this.parseJSXChild(context | Context.JSXChild));
+                }
+            }
+
+            closingElement = this.parseJSXClosingElement(context);
+
+            const open = getQualifiedJSXName(openingElement.name);
+            const close = getQualifiedJSXName(closingElement.name);
+
+            if (open !== close) this.error(Errors.ExpectedJSXClosingTag, close);
+        }
+
+        return this.finishNode(pos, {
+            type: 'JSXElement',
+            children,
+            openingElement,
+            closingElement,
+        });
+    }
+
+    private parseJSXText(context: Context): ESTree.JSXText {
+        const pos = this.getLocations();
+        const value = this.source.slice(this.startPos, this.index);
+
+        this.token = this.scanJSXToken();
+
+        const node = this.finishNode(pos, {
+            type: 'JSXText',
+            value
+        });
+
+        if (this.flags & Flags.OptionsRaw) node.raw = value;
+
+        return node;
+    }
+
+    private parseJSXChild(
+        context: Context
+    ): ESTree.JSXText | ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild | ESTree.JSXElement | undefined {
+        switch (this.token) {
+
+            // 'abc'
+            case Token.Identifier:
+                return this.parseJSXText(context);
+
+                // '{'
+            case Token.LeftBrace:
+                return this.parseJSXExpressionContainer(context &= ~Context.JSXChild);
+                // '<'
+            case Token.LessThan:
+                return this.parseJSXElement(context &= ~Context.JSXChild);
+
+            default:
+                this.error(Errors.Unexpected);
+        }
     }
 }

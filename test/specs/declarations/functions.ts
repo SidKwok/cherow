@@ -168,58 +168,206 @@ describe('Declarations - Functions', () => {
     });
 
     it('should parse two function decl on top-level with same name', () => {
+      expect(parseScript(`function a() {}`, {
+          ranges: true,
+          locations: true,
+          raw: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 15,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 15
+          }
+        },
+        "body": [
+          {
+            "type": "FunctionDeclaration",
+            "start": 0,
+            "end": 15,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 15
+              }
+            },
+            "id": {
+              "type": "Identifier",
+              "start": 9,
+              "end": 10,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 9
+                },
+                "end": {
+                  "line": 1,
+                  "column": 10
+                }
+              },
+              "name": "a"
+            },
+            "generator": false,
+            "expression": false,
+            "async": false,
+            "params": [],
+            "body": {
+              "type": "BlockStatement",
+              "start": 13,
+              "end": 15,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 13
+                },
+                "end": {
+                  "line": 1,
+                  "column": 15
+                }
+              },
+              "body": []
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
+    });
+
+    it('should parse two function decl on top-level with same name', () => {
         expect(parseScript(`function a() {}
         function a() {}`, {
-            ranges: true
+            ranges: true,
+            locations: true,
+            raw: true
         })).to.eql({
-            "type": "Program",
-            "body": [
-                {
-                    "type": "FunctionDeclaration",
-                    "params": [],
-                    "body": {
-                        "type": "BlockStatement",
-                        "body": [],
-                        "start": 13,
-                        "end": 15
-                    },
-                    "async": false,
-                    "generator": false,
-                    "expression": false,
-                    "id": {
-                        "type": "Identifier",
-                        "name": "a",
-                        "start": 9,
-                        "end": 10
-                    },
-                    "start": 0,
-                    "end": 15
+          "type": "Program",
+          "start": 0,
+          "end": 39,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 2,
+              "column": 23
+            }
+          },
+          "body": [
+            {
+              "type": "FunctionDeclaration",
+              "start": 0,
+              "end": 15,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
                 },
-                {
-                    "type": "FunctionDeclaration",
-                    "params": [],
-                    "body": {
-                        "type": "BlockStatement",
-                        "body": [],
-                        "start": 37,
-                        "end": 39
-                    },
-                    "async": false,
-                    "generator": false,
-                    "expression": false,
-                    "id": {
-                        "type": "Identifier",
-                        "name": "a",
-                        "start": 33,
-                        "end": 34
-                    },
-                    "start": 24,
-                    "end": 39
+                "end": {
+                  "line": 1,
+                  "column": 15
                 }
-            ],
-            "sourceType": "script",
-            "start": 0,
-            "end": 39
+              },
+              "id": {
+                "type": "Identifier",
+                "start": 9,
+                "end": 10,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 9
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 10
+                  }
+                },
+                "name": "a"
+              },
+              "generator": false,
+              "expression": false,
+              "async": false,
+              "params": [],
+              "body": {
+                "type": "BlockStatement",
+                "start": 13,
+                "end": 15,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 13
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 15
+                  }
+                },
+                "body": []
+              }
+            },
+            {
+              "type": "FunctionDeclaration",
+              "start": 24,
+              "end": 39,
+              "loc": {
+                "start": {
+                  "line": 2,
+                  "column": 8
+                },
+                "end": {
+                  "line": 2,
+                  "column": 23
+                }
+              },
+              "id": {
+                "type": "Identifier",
+                "start": 33,
+                "end": 34,
+                "loc": {
+                  "start": {
+                    "line": 2,
+                    "column": 17
+                  },
+                  "end": {
+                    "line": 2,
+                    "column": 18
+                  }
+                },
+                "name": "a"
+              },
+              "generator": false,
+              "expression": false,
+              "async": false,
+              "params": [],
+              "body": {
+                "type": "BlockStatement",
+                "start": 37,
+                "end": 39,
+                "loc": {
+                  "start": {
+                    "line": 2,
+                    "column": 21
+                  },
+                  "end": {
+                    "line": 2,
+                    "column": 23
+                  }
+                },
+                "body": []
+              }
+            }
+          ],
+          "sourceType": "script"
         });
     });
 
@@ -228,79 +376,181 @@ describe('Declarations - Functions', () => {
             function a() {}
             function a() {}
             }`, {
-            ranges: true
+            ranges: true,
+            locations: true,
+            raw: true
         })).to.eql({
-            "type": "Program",
-            "start": 0,
-            "end": 84,
-            "body": [
-              {
-                "type": "FunctionDeclaration",
-                "start": 0,
-                "end": 84,
-                "id": {
-                  "type": "Identifier",
-                  "start": 9,
-                  "end": 10,
-                  "name": "a"
+          "type": "Program",
+          "start": 0,
+          "end": 84,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 4,
+              "column": 13
+            }
+          },
+          "body": [
+            {
+              "type": "FunctionDeclaration",
+              "start": 0,
+              "end": 84,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
                 },
-                "generator": false,
-                "expression": false,
-                "async": false,
-                "params": [],
-                "body": {
-                  "type": "BlockStatement",
-                  "start": 13,
-                  "end": 84,
-                  "body": [
-                    {
-                      "type": "FunctionDeclaration",
-                      "start": 27,
-                      "end": 42,
-                      "id": {
-                        "type": "Identifier",
-                        "start": 36,
-                        "end": 37,
-                        "name": "a"
+                "end": {
+                  "line": 4,
+                  "column": 13
+                }
+              },
+              "id": {
+                "type": "Identifier",
+                "start": 9,
+                "end": 10,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 9
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 10
+                  }
+                },
+                "name": "a"
+              },
+              "generator": false,
+              "expression": false,
+              "async": false,
+              "params": [],
+              "body": {
+                "type": "BlockStatement",
+                "start": 13,
+                "end": 84,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 13
+                  },
+                  "end": {
+                    "line": 4,
+                    "column": 13
+                  }
+                },
+                "body": [
+                  {
+                    "type": "FunctionDeclaration",
+                    "start": 27,
+                    "end": 42,
+                    "loc": {
+                      "start": {
+                        "line": 2,
+                        "column": 12
                       },
-                      "generator": false,
-                      "expression": false,
-                      "async": false,
-                      "params": [],
-                      "body": {
-                        "type": "BlockStatement",
-                        "start": 40,
-                        "end": 42,
-                        "body": []
+                      "end": {
+                        "line": 2,
+                        "column": 27
                       }
                     },
-                    {
-                      "type": "FunctionDeclaration",
-                      "start": 55,
-                      "end": 70,
-                      "id": {
-                        "type": "Identifier",
-                        "start": 64,
-                        "end": 65,
-                        "name": "a"
+                    "id": {
+                      "type": "Identifier",
+                      "start": 36,
+                      "end": 37,
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 21
+                        },
+                        "end": {
+                          "line": 2,
+                          "column": 22
+                        }
                       },
-                      "generator": false,
-                      "expression": false,
-                      "async": false,
-                      "params": [],
-                      "body": {
-                        "type": "BlockStatement",
-                        "start": 68,
-                        "end": 70,
-                        "body": []
-                      }
+                      "name": "a"
+                    },
+                    "generator": false,
+                    "expression": false,
+                    "async": false,
+                    "params": [],
+                    "body": {
+                      "type": "BlockStatement",
+                      "start": 40,
+                      "end": 42,
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 25
+                        },
+                        "end": {
+                          "line": 2,
+                          "column": 27
+                        }
+                      },
+                      "body": []
                     }
-                  ]
-                }
+                  },
+                  {
+                    "type": "FunctionDeclaration",
+                    "start": 55,
+                    "end": 70,
+                    "loc": {
+                      "start": {
+                        "line": 3,
+                        "column": 12
+                      },
+                      "end": {
+                        "line": 3,
+                        "column": 27
+                      }
+                    },
+                    "id": {
+                      "type": "Identifier",
+                      "start": 64,
+                      "end": 65,
+                      "loc": {
+                        "start": {
+                          "line": 3,
+                          "column": 21
+                        },
+                        "end": {
+                          "line": 3,
+                          "column": 22
+                        }
+                      },
+                      "name": "a"
+                    },
+                    "generator": false,
+                    "expression": false,
+                    "async": false,
+                    "params": [],
+                    "body": {
+                      "type": "BlockStatement",
+                      "start": 68,
+                      "end": 70,
+                      "loc": {
+                        "start": {
+                          "line": 3,
+                          "column": 25
+                        },
+                        "end": {
+                          "line": 3,
+                          "column": 27
+                        }
+                      },
+                      "body": []
+                    }
+                  }
+                ]
               }
-            ],
-            "sourceType": "script"
-          });
+            }
+          ],
+          "sourceType": "script"
+        });
     });
 
     it('should parse yield as function name in sloppy mode', () => {
