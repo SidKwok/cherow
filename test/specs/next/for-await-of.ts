@@ -6468,7 +6468,7 @@ describe('Next - For await of', () => {
         });
     });
 
-    it.skip('should parse object init function name arrow', () => {
+    it('should parse object init function name arrow', () => {
         expect(parseScript(`async function fn() {
             for await ({ arrow = () => {} } of [{}]) {
             }
@@ -6563,7 +6563,7 @@ describe('Next - For await of', () => {
                                                     },
                                                     "params": [],
                                                     "id": null,
-                                                    "async": true,
+                                                    "async": false,
                                                     "generator": false,
                                                     "expression": false,
                                                     "start": 55,

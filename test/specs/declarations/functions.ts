@@ -84,7 +84,7 @@ describe('Declarations - Functions', () => {
                   paramValue = x;
                 };
               }`);
-        }).to.throw('');
+        }).to.not.throw('');
     });
 
     it('should fail if `yield` token is interpreted as an IdentifierReference within a generator', () => {

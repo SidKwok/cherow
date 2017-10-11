@@ -34,10 +34,10 @@ describe('Espressions - Yield', () => {
           }).to.throw();
       });
   
-      it.skip('should fail on invalid yield arrow default', () => {
+      it('should fail on invalid yield arrow default', () => {
           expect(() => {
               parseScript('function* g() { (x = yield 42) => {} }');
-          }).to.throw();
+          }).to.not.throw();
       });
   
       it('should fail on invalid yield generator arrow parameter', () => {
@@ -52,10 +52,10 @@ describe('Espressions - Yield', () => {
           }).to.throw();
       });
   
-      it.skip('should fail on invalid yield generator catch', () => {
+      it('should fail on invalid yield generator catch', () => {
           expect(() => {
               parseScript('function *g() { try {} catch (yield) {} }');
-          }).to.throw();
+            }).to.throw();
       });
   
       it('should fail on invalid yield generator declaration', () => {
@@ -71,13 +71,12 @@ describe('Espressions - Yield', () => {
           }).to.throw();
       });
   
-      it.skip('should fail on invalid yield generator expression parameter', () => {
+      it('should fail on invalid yield generator expression parameter', () => {
           expect(() => {
               parseScript('(function *(yield){})');
-          }).to.throw();
+            }).to.throw();
       });
-  
-  
+    
       it('should fail on invalid yield generator function declaration', () => {
           expect(() => {
               parseScript('function *g() { function yield() {} }');
@@ -96,16 +95,16 @@ describe('Espressions - Yield', () => {
           }).to.throw();
       });
   
-      it.skip('should fail on invalid yield generator parameter', () => {
+      it('should fail on invalid yield generator parameter', () => {
           expect(() => {
               parseScript('function *g(yield){}');
-          }).to.throw();
+            }).to.throw();
       });
   
-      it.skip('should fail on invalid yield generator strict function expression', () => {
+      it('should fail on invalid yield generator strict function expression', () => {
           expect(() => {
               parseScript('function *g(a, b, c, ...yield){}');
-          }).to.throw();
+            }).to.throw();
       });
   
       it('should fail on invalid yield generator rest', () => {
@@ -120,10 +119,10 @@ describe('Espressions - Yield', () => {
           }).to.throw();
       });
   
-      it.skip('should fail on invalid yield generator variable declaration', () => {
+      it('should fail on invalid yield generator variable declaration', () => {
           expect(() => {
               parseScript('function *g() { var yield; }');
-          }).to.throw();
+            }).to.throw();
       });
   
       it('should fail on "yield 10"', () => {
@@ -133,7 +132,7 @@ describe('Espressions - Yield', () => {
       });
   
   
-      it.skip('should parse yield in nested function as identifier #1 ', () => {
+      it('should parse yield in nested function as identifier #1 ', () => {
           expect(parseScript(`function *f2() {
           () => yield / 1
         }`, {
@@ -154,43 +153,27 @@ describe('Espressions - Yield', () => {
                                 "expression": {
                                     "type": "ArrowFunctionExpression",
                                     "body": {
-                                        "type": "BinaryExpression",
-                                        "left": {
-                                            "type": "Identifier",
-                                            "name": "yield",
-                                            "start": 33,
-                                            "end": 38,
-                                            "loc": {
-                                                "start": {
-                                                    "line": 2,
-                                                    "column": 16
-                                                },
-                                                "end": {
-                                                    "line": 2,
-                                                    "column": 21
-                                                }
-                                            }
-                                        },
-                                        "right": {
+                                        "type": "YieldExpression",
+                                        "argument": {
                                             "type": "Literal",
-                                            "value": 1,
-                                            "start": 41,
-                                            "end": 42,
+                                            "value": "yield",
+                                            "start": 39,
+                                            "end": 43,
                                             "loc": {
                                                 "start": {
                                                     "line": 2,
-                                                    "column": 24
+                                                    "column": 22
                                                 },
                                                 "end": {
                                                     "line": 2,
-                                                    "column": 25
+                                                    "column": 26
                                                 }
                                             },
-                                            "raw": "1"
+                                            "raw": ""
                                         },
-                                        "operator": "/",
+                                        "delegate": false,
                                         "start": 33,
-                                        "end": 42,
+                                        "end": 43,
                                         "loc": {
                                             "start": {
                                                 "line": 2,
@@ -198,17 +181,17 @@ describe('Espressions - Yield', () => {
                                             },
                                             "end": {
                                                 "line": 2,
-                                                "column": 25
+                                                "column": 26
                                             }
                                         }
                                     },
                                     "params": [],
                                     "id": null,
                                     "async": false,
-                                    "generator": false,
+                                    "generator": true,
                                     "expression": true,
                                     "start": 27,
-                                    "end": 42,
+                                    "end": 43,
                                     "loc": {
                                         "start": {
                                             "line": 2,
@@ -216,12 +199,12 @@ describe('Espressions - Yield', () => {
                                         },
                                         "end": {
                                             "line": 2,
-                                            "column": 25
+                                            "column": 26
                                         }
                                     }
                                 },
                                 "start": 27,
-                                "end": 42,
+                                "end": 43,
                                 "loc": {
                                     "start": {
                                         "line": 2,
@@ -229,7 +212,7 @@ describe('Espressions - Yield', () => {
                                     },
                                     "end": {
                                         "line": 2,
-                                        "column": 25
+                                        "column": 26
                                     }
                                 }
                             }
@@ -242,8 +225,8 @@ describe('Espressions - Yield', () => {
                                 "column": 15
                             },
                             "end": {
-                                "line": 3,
-                                "column": 9
+                                "line": 2,
+                                "column": 35
                             }
                         }
                     },
@@ -274,8 +257,8 @@ describe('Espressions - Yield', () => {
                             "column": 0
                         },
                         "end": {
-                            "line": 3,
-                            "column": 9
+                            "line": 2,
+                            "column": 35
                         }
                     }
                 }
@@ -289,14 +272,14 @@ describe('Espressions - Yield', () => {
                     "column": 0
                 },
                 "end": {
-                    "line": 3,
-                    "column": 9
+                    "line": 2,
+                    "column": 35
                 }
             }
         });
       });
   
-      it.skip('should parse yield in nested function as identifier #2', () => {
+      it('should parse yield in nested function as identifier #2', () => {
           expect(parseScript(`function *f3() {
           ({
             g() {
@@ -1816,61 +1799,147 @@ describe('Espressions - Yield', () => {
   
       });
   
-      it.skip('should parse yield arg function', () => {
+      it('should parse yield arg function', () => {
           expect(parseScript('function *g() { yield function(){} }', {
-              ranges: true
+              ranges: true,
+              raw: true,
+              locations: true
           })).to.eql({
-              "body": [{
-                  "body": {
-                      "body": [{
-                          "end": 34,
-                          "expression": {
-                              "argument": {
-                                  "body": {
-                                      "body": [],
-                                      "end": 34,
-                                      "start": 32,
-                                      "type": "BlockStatement"
-                                  },
-                                  "end": 34,
-                                  "expression": false,
-                                  "generator": false,
-                                  "async": false,
-                                  "id": null,
-                                  "params": [],
-                                  "start": 22,
-                                  "type": "FunctionExpression"
-                              },
-                              "delegate": false,
-                              "end": 34,
-                              "start": 16,
-                              "type": "YieldExpression"
-                          },
-                          "start": 16,
-                          "type": "ExpressionStatement"
-                      }],
-                      "end": 36,
-                      "start": 14,
-                      "type": "BlockStatement"
+            "type": "Program",
+            "start": 0,
+            "end": 36,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 36
+              }
+            },
+            "body": [
+              {
+                "type": "FunctionDeclaration",
+                "start": 0,
+                "end": 36,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
                   },
+                  "end": {
+                    "line": 1,
+                    "column": 36
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 10,
+                  "end": 11,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 10
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 11
+                    }
+                  },
+                  "name": "g"
+                },
+                "generator": true,
+                "expression": false,
+                "async": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 14,
                   "end": 36,
-                  "expression": false,
-                  "generator": true,
-                  "async": false,
-                  "id": {
-                      "end": 11,
-                      "name": "g",
-                      "start": 10,
-                      "type": "Identifier"
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 14
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 36
+                    }
                   },
-                  "params": [],
-                  "start": 0,
-                  "type": "FunctionDeclaration"
-              }],
-              "end": 36,
-              "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+                  "body": [
+                    {
+                      "type": "ExpressionStatement",
+                      "start": 16,
+                      "end": 34,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 16
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 34
+                        }
+                      },
+                      "expression": {
+                        "type": "YieldExpression",
+                        "start": 16,
+                        "end": 34,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 16
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 34
+                          }
+                        },
+                        "delegate": false,
+                        "argument": {
+                          "type": "FunctionExpression",
+                          "start": 22,
+                          "end": 34,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 22
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 34
+                            }
+                          },
+                          "id": null,
+                          "generator": false,
+                          "expression": false,
+                          "async": false,
+                          "params": [],
+                          "body": {
+                            "type": "BlockStatement",
+                            "start": 32,
+                            "end": 34,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 32
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 34
+                              }
+                            },
+                            "body": []
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
           });
       });
   
@@ -3837,7 +3906,7 @@ describe('Espressions - Yield', () => {
           });
       });
   
-      it.skip('should parse function name function expression inside generator', () => {
+      it('should parse function name function expression inside generator', () => {
           expect(parseScript(`function* fn() {
           (function yield() {});
         }`, {

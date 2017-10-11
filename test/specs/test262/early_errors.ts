@@ -5,10 +5,10 @@ const expect = chai.expect;
 
 describe('Test262 - Early error', () => {
 
-        it.skip('should fail on "export default function(a){ let a; }"', () => {
+        it('should fail on "export default function(a){ let a; }"', () => {
             expect(() => {
                 parseModule('export default function(a){ let a; }');
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on "({ a(eval) { "use strict"; } });"', () => {
             expect(() => {
@@ -120,7 +120,7 @@ describe('Test262 - Early error', () => {
                 parseScript('function* a(){ ({ *b(c = d + e(yield)){} }); }');
             }).to.not.throw();
         });
-        it.skip('should fail on "export default function(a){ const a = 1; }"', () => {
+        it('should fail on "export default function(a){ const a = 1; }"', () => {
             expect(() => {
                 parseModule('export default function(a){ const a = 1; }');
             }).to.throw();

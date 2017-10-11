@@ -10,7 +10,7 @@ describe('Next - Object rest spread', () => {
             }).to.throw('');
         });
     
-        it.skip('should fail on duplicates', () => {
+        it('should fail on duplicates', () => {
             expect(() => {
                 parseModule(`export const foo = 1;
                 export const [bar, [{ baz, ...foo }]] = qux;`, {
@@ -680,7 +680,7 @@ describe('Next - Object rest spread', () => {
             });
         });
     
-        it.skip('should parse "x < y"', () => {
+        it('should parse "x < y"', () => {
             expect(parseModule('export const [bar, { baz, ...foo }] = qux;', {
                 next: true
             })).to.eql({

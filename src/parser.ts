@@ -2833,6 +2833,7 @@ export class Parser {
         const token = this.token;
 
         if (this.token === Token.Multiply) {
+            
             // Annex B.3.4 doesn't allow generators functions
             if (context & Context.AnnexB) this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
             // If we are in the 'await' context. Check if the 'Next' option are set
@@ -3560,6 +3561,9 @@ export class Parser {
     // 14.6 Async Function Definitions
     private parseFunctionExpression(context: Context, pos: Location) {
         const savedContext = context;
+        
+        if (context & Context.Yield) context &= ~Context.Yield;
+
         this.expect(context, Token.FunctionKeyword);
 
         if (this.token === Token.Multiply) {
